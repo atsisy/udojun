@@ -17,9 +17,9 @@ void SceneMaster::update_count()
         t++;
 }
 
-RaceSceneMaster::RaceSceneMaster(std::string running_char_image_path)
-        : running_char(CharacterAttribute("stick man"), running_char_image_path, sf::Vector2f(100, 100)),
-          backgroundTile(GameMaster::texture_table[BULLET_HART], sf::Vector2f(800, 0)),
+RaceSceneMaster::RaceSceneMaster()
+        : running_char(CharacterAttribute("stick man"), GameMaster::texture_table[STICK_MAN], sf::Vector2f(100, 100)),
+          backgroundTile(GameMaster::texture_table[TILE_HART], sf::Vector2f(800, 0)),
           score_counter(0)
 {}
 

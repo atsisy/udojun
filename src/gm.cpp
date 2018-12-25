@@ -1,6 +1,8 @@
 #include <iostream>
+#include <fstream>
 #include "gm.hpp"
 #include "character.hpp"
+#include "picojson.h"
 
 TextureTable GameMaster::texture_table;
 
@@ -11,16 +13,36 @@ GameMaster::GameMaster()
         current_scene = nullptr;
 }
 
-void GameMaster::load_textures()
+void GameMaster::load_textures(const char *json_path)
 {
+        std::ifstream ifs(json_path, std::ios::in);
         sf::Texture *t;
 
-        t = new sf::Texture;
-        if(!t->loadFromFile("bullet_hart.png")){
-                exit(0);
+        if (ifs.fail()) {
+                std::cerr << "failed to read json file" << std::endl;
+                exit(1);
         }
-        t->setSmooth(true);
-        texture_table.emplace(BULLET_HART, t);
+
+        const std::string json((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+        ifs.close();
+
+        picojson::value v;
+        const std::string err = picojson::parse(v, json);
+        if (err.empty() == false) {
+                std::cerr << err << std::endl;
+                exit(1);
+        }
+
+        picojson::object& obj = v.get<picojson::object>();
+
+        for(const auto &[key, val] : obj){
+                t = new sf::Texture;
+                if(!t->loadFromFile(val.to_str())){
+                        exit(0);
+                }
+                t->setSmooth(true);
+                texture_table.emplace(str_to_txid(key.c_str()), t);
+        }
 }
 
 void GameMaster::init()
@@ -28,9 +50,9 @@ void GameMaster::init()
         window.setVerticalSyncEnabled(true);
         current_state = RACE;
 
-        load_textures();
+        load_textures("textures.json");
 
-        race_scene_master = new RaceSceneMaster("stick_man.png");
+        race_scene_master = new RaceSceneMaster();
 }
 
 void GameMaster::switch_scene()

@@ -21,7 +21,7 @@ private:
         CharacterAttribute char_info;
 
 public:
-        DrawableCharacter(CharacterAttribute attribute, std::string file_path, sf::Vector2f p);
+        DrawableCharacter(CharacterAttribute attribute, sf::Texture *t, sf::Vector2f p);
 
         void draw(sf::RenderWindow &window);
         

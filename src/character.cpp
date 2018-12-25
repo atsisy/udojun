@@ -7,8 +7,8 @@ CharacterAttribute::CharacterAttribute(std::string name)
         this->name = name;
 }
 
-DrawableCharacter::DrawableCharacter(CharacterAttribute attribute, std::string file_path, sf::Vector2f p)
-        : DrawableObject(GameMaster::texture_table[BULLET_HART], p), Conflictable(true), char_info(attribute)
+DrawableCharacter::DrawableCharacter(CharacterAttribute attribute, sf::Texture *t, sf::Vector2f p)
+        : DrawableObject(t, p), Conflictable(true), char_info(attribute)
 {
         set_rect(sprite.getTextureRect());
 }

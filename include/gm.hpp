@@ -33,7 +33,7 @@ private:
         std::vector<Bullet *> bullets;
 
 public:
-        RaceSceneMaster(std::string running_char_image_path);
+        RaceSceneMaster();
         void pre_process(sf::RenderWindow &window) override;
         void drawing_process(sf::RenderWindow &window) override;
         GameState post_process(sf::RenderWindow &window) override;
@@ -56,5 +56,5 @@ public:
         void init();
         void main_loop();
         void switch_scene();
-        void load_textures();
+        void load_textures(const char *json_path);
 };
