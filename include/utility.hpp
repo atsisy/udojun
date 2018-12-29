@@ -36,3 +36,5 @@ namespace util {
                 }
         };
 }
+
+#define enum_to_str(var) #var

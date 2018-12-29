@@ -27,4 +27,6 @@ public:
         
         void move_diff(sf::Vector2f diff);
         void jump_to(sf::Vector2f p);
+
+        void change_textures(sf::Texture *t);
 };

@@ -5,6 +5,7 @@
 #include "character.hpp"
 #include "game_component.hpp"
 #include "textures.hpp"
+#include "move_func.hpp"
 
 enum GameState {
         START = 0,
@@ -31,9 +32,17 @@ private:
         BackgroundTile backgroundTile;
         DrawableScoreCounter score_counter;
         std::vector<Bullet *> bullets;
+        std::vector<BulletData *> bullets_sched;
+        Meter stamina;
+        Meter junko_param;
+        Label stamina_label;
+        Label junko_param_label;
+        WindowFrame window_frame;
 
 public:
         RaceSceneMaster();
+
+        void player_move();
         void pre_process(sf::RenderWindow &window) override;
         void drawing_process(sf::RenderWindow &window) override;
         GameState post_process(sf::RenderWindow &window) override;

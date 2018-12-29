@@ -58,12 +58,52 @@ private:
         u8 font_size;
         
 public:
+        Label(const wchar_t *str);
         Label(const char *str);
 
         void set_place(i16 x, i16 y);
         void set_color(sf::Color color);
         void set_font_size(u8 size);
         void set_text(const char *text);
+        
+        void draw(sf::RenderWindow &window) override;
+};
+
+class WindowFrame : public DrawableComponent {
+private:
+        std::vector<sf::RectangleShape> frames;
+
+public:
+        WindowFrame(sf::IntRect window_rect, sf::IntRect hole);
+        void draw(sf::RenderWindow &window) override;
+};
+
+class Meter : public DrawableComponent {
+private:
+        sf::Vector2f place;
+        float value;
+        float max_value;
+        sf::RectangleShape outer;
+        sf::RectangleShape inner;
+        sf::RectangleShape inner_shadow;
+        sf::Vector2f default_inner_size;
+        sf::Vector2f frame_width;
+        sf::Color inner_color;
+        sf::Color outer_color;
+        sf::Color inner_shadow_color;
+        
+public:
+        Meter(sf::Vector2f size, sf::Vector2f frame_width, float initial, float max_val,
+              sf::Color outer_color, sf::Color inner_color, sf::Color inner_shadow_color);
+
+        void set_place(i16 x, i16 y);
+        sf::Vector2f get_place();
+        sf::Vector2f get_size();
+        void set_inner_color(sf::Color color);
+        void set_outer_color(sf::Color color);
+        void set_inner_shadow_color(sf::Color color);
+        void add(float d);
+        void set_value(float val);
         
         void draw(sf::RenderWindow &window) override;
 };
@@ -89,6 +129,10 @@ protected:
         DrawableObject(sf::Texture *t, sf::Vector2f p);
 
         void set_place(sf::Vector2f &&np);
+
+public:
+        sf::Vector2f get_origin();
+
 };
 
 class BackgroundTile : public DrawableObject {
@@ -97,41 +141,44 @@ private:
 public:
         BackgroundTile(sf::Texture *t, sf::Vector2f p);
         void draw(sf::RenderWindow &window) override;
+        void scroll(i32 speed);
 };
 
 class MoveObject : public DrawableObject {
 protected:
         u64 begin_count;
-        std::function<sf::Vector2f(sf::Vector2f &, u64)> move_func;
+        std::function<sf::Vector2f(sf::Vector2f &, u64, u64)> move_func;
         
 public:
         MoveObject(sf::Texture *t, sf::Vector2f p,
-                   std::function<sf::Vector2f(sf::Vector2f &, u64)> f, u64 begin_count);
+                   std::function<sf::Vector2f(sf::Vector2f &, u64, u64)> f, u64 begin_count);
         void move(u64 count);
         void draw(sf::RenderWindow &window) override;
 };
 
 class Conflictable {
 protected:
-        sf::IntRect rect;
+        sf::Vector2f center;
+        float r;
         bool enable;
         
 public:
-        Conflictable(sf::IntRect &rect, bool default_on);
+        Conflictable(sf::Vector2f &p, bool default_on);
         Conflictable(bool default_on);
         
         void conflict_on();
         void conflict_off();
         bool check_conflict(Conflictable &obj);
-        void set_rect(sf::IntRect rect);
-        void update_left_top(sf::Vector2f p);
+        void update_center(sf::Vector2f p);
+        void move_center(sf::Vector2f d);
+        void set_radius(float r);
 };
 
 class Bullet : public MoveObject, public Conflictable {
         
 public:
         Bullet(sf::Texture *t, sf::Vector2f p,
-               std::function<sf::Vector2f(sf::Vector2f &, u64)> f, u64 begin_count);
+               std::function<sf::Vector2f(sf::Vector2f &, u64, u64)> f, u64 begin_count);
         bool is_finish(sf::IntRect window_rect);
         void move(u64 count);
 };
