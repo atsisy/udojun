@@ -8,6 +8,7 @@ set(udjn_src
   src/component.cpp
   src/move_func.cpp
   src/macro.cpp
+  src/programable.cpp
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

@@ -2,10 +2,13 @@
 
 #include <SFML/Graphics.hpp>
 #include <chrono>
+#include <queue>
+#include <vector>
 #include "character.hpp"
 #include "game_component.hpp"
 #include "textures.hpp"
 #include "move_func.hpp"
+#include "programable.hpp"
 
 enum GameState {
         START = 0,
@@ -26,13 +29,19 @@ public:
         void update_count();
 };
 
+constexpr auto c = [](const BulletData *d1, const BulletData *d2){
+                 return d1->appear_time > d2->appear_time;
+         };
+        
+
 class RaceSceneMaster : public SceneMaster {
 private:
         DrawableCharacter running_char;
         BackgroundTile backgroundTile;
         DrawableScoreCounter score_counter;
         std::vector<Bullet *> bullets;
-        std::vector<BulletData *> bullets_sched;
+        BulletFuncTable func_table;
+        std::priority_queue<BulletData *, std::vector<BulletData *>, decltype(c)> bullets_sched;
         Meter stamina;
         Meter junko_param;
         Label stamina_label;

@@ -2,8 +2,11 @@
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <functional>
 #include "utility.hpp"
+#include "character.hpp"
 #include "picojson.h"
+#include "game_component.hpp"
 
 #define DEF_MOVE_FUNC(name, ...) std::function<sf::Vector2f(sf::Vector2f&, u64, u64)> \
         name(__VA_ARGS__);
@@ -58,18 +61,20 @@ public:
         BulletFunctionID id;
         std::function<sf::Vector2f(sf::Vector2f&, u64, u64)> func;
         u64 appear_time;
+        u64 offset;
         u64 flags;
         sf::Vector2f appear_point;
         picojson::object original_data;
 
         BulletData(picojson::object &json_data);
         BulletData(picojson::object &json_data, u64 flg);
+        
         BulletData(BulletFunctionID id, std::function<sf::Vector2f(sf::Vector2f&, u64, u64)> f,
                    u64 time, sf::Vector2f appear_point)
         {
                 this->id = id;
                 this->func = f;
-                this->appear_time = time;
+                this->offset = time;
                 this->appear_point = appear_point;
                 this->flags = 0;
         }
@@ -78,6 +83,8 @@ public:
         {}
 
         Bullet *generate(DrawableCharacter &running_char, u64 count);
+
+        void set_appear_time(u64 current);
 };
 
 inline std::function<sf::Vector2f(sf::Vector2f&, u64, u64)>

@@ -5,7 +5,6 @@
 #include "utility.hpp"
 #include "move_func.hpp"
 #include "picojson.h"
-#include "macro.hpp"
 #include <fstream>
 
 SceneMaster::SceneMaster()
@@ -24,9 +23,11 @@ void SceneMaster::update_count()
 }
 
 RaceSceneMaster::RaceSceneMaster()
-        : running_char(CharacterAttribute("stick man"), GameMaster::texture_table[UDON1], sf::Vector2f(100, 100)),
+        : running_char(CharacterAttribute("stick man"), GameMaster::texture_table[UDON1], sf::Vector2f(400, 200)),
           backgroundTile(GameMaster::texture_table[MOON_CITY_TILE], sf::Vector2f(32, 32)),
           score_counter(0),
+          func_table("main.json"),
+          bullets_sched(c),
           stamina(sf::Vector2f(300, 20), sf::Vector2f(2, 2), 400, 400,
                   sf::Color(10, 10, 20), sf::Color::Green, sf::Color(20, 100, 20)),
           junko_param(sf::Vector2f(300, 20), sf::Vector2f(2, 2), 0, 400,
@@ -35,44 +36,6 @@ RaceSceneMaster::RaceSceneMaster()
           junko_param_label(L"純化度"),
           window_frame(sf::IntRect(0, 0, 1366, 768), sf::IntRect(32, 32, 960, 704))
 {
-        std::ifstream ifs("bullets_sched.json", std::ios::in);
-
-        if (ifs.fail()) {
-                std::cerr << "failed to read json file" << std::endl;
-                exit(1);
-        }
-
-        const std::string json((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-        ifs.close();
-        
-        picojson::value v;
-        const std::string err = picojson::parse(v, json);
-        if (err.empty() == false) {
-                std::cerr << err << std::endl;
-                exit(1);
-        }
-
-        picojson::array& array = v.get<picojson::object>()["schedule"].get<picojson::array>();
-
-        for(auto &array_element : array){
-                picojson::object &data = array_element.get<picojson::object>();
-                if(data["type"].get<std::string>() == "macro"){
-                        auto &&gen = macro::expand_macro(data);        stamina.set_place(1000, 40);
-                        std::copy(std::begin(gen), std::end(gen), std::back_inserter(bullets_sched));
-                }else if(data["type"].get<std::string>() == "dynamic-macro"){
-                        bullets_sched.push_back(new BulletData(data, DYNAMIC_MACRO));
-                }else if(data["type"].get<std::string>() == "dynamic-unit"){
-                        bullets_sched.push_back(new BulletData(data, AIMING_SELF));
-                }else{
-                        bullets_sched.push_back(new BulletData(data));
-                }
-        }
-        
-        std::sort(std::begin(bullets_sched), std::end(bullets_sched),
-                  [](const BulletData *b1, const BulletData *b2){
-                          return b1->appear_time < b2->appear_time;
-                  });
-
         stamina_label.set_place(1010, 10);
         stamina.set_place(1010, 40);
         junko_param_label.set_place(1010, 70);
@@ -123,19 +86,32 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
         static util::xor128 rand;
         static  int i;
 
-        for(; i < bullets_sched.size();i++){
-                if(bullets_sched.at(i)->appear_time <= get_count()){
-                        if(bullets_sched.at(i)->flags & DYNAMIC_MACRO){
-                                auto &&gen = macro::expand_dynamic_macro(bullets_sched.at(i)->original_data, running_char);
+        while(func_table.get_func_sched().size() > i){   
+                if(func_table.get_func_sched().at(i).time <= get_count()){
+                        FunctionCallEssential f_essential = func_table.get_func_sched().at(i++);
+                        std::vector<BulletData *> *v = func_table.call_function(f_essential.func_name);
+                        std::for_each(std::begin(*v), std::end(*v),
+                                      [this](BulletData *d){
+                                              d->set_appear_time(get_count()); bullets_sched.push(new BulletData(*d)); });
+                }else{
+                        break;
+                }
+        }
+
+        while(bullets_sched.size()){
+                if(bullets_sched.top()->appear_time <= get_count()){
+                        BulletData *target = bullets_sched.top();
+                        bullets_sched.pop();
+                        if(target->flags & DYNAMIC_MACRO){
+                                auto &&gen = macro::expand_dynamic_macro(target->original_data, running_char);
                                 for(auto &elem : gen){
                                         bullets.push_back(
                                                 elem->generate(running_char, get_count()));
                                 }
                         }else{
                                 bullets.push_back(
-                                        bullets_sched.at(i)->generate(running_char, get_count()));
+                                        target->generate(running_char, get_count()));
                         }
-                        
                 }else{
                         break;
                 }

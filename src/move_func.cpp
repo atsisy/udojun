@@ -68,7 +68,7 @@ BulletData::BulletData(picojson::object &json_data)
 {
         this->id = str_to_bfid(original_data["ID"].get<std::string>().c_str());
         this->func = select_bullet_function(this->id, original_data);
-        this->appear_time = original_data["time"].get<double>();
+        this->offset = original_data["time"].get<double>();
         this->flags = 0;
 
         if(original_data.find("x") != std::end(original_data) && original_data.find("y") != std::end(original_data)){
@@ -93,11 +93,10 @@ BulletData::BulletData(picojson::object &json_data)
         }
 }
 
-
 BulletData::BulletData(picojson::object &json_data, u64 flg)
         : original_data(json_data)
 {
-        this->appear_time = original_data["time"].get<double>();
+        this->offset = original_data["time"].get<double>();
         this->flags = flg;
 
         if(original_data.find("extra") != std::end(original_data)){
@@ -136,4 +135,9 @@ Bullet *BulletData::generate(DrawableCharacter &running_char, u64 count)
                 GameMaster::texture_table[BULLET_HART],
                 p,
                 func, count);
+}
+
+void BulletData::set_appear_time(u64 current)
+{
+        this->appear_time = current + this->offset;
 }
