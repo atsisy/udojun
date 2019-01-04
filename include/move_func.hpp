@@ -14,7 +14,6 @@
 namespace mf {
         
         sf::Vector2f stop(sf::Vector2f &p, u64 now, u64 begin);
-        
         DEF_MOVE_FUNC(sin, float bias, float dx);
         DEF_MOVE_FUNC(cos, float bias, float dx);
         DEF_MOVE_FUNC(linear, float bias, float dx, float c);
@@ -103,3 +102,5 @@ select_bullet_function(BulletFunctionID id, picojson::object &data)
                 return mf::stop;
         }
 }
+
+#define TAKE_DEFAULT_ARG(obj, key, type, val) (obj.find(key) == std::end(obj) ? val : obj[(key)].get<type>())

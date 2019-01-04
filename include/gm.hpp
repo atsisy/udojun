@@ -9,6 +9,7 @@
 #include "textures.hpp"
 #include "move_func.hpp"
 #include "programable.hpp"
+#include "sched.hpp"
 
 enum GameState {
         START = 0,
@@ -29,23 +30,20 @@ public:
         void update_count();
 };
 
-constexpr auto c = [](const BulletData *d1, const BulletData *d2){
-                 return d1->appear_time > d2->appear_time;
-         };
-        
-
 class RaceSceneMaster : public SceneMaster {
 private:
-        DrawableCharacter running_char;
+        PlayerCharacter running_char;
         BackgroundTile backgroundTile;
+        BackgroundTile game_background;
         DrawableScoreCounter score_counter;
         std::vector<Bullet *> bullets;
         BulletFuncTable func_table;
-        std::priority_queue<BulletData *, std::vector<BulletData *>, decltype(c)> bullets_sched;
+        BulletScheduler bullets_sched;
         Meter stamina;
         Meter junko_param;
         Label stamina_label;
         Label junko_param_label;
+        Label rec_label;
         WindowFrame window_frame;
 
 public:

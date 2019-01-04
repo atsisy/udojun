@@ -9,6 +9,9 @@ set(udjn_src
   src/move_func.cpp
   src/macro.cpp
   src/programable.cpp
+  src/textures.cpp
+  src/laser.cpp
+  src/sched.cpp
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

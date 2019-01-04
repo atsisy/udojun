@@ -23,15 +23,18 @@ bool DrawableComponent::visible()
 }
 
 Label::Label(const wchar_t *str)
-        : place(0, 0), color(sf::Color::White)
-{      
-        if(!this->font.loadFromFile("/home/takai/.fonts/NotoSansCJKjp-Medium.otf")){
+        : place(0, 0), color(sf::Color(0xa2, 0x93, 0xbd))
+{
+        if(!this->font.loadFromFile("/home/takai/.fonts/azuki.ttf")){
                 std::cout << "failed to load font" << std::endl;
         }
         text.setFont(this->font);
         text.setString(str);
         text.setFillColor(color);
-        set_font_size(25);
+        set_font_size(26);
+        text.setOutlineColor(sf::Color(0,0,0,255));
+        text.setOutlineThickness(2);
+        text.setStyle(sf::Text::Bold);
 }
 
 Label::Label(const char *str)
@@ -191,17 +194,38 @@ void DrawableScoreCounter::draw(sf::RenderWindow &window)
         label.draw(window);
 }
 
-DrawableObject::DrawableObject(sf::Texture *t, sf::Vector2f p)
+DrawableObject::DrawableObject(sf::Texture *t, sf::Vector2f p, sf::Vector2f texture_scale)
         : texture(*t), place(p)
 {
         sprite.setTexture(texture);
         sprite.setPosition(place);
+        sprite.setScale(texture_scale);
+}
+
+void DrawableObject::rotate(float rad)
+{
+        sprite.rotate(rad);
 }
 
 void DrawableObject::set_place(sf::Vector2f &&np)
 {
         this->place = np;
         sprite.setPosition(this->place);
+}
+
+void DrawableObject::set_scale(sf::Vector2f scale)
+{
+        sprite.setScale(scale);
+}
+
+void DrawableObject::set_color(sf::Color color)
+{
+        sprite.setColor(color);
+}
+
+void DrawableObject::set_scale(float x, float y)
+{
+        sprite.setScale(x, y);
 }
 
 sf::Vector2f DrawableObject::get_origin()
@@ -212,11 +236,23 @@ sf::Vector2f DrawableObject::get_origin()
                 );
 }
 
-BackgroundTile::BackgroundTile(sf::Texture *t, sf::Vector2f p)
-        : DrawableObject(t, p)
+void DrawableObject::draw(sf::RenderWindow &window)
+{
+        window.draw(sprite);
+}
+
+sf::Vector2f DrawableObject::displaying_size()
+{
+        sf::Vector2f scale = sprite.getScale();
+        sf::Vector2u size = texture.getSize();
+        return sf::Vector2f((float)size.x * scale.x, (float)size.y * scale.y);
+}
+
+BackgroundTile::BackgroundTile(sf::Texture *t, sf::Vector2f p, sf::IntRect sprite_rect, sf::Vector2f texture_scale)
+        : DrawableObject(t, p, texture_scale)
 {
         texture.setRepeated(true);
-        sprite.setTextureRect(sf::IntRect(0, 0, 960, 736));
+        sprite.setTextureRect(sprite_rect);
 }
 
 void BackgroundTile::draw(sf::RenderWindow &window)
@@ -278,8 +314,6 @@ bool Conflictable::check_conflict(Conflictable &obj)
         if(!this->enable || !obj.enable)
                 return false;
 
-
-
         return (std::pow(obj.center.x - this->center.x, 2) + std::pow(obj.center.y - this->center.y, 2)) <
                 std::pow(obj.r + this->r, 2);
 }
@@ -305,7 +339,7 @@ Bullet::Bullet(sf::Texture *t, sf::Vector2f p,
         : MoveObject(t, p, f, begin_count), Conflictable(true)
 {
         update_center(sf::Vector2f(place.x + (texture.getSize().x / 2), place.y + (texture.getSize().y / 2)));
-        set_radius(16);
+        set_radius(14);
 }
 
 bool Bullet::is_finish(sf::IntRect window_rect)
@@ -318,3 +352,4 @@ void Bullet::move(u64 count)
         MoveObject::move(count);
         update_center(sf::Vector2f(place.x + (texture.getSize().x / 2), place.y + (texture.getSize().y / 2)));
 }
+

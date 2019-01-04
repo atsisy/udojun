@@ -11,6 +11,8 @@ private:
         
 public:
         DrawableComponent();
+        virtual ~DrawableComponent(){}
+        
         virtual void draw(sf::RenderWindow &window) = 0;
 
         bool visible();
@@ -126,20 +128,23 @@ protected:
         sf::Sprite sprite;
         sf::Vector2f place;
 
-        DrawableObject(sf::Texture *t, sf::Vector2f p);
-
         void set_place(sf::Vector2f &&np);
-
 public:
+        DrawableObject(sf::Texture *t, sf::Vector2f p, sf::Vector2f texture_scale = sf::Vector2f(1.0, 1.0));
+        void draw(sf::RenderWindow &window) override;
         sf::Vector2f get_origin();
-
+        void set_scale(sf::Vector2f scale);
+        void set_scale(float x, float y);
+        void set_color(sf::Color color);
+        sf::Vector2f displaying_size();
+        void rotate(float rad);
 };
 
 class BackgroundTile : public DrawableObject {
 private:
 
 public:
-        BackgroundTile(sf::Texture *t, sf::Vector2f p);
+        BackgroundTile(sf::Texture *t, sf::Vector2f p, sf::IntRect sprite_rect, sf::Vector2f texture_scale);
         void draw(sf::RenderWindow &window) override;
         void scroll(i32 speed);
 };
