@@ -99,8 +99,11 @@ public:
               sf::Color outer_color, sf::Color inner_color, sf::Color inner_shadow_color);
 
         void set_place(i16 x, i16 y);
+
         sf::Vector2f get_place();
         sf::Vector2f get_size();
+        float get_value();
+
         void set_inner_color(sf::Color color);
         void set_outer_color(sf::Color color);
         void set_inner_shadow_color(sf::Color color);

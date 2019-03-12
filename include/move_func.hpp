@@ -54,8 +54,9 @@ constexpr u64 BEGIN_AT_RUNNING_CHARACTER_X = 0x01;
 constexpr u64 BEGIN_AT_RUNNING_CHARACTER_Y = 0x02;
 constexpr u64 DYNAMIC_MACRO = 0x04;
 constexpr u64 AIMING_SELF = 0x08;
+constexpr u64 LASER_BULLET = 0x10;
 
-class BulletData {        
+class BulletData {
 public:
         BulletFunctionID id;
         std::function<sf::Vector2f(sf::Vector2f&, u64, u64)> func;
@@ -84,6 +85,16 @@ public:
         Bullet *generate(DrawableCharacter &running_char, u64 count);
 
         void set_appear_time(u64 current);
+};
+
+class BulletGenerator {
+
+private:
+        static std::vector<Bullet *> generate_laser(BulletData *data, DrawableCharacter &running_char, u64 count);
+        static std::vector<Bullet *> generate_bullet(BulletData *data, DrawableCharacter &running_char, u64 count);
+        
+public:
+        static std::vector<Bullet *> generate(BulletData *data, DrawableCharacter &running_char, u64 count);
 };
 
 inline std::function<sf::Vector2f(sf::Vector2f&, u64, u64)>

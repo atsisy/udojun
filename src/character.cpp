@@ -10,7 +10,7 @@ CharacterAttribute::CharacterAttribute(std::string name)
 DrawableCharacter::DrawableCharacter(CharacterAttribute attribute, sf::Texture *t, sf::Vector2f p)
         : DrawableObject(t, p), Conflictable(true), char_info(attribute)
 {
-        set_radius(10);
+        set_radius(9);
         sprite.setScale(0.80, 0.75);
         update_center(sf::Vector2f(
                               place.x + ((texture.getSize().x * sprite.getScale().x) / 2),

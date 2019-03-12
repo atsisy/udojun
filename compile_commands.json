@@ -1,17 +1,17 @@
 [
 {
   "directory": "/home/takai/Dropbox/programs/sfml_test/build",
-  "command": "/usr/bin/c++       -Wall -std=c++14 -I/home/takai/Dropbox/programs/sfml_test/include -o CMakeFiles/udjn_race.dir/src/main.o -c /home/takai/Dropbox/programs/sfml_test/src/main.cpp",
+  "command": "/usr/bin/c++       -Wall -std=c++17 -I/home/takai/Dropbox/programs/sfml_test/include -o CMakeFiles/udjn_race.dir/src/main.o -c /home/takai/Dropbox/programs/sfml_test/src/main.cpp",
   "file": "/home/takai/Dropbox/programs/sfml_test/src/main.cpp"
 },
 {
   "directory": "/home/takai/Dropbox/programs/sfml_test/build",
-  "command": "/usr/bin/c++       -Wall -std=c++14 -I/home/takai/Dropbox/programs/sfml_test/include -o CMakeFiles/udjn_race.dir/src/character.o -c /home/takai/Dropbox/programs/sfml_test/src/character.cpp",
+  "command": "/usr/bin/c++       -Wall -std=c++17 -I/home/takai/Dropbox/programs/sfml_test/include -o CMakeFiles/udjn_race.dir/src/character.o -c /home/takai/Dropbox/programs/sfml_test/src/character.cpp",
   "file": "/home/takai/Dropbox/programs/sfml_test/src/character.cpp"
 },
 {
   "directory": "/home/takai/Dropbox/programs/sfml_test/build",
-  "command": "/usr/bin/c++       -Wall -std=c++14 -I/home/takai/Dropbox/programs/sfml_test/include -o CMakeFiles/udjn_race.dir/src/gm.o -c /home/takai/Dropbox/programs/sfml_test/src/gm.cpp",
+  "command": "/usr/bin/c++       -Wall -std=c++17 -I/home/takai/Dropbox/programs/sfml_test/include -o CMakeFiles/udjn_race.dir/src/gm.o -c /home/takai/Dropbox/programs/sfml_test/src/gm.cpp",
   "file": "/home/takai/Dropbox/programs/sfml_test/src/gm.cpp"
 }
 ]

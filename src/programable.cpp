@@ -35,15 +35,52 @@ BulletFuncTable::BulletFuncTable(std::string main_file)
 
         for(auto &array_element : sched_array){
                 picojson::object &data = array_element.get<picojson::object>();
-                func_sched.emplace_back(
-                        data["function"].get<std::string>(),
-                        data["time"].get<double>());
+                auto &&parsed = highlevel_controll_statement(data);
+                util::concat_container<std::vector<FunctionCallEssential>>(func_sched, parsed);
         }
         
         std::sort(std::begin(func_sched), std::end(func_sched),
                   [](const FunctionCallEssential &fce1, const FunctionCallEssential &fce2){
                           return fce1.time < fce2.time;
                   });
+}
+
+std::vector<FunctionCallEssential>
+BulletFuncTable::parse_builtin_for(picojson::object &obj)
+{
+        std::vector<FunctionCallEssential> ret;
+
+        u64 dist_count = obj["distance"].get<double>();
+        u64 count = obj["time"].get<double>();
+        u64 times = obj["times"].get<double>();
+        std::string call = obj["call"].get<std::string>();
+
+        while(times--){
+                ret.emplace_back(
+                        call,
+                        count
+                        );
+                count += dist_count;
+        }
+
+        return ret;
+}
+
+std::vector<FunctionCallEssential>
+BulletFuncTable::highlevel_controll_statement(picojson::object &obj)
+{
+        std::string func_name = obj["function"].get<std::string>();
+
+        if(func_name == "builtin-for"){
+                return parse_builtin_for(obj);
+        }else{
+                return std::vector<FunctionCallEssential>{
+                        FunctionCallEssential(
+                                func_name,
+                                obj["time"].get<double>()
+                                )
+                                };
+        }
 }
 
 std::pair<std::string, std::vector<BulletData *> *> BulletFuncTable::parse(std::string sub_file)
@@ -79,6 +116,8 @@ std::pair<std::string, std::vector<BulletData *> *> BulletFuncTable::parse(std::
                         bullets_sched->push_back(new BulletData(data, DYNAMIC_MACRO));
                 }else if(data["type"].get<std::string>() == "dynamic-unit"){
                         bullets_sched->push_back(new BulletData(data, AIMING_SELF));
+                }else if(data["type"].get<std::string>() == "laser"){
+                        bullets_sched->push_back(new BulletData(data, LASER_BULLET));
                 }else{
                         bullets_sched->push_back(new BulletData(data));
                 }

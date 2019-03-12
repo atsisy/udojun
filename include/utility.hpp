@@ -1,6 +1,7 @@
 #pragma once
 
 #include <random>
+#include <vector>
 #include "types.hpp"
 
 namespace util {
@@ -35,6 +36,18 @@ namespace util {
                         w = s;
                 }
         };
+        
+        template<class T>
+        inline void concat_container(T &c1, T &&c2)
+        {
+                std::copy(std::begin(c2), std::end(c2), std::back_inserter(c1));
+        }
+
+        template<class T>
+        inline void concat_container(T &c1, T &c2)
+        {
+                std::copy(std::begin(c2), std::end(c2), std::back_inserter(c1));
+        }
 }
 
 #define enum_to_str(var) #var

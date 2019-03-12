@@ -11,7 +11,7 @@ namespace macro {
                 float rad = phase;
 
                 for(u8 i = 0;i < num;i++, rad += unit_rad){
-                        float c = (rad > (M_PI / 2) && rad < (3* M_PI / 2) ? -2 : 2);
+                        float c = (rad > (M_PI / 2) && rad < (3* M_PI / 2) ? 2 : -2);
                         ret.push_back(new BulletData(
                                               str_to_bfid("LINEAR"),
                                               (std::abs(std::cos(rad)) < 0.000001 ?

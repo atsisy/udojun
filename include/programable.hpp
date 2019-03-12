@@ -18,6 +18,8 @@ private:
         std::vector<FunctionCallEssential> func_sched;
 
         std::pair<std::string, std::vector<BulletData *> *> parse(std::string sub_file);
+        std::vector<FunctionCallEssential> highlevel_controll_statement(picojson::object &obj);
+        std::vector<FunctionCallEssential> parse_builtin_for(picojson::object &obj);
         
 public:
         BulletFuncTable(std::string main_file);

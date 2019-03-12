@@ -8,8 +8,6 @@ Laser::Laser(sf::Vector2f begin, float length, float rad, float speed, u64 count
 
         auto fn = mf::linear(std::tan(angle_rad), speed, 0);
         
-        std::cout << angle_kodo << std::endl;
-        
         head = new Bullet(GameMaster::texture_table[LASER_HEAD1], begin,
                           fn, count);
         head->set_scale(0.15, 1.0);
@@ -27,8 +25,7 @@ Laser::Laser(sf::Vector2f begin, float length, float rad, float speed, u64 count
                                                 (begin.y)
                                                 - (head->displaying_size().y * std::sin(angle_rad))
                                                 - ((body_count) * ((float)GameMaster::texture_table[LASER_BODY1]->getSize().y * std::sin(angle_rad)))),
-                                   fn, count));
-                x_pp -= dx;
+                                   fn, count));                x_pp -= dx;
                 body.back()->set_scale(0.15, 1.0);
                 body.back()->set_color(sf::Color(0xa2, 0x93, 0xbd));
                 body.back()->rotate(angle_kodo);
