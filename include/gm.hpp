@@ -4,12 +4,14 @@
 #include <chrono>
 #include <queue>
 #include <vector>
+#include <string>
 #include "character.hpp"
 #include "game_component.hpp"
 #include "textures.hpp"
 #include "move_func.hpp"
 #include "programable.hpp"
 #include "sched.hpp"
+#include <unordered_map>
 
 enum GameState {
         START = 0,
@@ -20,6 +22,14 @@ enum GameState {
 class SceneMaster {
 private:
         u64 t;
+
+protected:
+        std::unordered_map<std::string, sf::View *> views;
+
+	sf::View *create_view(std::string key, sf::FloatRect area);
+	sf::View *get_view(std::string key);
+        void switch_view(std::string key, sf::RenderWindow &window);
+        
         
 public:
         SceneMaster();

@@ -13,6 +13,23 @@ SceneMaster::SceneMaster()
 	t = 0;
 }
 
+sf::View *SceneMaster::create_view(std::string key, sf::FloatRect area)
+{
+        sf::View *p = new sf::View(area);
+        views.emplace(key, p);
+        return p;
+}
+
+sf::View *SceneMaster::get_view(std::string key)
+{
+        return views[key];
+}
+
+void SceneMaster::switch_view(std::string key, sf::RenderWindow &window)
+{
+        window.setView(*get_view(key));
+}
+
 u64 SceneMaster::get_count()
 {
 	return t;
@@ -56,6 +73,16 @@ RaceSceneMaster::RaceSceneMaster()
 	junko_param.set_place(1035, 140);
 	rec_label.set_place(900, 50);
 	rec_label.set_color(sf::Color::Red);
+
+        create_view("background", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))->
+                setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
+        create_view("field", sf::FloatRect(32.0f, 32.0f, 1366.f, 768.f - (32.f * 2)))->
+                setViewport(sf::FloatRect(32.f / 1366.f, 32.f / 768.f, 0.9f, 0.9f));
+        create_view("bullets", sf::FloatRect(32.0f, 32.0f, 960.f, 768.f - (32.f * 2)))->
+                setViewport(sf::FloatRect(32.f / 1366.f, 32.f / 768.f, 866.f / 1366.f, (736.f - 44.f) / 768.f));
+        create_view("params", sf::FloatRect(32.0f, 32.0f, 1366.f, 768.f - (32.f * 2)))->
+                setViewport(sf::FloatRect(32.f / 1366.f, 32.f / 768.f, 0.9f, 0.9f));
+        
 }
 
 void RaceSceneMaster::player_move()
@@ -187,22 +214,25 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
          * それぞれのViewに個別に書き込むことが出来る
          * それを利用して、背景とゲーム画面を別々に処理させる
          */
-        
+        /*
 	sf::View background_view(sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f));
         sf::View game_view(sf::FloatRect(32.0f, 32.0f, 1366.f, 768.f - (32.f * 2)));
 
         background_view.setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
 	game_view.setViewport(sf::FloatRect(32.f / 1366.f, 32.f / 768.f, 0.9f, 0.9f));
-
-	window.setView(background_view);
+        */
+        
+        switch_view("background", window);
         
 	game_background.draw(window);
 
-	window.setView(game_view);
+        switch_view("field", window);
         
 	backgroundTile.draw(window);
 
 	running_char.draw(window);
+
+        switch_view("bullets", window);
 
 	for (u32 i = 0; i < bullets.size(); i++) {
 		bullets[i]->draw(window);
@@ -214,6 +244,8 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
 
 	//window_frame.draw(window);
 
+        switch_view("params", window);
+        
 	score_counter.draw(window);
 	stamina.draw(window);
 	junko_param.draw(window);
