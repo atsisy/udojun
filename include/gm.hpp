@@ -30,7 +30,6 @@ protected:
 	sf::View *get_view(std::string key);
         void switch_view(std::string key, sf::RenderWindow &window);
         
-        
 public:
         SceneMaster();
         virtual void pre_process(sf::RenderWindow &window) = 0;

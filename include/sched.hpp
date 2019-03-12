@@ -11,7 +11,9 @@ constexpr auto c = [](const BulletData *d1, const BulletData *d2){
 
 class BulletScheduler {
 private:
-        std::priority_queue<BulletData *, std::vector<BulletData *>, decltype(c)> queue;
+    std::priority_queue<
+	    BulletData *, std::vector<BulletData *>,
+        std::function<bool(const BulletData *, const BulletData *)> > queue;
 
 public:
         BulletScheduler();
