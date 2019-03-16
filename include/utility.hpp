@@ -2,6 +2,8 @@
 
 #include <random>
 #include <vector>
+#include <unordered_map>
+#include <string>
 #include "types.hpp"
 
 namespace util {
@@ -48,6 +50,10 @@ namespace util {
         {
                 std::copy(std::begin(c2), std::end(c2), std::back_inserter(c1));
         }
+
+        template<class T>
+        using str_hash = std::unordered_map<std::string, T>;
 }
 
 #define enum_to_str(var) #var
+#define container_entire_range(x) std::begin(x), std::end(x)

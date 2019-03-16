@@ -76,7 +76,12 @@ namespace mf {
                        };
         }
 
-        
+	std::function<sf::Vector2f(sf::Vector2f &, u64, u64)> tachie_move_constant(float dx, float dy)
+	{
+		return [=](sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd) {
+			return sf::Vector2f(p_lmd.x + dx, p_lmd.y + dy);
+		};
+	}
 }
 
 BulletData::BulletData(picojson::object &json_data)
@@ -201,4 +206,3 @@ std::vector<Bullet *> BulletGenerator::generate(BulletData *data, DrawableCharac
                 return generate_bullet(data, running_char, count);                
         }
 }
-

@@ -31,7 +31,14 @@ void BulletScheduler::add(BulletData *data)
 
 void BulletScheduler::add(std::vector<BulletData *> data)
 {
-        for(auto d : data){
+        for(auto &&d : data){
                 add(d);
         }
+}
+
+void BulletScheduler::add(std::vector<BulletData *> *data)
+{
+	for (auto &&d : *data) {
+		add(d);
+	}
 }

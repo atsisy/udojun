@@ -14,6 +14,7 @@ set(udjn_src
   src/textures.cpp
   src/laser.cpp
   src/sched.cpp
+  src/advanced_component.cpp
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

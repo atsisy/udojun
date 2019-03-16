@@ -6,7 +6,7 @@
 #include <vector>
 #include <string>
 #include "character.hpp"
-#include "game_component.hpp"
+#include "advanced_component.hpp"
 #include "textures.hpp"
 #include "move_func.hpp"
 #include "programable.hpp"
@@ -24,7 +24,7 @@ private:
         u64 t;
 
 protected:
-        std::unordered_map<std::string, sf::View *> views;
+        util::str_hash<sf::View *> views;
 
 	sf::View *create_view(std::string key, sf::FloatRect area);
 	sf::View *get_view(std::string key);
@@ -41,6 +41,8 @@ public:
 
 class RaceSceneMaster : public SceneMaster {
 private:
+        util::str_hash<Tachie *> tachie_container;
+        
         PlayerCharacter running_char;
         BackgroundTile backgroundTile;
         BackgroundTile game_background;
@@ -54,6 +56,9 @@ private:
         Label junko_param_label;
         Label rec_label;
         WindowFrame window_frame;
+
+        void add_new_functional_bullets_to_schedule(void);
+        void proceed_bullets_schedule(void);
 
 public:
         RaceSceneMaster();

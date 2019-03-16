@@ -23,4 +23,5 @@ public:
         size_t size();
         void add(BulletData *data);
         void add(std::vector<BulletData *> data);
+	void add(std::vector<BulletData *> *data);
 };

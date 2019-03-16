@@ -83,6 +83,13 @@ RaceSceneMaster::RaceSceneMaster()
                 setViewport(sf::FloatRect(32.f / 1366.f, 32.f / 768.f, 866.f / 1366.f, (736.f - 44.f) / 768.f));
         create_view("params", sf::FloatRect(32.0f, 32.0f, 1366.f, 768.f - (32.f * 2)))->
                 setViewport(sf::FloatRect(32.f / 1366.f, 32.f / 768.f, 0.9f, 0.9f));
+        
+	create_view("tachie", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))
+		->setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
+	tachie_container.emplace("udon", new Tachie(
+		GameMaster::texture_table[UDON_TACHIE], sf::Vector2f(500, 100),
+		mf::tachie_move_constant(4, 0), 180));
+        
 }
 
 void RaceSceneMaster::player_move()
@@ -126,34 +133,67 @@ void RaceSceneMaster::player_move()
 	}
 }
 
-void RaceSceneMaster::pre_process(sf::RenderWindow &window)
+void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
 {
 	static u32 i;
 
+        // スケジュールされる予定の弾幕がまだある場合継続
 	while (func_table.get_func_sched().size() > i) {
+
+                /*
+                 * スケジュールされる予定のカウントに達した
+                 */
 		if (func_table.get_func_sched().at(i).time <= get_count()) {
+                        // 関数生成のためのデータを取り出す
 			FunctionCallEssential f_essential =
 				func_table.get_func_sched().at(i++);
+
+                        // 生成
 			std::vector<BulletData *> *v =
 				func_table.call_function(f_essential.func_name);
+
+                        // 生成されたそれぞれの弾丸データに出現時刻をセットする
+                        // 基本的には即時出現
 			std::for_each(std::begin(*v), std::end(*v),
 				      [this](BulletData *d) {
 					      d->set_appear_time(get_count());
-					      bullets_sched.add(
-						      new BulletData(*d));
+                                              // スケジュールに追加
+                                              bullets_sched.add(new BulletData(*d));
 				      });
 		} else {
+                        /*
+                         * この待ち行列（のようなもの）は既にスケジュール時刻でソートされているため、
+                         * 先頭が達していない場合は、それ以降すべて達していないことになり、breakする
+                         */
 			break;
 		}
 	}
+}
 
+void RaceSceneMaster::proceed_bullets_schedule(void)
+{
+        /*
+         * 弾幕データがスケジュールされているか？
+         */
 	while (bullets_sched.size()) {
+                // 出現時間を迎えているか？
 		if (bullets_sched.next()->appear_time <= get_count()) {
+                        // ターゲットの弾幕データを取り出し
 			BulletData *target = bullets_sched.next();
+
+                        // 取り出したので、削除
 			bullets_sched.drop();
+
+                        /*
+                         * 動的なマクロか？
+                         */
 			if (target->flags & DYNAMIC_MACRO) {
+                                // 動的なマクロを展開
+                                // これにより、BulletDataのvectorが得られる
 				auto &&gen = macro::expand_dynamic_macro(
 					target->original_data, running_char);
+
+                                // 実体化し、表示する弾丸のグループに加える
 				for (auto &elem : gen) {
 					util::concat_container<
 						std::vector<Bullet *> >(
@@ -163,19 +203,27 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 							get_count()));
 				}
 			} else {
+                                // 実体化し、表示する弾丸のグループに加える
 				util::concat_container<std::vector<Bullet *> >(
 					bullets, BulletGenerator::generate(
 							 target, running_char,
 							 get_count()));
 			}
 		} else {
+                        // スケジュールは出現時間でソートされているため、先頭が達していない場合はbreak
 			break;
 		}
 	}
+}
 
-	for (u32 i = 0; i < bullets.size(); i++) {
-		if (bullets[i]->check_conflict(running_char)) {
-			bullets[i]->hide();
+void RaceSceneMaster::pre_process(sf::RenderWindow &window)
+{
+        add_new_functional_bullets_to_schedule();
+        proceed_bullets_schedule();
+
+	for (auto &&bullet : bullets) {
+		if (bullet->check_conflict(running_char)) {
+			bullet->hide();
 			junko_param.add(80);
 		}
 	}
@@ -203,6 +251,9 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 		bullets[i]->move(get_count());
 	}
 
+        // 立ち絵の描画
+	std::for_each(container_entire_range(tachie_container),
+		      [&](auto &p) { p.second->move(get_count()); });
 	backgroundTile.scroll(4);
 
 	update_count();
@@ -244,12 +295,15 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
 
 	//window_frame.draw(window);
 
-        switch_view("bullets", window);
+        switch_view("params", window);
 	score_counter.draw(window);
 	stamina.draw(window);
 	junko_param.draw(window);
 	stamina_label.draw(window);
 	junko_param_label.draw(window);
+
+	switch_view("params", window);
+        tachie_container["udon"]->draw(window);
 }
 
 GameState RaceSceneMaster::post_process(sf::RenderWindow &window)
