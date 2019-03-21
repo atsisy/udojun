@@ -8,6 +8,7 @@
 #include "laser.hpp"
 #include <fstream>
 #include <random>
+#include "effect.hpp"
 
 SceneMaster::SceneMaster()
 {
@@ -52,8 +53,7 @@ RaceSceneMaster::RaceSceneMaster()
 			 sf::Vector2f(32, 32), sf::IntRect(0, 0, 960, 736),
 			 sf::Vector2f(1, 1)),
 	  game_background(GameMaster::texture_table[ICHIMATSU1],
-			  sf::Vector2f(0, 0),
-			  sf::IntRect(0, 0, 1366, 768),
+			  sf::Vector2f(0, 0), sf::IntRect(0, 0, 1366, 768),
 			  sf::Vector2f(0.2, 0.2)),
 	  score_counter(0), func_table("main.json"), bullets_sched(),
 	  stamina(sf::Vector2f(300, 20), sf::Vector2f(2, 2), 400, 400,
@@ -63,33 +63,38 @@ RaceSceneMaster::RaceSceneMaster()
 		      sf::Color(10, 10, 20), sf::Color(213, 67, 67),
 		      sf::Color(110, 50, 50)),
 	  stamina_label(L"体力"), junko_param_label(L"純化度"),
-	  rec_label(L"●REC"), window_frame(sf::IntRect(0, 0, 1366, 768),
-					   sf::IntRect(32, 32, 960, 704))
+	  rec_label(L"●REC"), graze_label(L"グレイズ"), graze_counter(0),
+	  window_frame(sf::IntRect(0, 0, 1366, 768),
+		       sf::IntRect(32, 32, 960, 704))
 {
 	test_bullet = new Bullet(GameMaster::texture_table[BULLET_HART],
 				 sf::Vector2f(400, 400), mf::stop, 0);
-	stamina_label.set_place(1035, 50);
-	stamina.set_place(1035, 80);
-	junko_param_label.set_place(1035, 110);
-	junko_param.set_place(1035, 140);
+	stamina_label.set_place(0, 50);
+	stamina.set_place(0, 80);
+	junko_param_label.set_place(0, 110);
+	junko_param.set_place(0, 140);
 	rec_label.set_place(900, 50);
 	rec_label.set_color(sf::Color::Red);
+        graze_label.set_place(0, 200);
+        graze_counter.set_place(150, 200);
 
         create_view("background", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))->
                 setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
-        create_view("field", sf::FloatRect(32.0f, 32.0f, 1366.f, 768.f - (32.f * 2)))->
-                setViewport(sf::FloatRect(32.f / 1366.f, 32.f / 768.f, 0.9f, 0.9f));
-        create_view("bullets", sf::FloatRect(32.0f, 32.0f, 960.f, 768.f - (32.f * 2)))->
-                setViewport(sf::FloatRect(32.f / 1366.f, 32.f / 768.f, 866.f / 1366.f, (736.f - 44.f) / 768.f));
-        create_view("params", sf::FloatRect(32.0f, 32.0f, 1366.f, 768.f - (32.f * 2)))->
-                setViewport(sf::FloatRect(32.f / 1366.f, 32.f / 768.f, 0.9f, 0.9f));
+
+	create_view("field",
+		    sf::FloatRect(32.0f, 32.0f, 960.f, 736.f - (32.f)))
+		->setViewport(sf::FloatRect(32.f / 1366.f, 32.f / 768.f,
+					    960.f / 1366.f,
+					    702.f / 768.f));
+
+	create_view("bullets", sf::FloatRect(32.0f, 32.0f, 960.f, 768.f - (32.f * 2)))->
+                setViewport(sf::FloatRect(32.f / 1366.f, 32.f / 768.f, 960.f / 1366.f, 702.f / 768.f));
+        
+        create_view("params", sf::FloatRect(0.0f, 0.0f, 420.f, 300.f))->
+                setViewport(sf::FloatRect(1010.f / 1366.f, 32.f / 768.f, 420.f / 1366.f, 300.f / 768.f));
         
 	create_view("tachie", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))
 		->setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
-	tachie_container.emplace("udon", new Tachie(
-		GameMaster::texture_table[UDON_TACHIE], sf::Vector2f(500, 100),
-		mf::tachie_move_constant(4, 0), 180));
-        
 }
 
 void RaceSceneMaster::player_move()
@@ -116,6 +121,44 @@ void RaceSceneMaster::player_move()
 		running_char.move_diff(sf::Vector2f(0, -speed));
 		stamina.add(-2.0);
 	}
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::X)){
+                if(graze_counter.counter_method().get_score() >= 200){
+			if (std::find_if(
+				    container_entire_range(tachie_container),
+				    [](Tachie *p) {
+					    return p->are_you("udon");
+				    }) == std::end(tachie_container)) {
+				auto p = new Tachie(
+					GameMaster::texture_table[UDON_TACHIE],
+					sf::Vector2f(500, 100),
+					mf::tachie_move_constant(4, 0),
+					get_count(), "udon");
+				tachie_container.emplace_front(p);
+				p->add_effect({ effect::fade_out(180),
+						effect::kill_at(180) });
+                                {
+					int n = 0;
+					for (u32 i = 0; i < bullets.size();
+					     i++) {
+						if (running_char.distance(
+							    bullets[i]) < 240) {
+							delete bullets[i];
+							bullets[i] =
+								bullets.back();
+							bullets.pop_back();
+							n++;
+							if (!bullets.size()) {
+								break;
+							}
+						}
+					}
+					graze_counter.counter_method().add(
+						-200);
+					junko_param.add(-n);
+				}
+			}
+		}
+	}
 
 	running_char.move_diff(sf::Vector2f(0, 0));
 	stamina.add(1);
@@ -137,37 +180,52 @@ void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
 {
 	static u32 i;
 
-        // スケジュールされる予定の弾幕がまだある場合継続
-	while (func_table.get_func_sched().size() > i) {
+        if(!(util::generate_random() % 60)){
+		func_table.add_function_dynamic(FunctionCallEssential(
+			"china-flower",
+			get_count() + (util::generate_random() % 60),
+			sf::Vector2f(util::generate_random(0, 400),
+				     util::generate_random(0, 400))));
+	}else if(!(util::generate_random() % 300)){
+                func_table.add_function_dynamic("ringo", get_count() + (util::generate_random() % 60));
 
-                /*
+	} else if (!(util::generate_random() % 200)) {
+		func_table.add_function_dynamic(
+                        FunctionCallEssential(
+			"hart", get_count() + (util::generate_random() % 60),
+			sf::Vector2f(util::generate_random(0, 400),
+				     util::generate_random(0, 400))));
+	}
+
+	// スケジュールされる予定の弾幕がまだある場合継続
+	while (func_table.get_func_sched().size() > i) {
+		/*
                  * スケジュールされる予定のカウントに達した
                  */
 		if (func_table.get_func_sched().at(i).time <= get_count()) {
                         // 関数生成のためのデータを取り出す
 			FunctionCallEssential f_essential =
 				func_table.get_func_sched().at(i++);
+			// 生成
+			std::vector<BulletData *> &&v =
+				func_table.call_function(f_essential);
 
-                        // 生成
-			std::vector<BulletData *> *v =
-				func_table.call_function(f_essential.func_name);
-
-                        // 生成されたそれぞれの弾丸データに出現時刻をセットする
+			// 生成されたそれぞれの弾丸データに出現時刻をセットする
                         // 基本的には即時出現
-			std::for_each(std::begin(*v), std::end(*v),
+			std::for_each(std::begin(v), std::end(v),
 				      [this](BulletData *d) {
 					      d->set_appear_time(get_count());
                                               // スケジュールに追加
-                                              bullets_sched.add(new BulletData(*d));
-				      });
-		} else {
-                        /*
+                                              bullets_sched.add(d);
+					});
+			} else {
+				/*
                          * この待ち行列（のようなもの）は既にスケジュール時刻でソートされているため、
                          * 先頭が達していない場合は、それ以降すべて達していないことになり、breakする
                          */
-			break;
+				break;
+			}
 		}
-	}
 }
 
 void RaceSceneMaster::proceed_bullets_schedule(void)
@@ -224,7 +282,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 	for (auto &&bullet : bullets) {
 		if (bullet->check_conflict(running_char)) {
 			bullet->hide();
-			junko_param.add(80);
+			junko_param.add(10);
 		}
 	}
 
@@ -247,13 +305,19 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 			if (!bullets.size()) {
 				break;
 			}
-		}
+		}else if(running_char.distance(bullets[i]) < 30){
+                        graze_counter.counter_method().add(1);
+                }
 		bullets[i]->move(get_count());
 	}
 
-        // 立ち絵の描画
-	std::for_each(container_entire_range(tachie_container),
-		      [&](auto &p) { p.second->move(get_count()); });
+	tachie_container.remove_if([](Tachie *p) { return !p->visible(); });
+        // 立ち絵の移動
+        for(auto &&p : tachie_container){
+                p->move(get_count());
+		p->effect(get_count());
+	}
+        
 	backgroundTile.scroll(4);
 
 	update_count();
@@ -302,8 +366,16 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
 	stamina_label.draw(window);
 	junko_param_label.draw(window);
 
-	switch_view("params", window);
-        tachie_container["udon"]->draw(window);
+        graze_counter.draw(window);
+        graze_label.draw(window);
+
+	switch_view("tachie", window);
+        // 立ち絵の移動
+        for(auto &&p : tachie_container){
+                if(p->visible())
+                        p->draw(window);
+	}
+        
 }
 
 GameState RaceSceneMaster::post_process(sf::RenderWindow &window)

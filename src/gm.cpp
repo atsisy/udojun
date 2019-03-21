@@ -5,6 +5,7 @@
 #include "picojson.h"
 
 TextureTable GameMaster::texture_table;
+util::xor128 util::generate_random;
 
 GameMaster::GameMaster()
         : window(sf::VideoMode(1366, 768), "udjn")

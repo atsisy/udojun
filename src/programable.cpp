@@ -1,9 +1,11 @@
 #include "programable.hpp"
 #include <fstream>
 
-FunctionCallEssential::FunctionCallEssential(std::string fn, u64 t)
-        : func_name(fn), time(t)
+FunctionCallEssential::FunctionCallEssential(std::string fn, u64 t,
+					     sf::Vector2f origin_p)
+	: func_name(fn), time(t), origin(origin_p)
 {}
+
 
 BulletFuncTable::BulletFuncTable(std::string main_file)
 {
@@ -38,8 +40,8 @@ BulletFuncTable::BulletFuncTable(std::string main_file)
                 auto &&parsed = highlevel_controll_statement(data);
                 util::concat_container<std::vector<FunctionCallEssential>>(func_sched, parsed);
         }
-        
-        std::sort(std::begin(func_sched), std::end(func_sched),
+
+	std::sort(std::begin(func_sched), std::end(func_sched),
                   [](const FunctionCallEssential &fce1, const FunctionCallEssential &fce2){
                           return fce1.time < fce2.time;
                   });
@@ -122,7 +124,7 @@ std::pair<std::string, std::vector<BulletData *> *> BulletFuncTable::parse(std::
                         bullets_sched->push_back(new BulletData(data));
                 }
         }
-        
+
         std::sort(std::begin(*bullets_sched), std::end(*bullets_sched),
                   [](const BulletData *b1, const BulletData *b2){
                           return b1->appear_time < b2->appear_time;
@@ -136,7 +138,26 @@ std::vector<FunctionCallEssential> BulletFuncTable::get_func_sched()
         return func_sched;
 }
 
-std::vector<BulletData *> *BulletFuncTable::call_function(std::string key)
+std::vector<BulletData *> BulletFuncTable::call_function(FunctionCallEssential e)
 {
-        return table[key];
+        std::vector<BulletData *> ret;
+        auto &&original_bullets_data = table[e.func_name];
+
+	for(auto &&bullet_data : *original_bullets_data){
+		BulletData *p = new BulletData(*bullet_data);
+		p->appear_point += e.origin;
+                ret.push_back(p);
+	}
+
+	return ret;
+}
+
+void BulletFuncTable::add_function_dynamic(std::string fn, u64 t)
+{
+        func_sched.emplace_back(fn, t);
+}
+
+void BulletFuncTable::add_function_dynamic(FunctionCallEssential e)
+{
+	func_sched.push_back(e);
 }

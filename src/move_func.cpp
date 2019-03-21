@@ -1,84 +1,113 @@
 #include <cmath>
+#include "geometry.hpp"
 #include "gm.hpp"
 #include "utility.hpp"
 #include "laser.hpp"
 
 namespace mf {
-        sf::Vector2f stop(sf::Vector2f &p, u64 now, u64 begin)
+        sf::Vector2f stop(sf::Vector2f &init, sf::Vector2f &p, u64 now, u64 begin)
         {
                 return p;
         }
 
-        std::function<sf::Vector2f(sf::Vector2f&, u64, u64)>
+        std::function<sf::Vector2f(sf::Vector2f& ,sf::Vector2f&, u64, u64)>
         sin(float bias, float dx)
         {
-                return [=](sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd){
+                return [=](sf::Vector2f &init, sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd){
                                return sf::Vector2f(
                                        p_lmd.x + (bias * std::sin(util::count_to_second(now_lmd, begin_lmd, 60))),
                                        p_lmd.y - dx);
                        };
         }
 
-        std::function<sf::Vector2f(sf::Vector2f&, u64, u64)>
-        horizon_sin(float bias, float dx)
-        {
-                return [=](sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd){
+	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)>
+	horizon_sin(float bias, float dx)
+	{
+                return [=](sf::Vector2f &init, sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd){
                                return sf::Vector2f(
                                        p_lmd.x + (bias * std::sin(util::count_to_second(now_lmd, begin_lmd, 60))),
                                        p_lmd.y - dx);
                        };
         }
-        
-        std::function<sf::Vector2f(sf::Vector2f&, u64, u64)>
-        cos(float bias, float dx)
-        {
-                return [=](sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd){
+
+	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)>
+	cos(float bias, float dx)
+	{
+                return [=](sf::Vector2f &init, sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd){
                                return sf::Vector2f(
                                        p_lmd.x + (bias * std::cos(util::count_to_second(now_lmd, begin_lmd, 60))),
                                        p_lmd.y - dx);
                        };
         }
 
-        std::function<sf::Vector2f(sf::Vector2f&, u64, u64)>
-        linear(float bias, float dx, float c)
-        {
-                return [=](sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd){
+	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)>
+	linear(float bias, float dx, float c)
+	{
+                return [=](sf::Vector2f &init, sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd){
                                return sf::Vector2f(
                                        p_lmd.x + dx,
                                        p_lmd.y - (bias * dx) + c);
                        };
         }
 
-        
-        std::function<sf::Vector2f(sf::Vector2f&, u64, u64)>
-        up(float c)
-        {
-                return [=](sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd){
+	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)>
+	up(float c)
+	{
+                return [=](sf::Vector2f &init, sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd){
                                return sf::Vector2f(
                                        p_lmd.x,
                                        p_lmd.y - c);
                        };
         }
 
-        std::function<sf::Vector2f(sf::Vector2f&, u64, u64)>
-        aim_self_linear(sf::Vector2f &target, float speed, sf::Vector2f &begin_point)
-        {
+	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)>
+	aim_self_linear(sf::Vector2f &target, float speed,
+			sf::Vector2f &begin_point)
+	{
                 float rad = std::atan((float)(target.x - begin_point.x) / (float)(target.y - begin_point.y));
                 
                 if(target.y < begin_point.y){
                         rad -= (M_PI);
                 }
-                
-                return [=](sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd){
-                               return sf::Vector2f(
-                                       p_lmd.x + (std::sin(rad) * speed),
-                                       p_lmd.y + (std::cos(rad) * speed));
-                       };
-        }
 
-	std::function<sf::Vector2f(sf::Vector2f &, u64, u64)> tachie_move_constant(float dx, float dy)
+		return [=](sf::Vector2f &init, sf::Vector2f &p_lmd, u64 now_lmd,
+			   u64 begin_lmd) {
+			return sf::Vector2f(p_lmd.x + (std::sin(rad) * speed),
+					    p_lmd.y + (std::cos(rad) * speed));
+		};
+	}
+
+	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)>
+	uzumaki(sf::Vector2f origin, sf::Vector2f begin, float speed,
+		float angle, float r_bias)
 	{
-		return [=](sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd) {
+		float init_r = std::sqrt(
+                        std::pow(begin.x - origin.x, 2) +
+                        std::pow(begin.y - origin.y, 2));
+                float angle_rad = util::degree_to_radian(angle);
+
+		return [=](sf::Vector2f &init, sf::Vector2f &p_lmd, u64 now_lmd,
+			   u64 begin_lmd) {
+			float s = util::count_to_second(now_lmd, begin_lmd, 60);
+			float r = init_r + (s * r_bias);
+			if (r == 0)
+				r = 0.00001;
+			float theta = angle_rad + speed / r;
+
+			sf::Vector2f diff = geometry::rotate_point(
+				angle_rad, sf::Vector2f(r * std::cos(theta),
+							r * std::sin(theta)));
+
+			return sf::Vector2f(init.x + diff.x,
+					    init.y + diff.y);
+		};
+	}
+
+	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)>
+	tachie_move_constant(float dx, float dy)
+	{
+		return [=](sf::Vector2f &init, sf::Vector2f &p_lmd, u64 now_lmd,
+			   u64 begin_lmd) {
 			return sf::Vector2f(p_lmd.x + dx, p_lmd.y + dy);
 		};
 	}
@@ -116,12 +145,12 @@ BulletData::BulletData(picojson::object &json_data)
 
 BulletData::BulletData(picojson::object &json_data, u64 flg)
         : original_data(json_data)
-{
-        this->offset = original_data["time"].get<double>();
+{       
+	this->offset = original_data["time"].get<double>();
         this->flags = flg;
 
-        if(original_data.find("extra") != std::end(original_data)){
-                std::string &extra = original_data["extra"].get<std::string>();
+	if (original_data.find("extra") != std::end(original_data)) {
+		std::string &extra = original_data["extra"].get<std::string>();
                 if(extra.find("begin-at-self") != std::string::npos){
                         flags |= (BEGIN_AT_RUNNING_CHARACTER_X | BEGIN_AT_RUNNING_CHARACTER_Y);
                 }
@@ -133,9 +162,9 @@ BulletData::BulletData(picojson::object &json_data, u64 flg)
                         flags |= (BEGIN_AT_RUNNING_CHARACTER_Y);
                         this->appear_point = sf::Vector2f(-1, original_data["x"].get<double>());
                 }
-        }else{
-                this->appear_point = sf::Vector2f(original_data["x"].get<double>(), original_data["y"].get<double>());
-        }
+	}else{
+		this->appear_point = sf::Vector2f(original_data["x"].get<double>(), original_data["y"].get<double>());
+	}
 }
 
 Bullet *BulletData::generate(DrawableCharacter &running_char, u64 count)
@@ -189,7 +218,7 @@ std::vector<Bullet *> BulletGenerator::generate_bullet(BulletData *data, Drawabl
                 auto target = running_char.get_origin();
                 data->func = mf::aim_self_linear(target, 8, p);
         }
-        
+
         return {
                 new Bullet(
                         GameMaster::texture_table[BULLET_HART],

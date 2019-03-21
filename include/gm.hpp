@@ -12,6 +12,7 @@
 #include "programable.hpp"
 #include "sched.hpp"
 #include <unordered_map>
+#include <forward_list>
 
 enum GameState {
         START = 0,
@@ -41,7 +42,7 @@ public:
 
 class RaceSceneMaster : public SceneMaster {
 private:
-        util::str_hash<Tachie *> tachie_container;
+        std::forward_list<Tachie *> tachie_container;
         
         PlayerCharacter running_char;
         BackgroundTile backgroundTile;
@@ -55,6 +56,8 @@ private:
         Label stamina_label;
         Label junko_param_label;
         Label rec_label;
+        Label graze_label;
+        DrawableScoreCounter graze_counter;
         WindowFrame window_frame;
 
         void add_new_functional_bullets_to_schedule(void);

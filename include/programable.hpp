@@ -9,7 +9,9 @@ public:
         std::string func_name;
         u64 time;
 
-        FunctionCallEssential(std::string fn, u64 t);
+        sf::Vector2f origin;
+
+	FunctionCallEssential(std::string fn, u64 t, sf::Vector2f origin_p = sf::Vector2f(0, 0));
 };
 
 class BulletFuncTable {
@@ -24,6 +26,9 @@ private:
 public:
         BulletFuncTable(std::string main_file);
 
-        std::vector<BulletData *> *call_function(std::string key);
+        std::vector<BulletData *> call_function(FunctionCallEssential e);
         std::vector<FunctionCallEssential> get_func_sched();
+
+	void add_function_dynamic(FunctionCallEssential e);
+	void add_function_dynamic(std::string fn, u64 t);
 };

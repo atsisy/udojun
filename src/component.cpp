@@ -1,4 +1,5 @@
 #include "game_component.hpp"
+#include "utility.hpp"
 #include <iostream>
 #include <cmath>
 
@@ -191,9 +192,9 @@ float Meter::get_value()
 }
 
 DrawableScoreCounter::DrawableScoreCounter(i64 initial)
-	: score_counter(initial), label("0")
+	: score_counter(initial), label(L"0")
 {
-	label.set_color(sf::Color::White);
+	//label.set_color(sf::Color::White);
 }
 
 ScoreCounter<i64> &DrawableScoreCounter::counter_method()
@@ -205,6 +206,11 @@ void DrawableScoreCounter::draw(sf::RenderWindow &window)
 {
 	label.set_text(std::to_string(score_counter.get_score()).c_str());
 	label.draw(window);
+}
+
+void DrawableScoreCounter::set_place(i16 x, i16 y)
+{
+        label.set_place(x, y);
 }
 
 DrawableObject::DrawableObject(sf::Texture *t, sf::Vector2f p,
@@ -235,6 +241,13 @@ void DrawableObject::set_scale(sf::Vector2f scale)
 void DrawableObject::set_color(sf::Color color)
 {
 	sprite.setColor(color);
+}
+
+void DrawableObject::set_alpha(u8 alpha)
+{
+        auto col = sprite.getColor();
+        col.a = alpha;
+        set_color(col);
 }
 
 void DrawableObject::set_scale(float x, float y)
@@ -289,22 +302,33 @@ void BackgroundTile::scroll(i32 speed)
 }
 
 MoveObject::MoveObject(sf::Texture *t, sf::Vector2f p,
-		       std::function<sf::Vector2f(sf::Vector2f &, u64, u64)> f,
+		       std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)> f,
 		       u64 begin_count)
 	: DrawableObject(t, p)
 {
+        this->init_pos = p;
 	this->move_func = f;
 	this->begin_count = begin_count;
 }
 
+void MoveObject::add_effect(std::vector<std::function<void(MoveObject *, u64, u64)>> fn)
+{
+        util::concat_container<std::vector<std::function<void(MoveObject *, u64, u64)> > >(effects, fn);
+}
+
 void MoveObject::move(u64 count)
 {
-	set_place(move_func(place, count, begin_count));
+	set_place(move_func(init_pos, place, count, begin_count));
 }
 
 void MoveObject::draw(sf::RenderWindow &window)
 {
 	window.draw(sprite);
+}
+
+void MoveObject::effect(u64 count)
+{
+        for(auto &&fn : effects) fn(this, count, begin_count);
 }
 
 Conflictable::Conflictable(sf::Vector2f &p, bool default_on) : center(p)
@@ -353,14 +377,20 @@ void Conflictable::move_center(sf::Vector2f d)
 	center.y += d.y;
 }
 
+float Conflictable::distance(Conflictable *c)
+{
+        return std::sqrt(std::pow(this->center.x - c->center.x, 2)
+                         + std::pow(this->center.y - c->center.y, 2));
+}
+
 Bullet::Bullet(sf::Texture *t, sf::Vector2f p,
-	       std::function<sf::Vector2f(sf::Vector2f &, u64, u64)> f,
+	       std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)> f,
 	       u64 begin_count)
 	: MoveObject(t, p, f, begin_count), Conflictable(true)
 {
 	update_center(sf::Vector2f(place.x + (texture.getSize().x / 2),
 				   place.y + (texture.getSize().y / 2)));
-	set_radius(13);
+	set_radius(12);
 }
 
 bool Bullet::is_finish(sf::IntRect window_rect)

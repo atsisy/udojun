@@ -3,7 +3,9 @@
 #include <random>
 #include <vector>
 #include <unordered_map>
+#include <climits>
 #include <string>
+#include <cmath>
 #include "types.hpp"
 
 namespace util {
@@ -27,8 +29,19 @@ namespace util {
                 }
                 
         public:
+
+                static constexpr unsigned min(){ return 0; }
+                static constexpr unsigned max(){ return UINT_MAX; }
+                
                 u32 operator()(){ return random(); }
-                xor128()
+
+                u32 operator()(u32 min, u32 max)
+		{
+			std::uniform_int_distribution<u32> range(min, max);
+                        return range(*this);
+		}
+                
+		xor128()
                 {
                         std::random_device rd;
                         w = rd();
@@ -37,9 +50,13 @@ namespace util {
                 {
                         w = s;
                 }
-        };
-        
-        template<class T>
+
+		using result_type = u32;
+	};
+
+	extern xor128 generate_random;
+
+	template<class T>
         inline void concat_container(T &c1, T &&c2)
         {
                 std::copy(std::begin(c2), std::end(c2), std::back_inserter(c1));
@@ -51,7 +68,17 @@ namespace util {
                 std::copy(std::begin(c2), std::end(c2), std::back_inserter(c1));
         }
 
-        template<class T>
+	inline double radian_to_degree(double rad)
+	{
+		return (rad / M_PI) * 180;
+	}
+
+	inline double degree_to_radian(double deg)
+	{
+		return (deg / 180.0) * M_PI;
+	}
+
+	template <class T>
         using str_hash = std::unordered_map<std::string, T>;
 }
 

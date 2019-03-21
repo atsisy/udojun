@@ -123,6 +123,7 @@ public:
         DrawableScoreCounter(i64 initial);
         void draw(sf::RenderWindow &window) override;
         ScoreCounter<i64> &counter_method();
+        void set_place(i16 x, i16 y);
 };
 
 class DrawableObject : public DrawableComponent {
@@ -139,6 +140,7 @@ public:
         void set_scale(sf::Vector2f scale);
         void set_scale(float x, float y);
         void set_color(sf::Color color);
+        void set_alpha(u8 alpha);
         sf::Vector2f displaying_size();
         void rotate(float rad);
 };
@@ -155,13 +157,17 @@ public:
 class MoveObject : public DrawableObject {
 protected:
         u64 begin_count;
-        std::function<sf::Vector2f(sf::Vector2f &, u64, u64)> move_func;
-        
+        sf::Vector2f init_pos;
+        std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)> move_func;
+	std::vector<std::function<void(MoveObject *, u64, u64)> > effects;
+
 public:
         MoveObject(sf::Texture *t, sf::Vector2f p,
-                   std::function<sf::Vector2f(sf::Vector2f &, u64, u64)> f, u64 begin_count);
-        void move(u64 count);
+                   std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)> f, u64 begin_count);
+	void add_effect(std::vector<std::function<void(MoveObject *, u64, u64)>> fn);
+	void move(u64 count);
         void draw(sf::RenderWindow &window) override;
+	void effect(u64 count);
 };
 
 class Conflictable {
@@ -180,13 +186,15 @@ public:
         void update_center(sf::Vector2f p);
         void move_center(sf::Vector2f d);
         void set_radius(float r);
+
+        float distance(Conflictable *c);
 };
 
 class Bullet : public MoveObject, public Conflictable {
         
 public:
         Bullet(sf::Texture *t, sf::Vector2f p,
-               std::function<sf::Vector2f(sf::Vector2f &, u64, u64)> f, u64 begin_count);
+               std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)> f, u64 begin_count);
         bool is_finish(sf::IntRect window_rect);
         void move(u64 count);
 };

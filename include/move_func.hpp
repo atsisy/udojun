@@ -8,18 +8,21 @@
 #include "picojson.h"
 #include "game_component.hpp"
 
-#define DEF_MOVE_FUNC(name, ...) std::function<sf::Vector2f(sf::Vector2f&, u64, u64)> \
+#define DEF_MOVE_FUNC(name, ...) std::function<sf::Vector2f(sf::Vector2f&, sf::Vector2f&, u64, u64)> \
         name(__VA_ARGS__);
 
 namespace mf {
         
-        sf::Vector2f stop(sf::Vector2f &p, u64 now, u64 begin);
+        sf::Vector2f stop(sf::Vector2f &init, sf::Vector2f &p, u64 now, u64 begin);
         DEF_MOVE_FUNC(sin, float bias, float dx);
         DEF_MOVE_FUNC(cos, float bias, float dx);
         DEF_MOVE_FUNC(linear, float bias, float dx, float c);
         DEF_MOVE_FUNC(up, float c);
         DEF_MOVE_FUNC(aim_self_linear, sf::Vector2f &target, float speed, sf::Vector2f &begin_point);
 	DEF_MOVE_FUNC(tachie_move_constant, float dx, float dy);
+	DEF_MOVE_FUNC(uzumaki, sf::Vector2f origin,
+		      sf::Vector2f begin, float speed, float angle,
+		      float r_bias);
 }
 
 
@@ -29,6 +32,7 @@ enum BulletFunctionID {
         LINEAR,
         AIM_SELF_LINEAR,
         UP,
+        UZUMAKI,
         UNKNOWN_BFID,
 };
 
@@ -42,8 +46,8 @@ inline BulletFunctionID str_to_bfid(const char *str)
                 return LINEAR;
         }else if(!strcmp(str, enum_to_str(UP))){
                 return UP;
-        }else if(!strcmp(str, enum_to_str(UP))){
-                return UP;
+        }else if(!strcmp(str, enum_to_str(UZUMAKI))){
+                return UZUMAKI;
         }
 
         std::cout << "Unknown Bullet Function ID: " << str << std::endl;
@@ -60,7 +64,7 @@ constexpr u64 LASER_BULLET = 0x10;
 class BulletData {
 public:
         BulletFunctionID id;
-        std::function<sf::Vector2f(sf::Vector2f&, u64, u64)> func;
+        std::function<sf::Vector2f(sf::Vector2f&, sf::Vector2f&, u64, u64)> func;
         u64 appear_time;
         u64 offset;
         u64 flags;
@@ -70,7 +74,7 @@ public:
         BulletData(picojson::object &json_data);
         BulletData(picojson::object &json_data, u64 flg);
         
-        BulletData(BulletFunctionID id, std::function<sf::Vector2f(sf::Vector2f&, u64, u64)> f,
+        BulletData(BulletFunctionID id, std::function<sf::Vector2f(sf::Vector2f&, sf::Vector2f&, u64, u64)> f,
                    u64 time, sf::Vector2f appear_point)
         {
                 this->id = id;
@@ -98,7 +102,7 @@ public:
         static std::vector<Bullet *> generate(BulletData *data, DrawableCharacter &running_char, u64 count);
 };
 
-inline std::function<sf::Vector2f(sf::Vector2f&, u64, u64)>
+inline std::function<sf::Vector2f(sf::Vector2f&, sf::Vector2f&, u64, u64)>
 select_bullet_function(BulletFunctionID id, picojson::object &data)
 {
         switch(id){
@@ -110,7 +114,15 @@ select_bullet_function(BulletFunctionID id, picojson::object &data)
                 return mf::linear(data["bias"].get<double>(), data["dx"].get<double>(), data["c"].get<double>());
         case UP:
                 return mf::up(data["c"].get<double>());
-        default:
+	case UZUMAKI:
+		return mf::uzumaki(sf::Vector2f(data["origin.x"].get<double>(),
+						data["origin.y"].get<double>()),
+				   sf::Vector2f(data["x"].get<double>(),
+						data["y"].get<double>()),
+				   data["speed"].get<double>(),
+				   data["angle"].get<double>(),
+				   data["r-bias"].get<double>());
+	default:
                 return mf::stop;
         }
 }
