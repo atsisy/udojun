@@ -9,8 +9,7 @@ Laser::Laser(sf::Vector2f begin, float length, float rad, float speed, u64 count
         auto fn = mf::linear(std::tan(angle_rad), speed, 0);
         
         head = new Bullet(GameMaster::texture_table[LASER_HEAD1], begin,
-                          fn, count);
-        head->set_scale(0.15, 1.0);
+                          fn, count, sf::Vector2f(0.15, 1.0), 12);
         head->set_color(sf::Color(0xa2, 0x93, 0xbd));
         head->rotate(angle_kodo);
 
@@ -19,27 +18,39 @@ Laser::Laser(sf::Vector2f begin, float length, float rad, float speed, u64 count
         float x_pp = dx * (body_count);
 
         do{
-                body.push_back(
-                        new Bullet(GameMaster::texture_table[LASER_BODY1],
-                                   sf::Vector2f(begin.x + x_pp + (head->displaying_size().y * std::cos(angle_rad)),
-                                                (begin.y)
-                                                - (head->displaying_size().y * std::sin(angle_rad))
-                                                - ((body_count) * ((float)GameMaster::texture_table[LASER_BODY1]->getSize().y * std::sin(angle_rad)))),
-                                   fn, count));                x_pp -= dx;
-                body.back()->set_scale(0.15, 1.0);
+		body.push_back(new Bullet(
+			GameMaster::texture_table[LASER_BODY1],
+			sf::Vector2f(begin.x + x_pp +
+					     (head->displaying_size().y *
+					      std::cos(angle_rad)),
+				     (begin.y) -
+					     (head->displaying_size().y *
+					      std::sin(angle_rad)) -
+					     ((body_count) *
+					      ((float)GameMaster::texture_table
+						       [LASER_BODY1]
+							       ->getSize()
+							       .y *
+					       std::sin(angle_rad)))),
+			fn, count, sf::Vector2f(0.15, 1.0), 12));
+		x_pp -= dx;
                 body.back()->set_color(sf::Color(0xa2, 0x93, 0xbd));
                 body.back()->rotate(angle_kodo);
         }while(body_count--);
-        
-        tail = new Bullet(GameMaster::texture_table[LASER_TAIL1],
-                          sf::Vector2f((begin.x)
-                                       + (length * std::cos(angle_rad))
-                                       - (GameMaster::texture_table[LASER_TAIL1]->getSize().y * std::cos(angle_rad)),
-                                       (begin.y)
-                                       - (length * std::sin(angle_rad))
-                                       + (GameMaster::texture_table[LASER_TAIL1]->getSize().y * std::sin(angle_rad))),
-                          fn, count);
-        tail->set_scale(0.15, 1.0);
+
+	tail = new Bullet(
+		GameMaster::texture_table[LASER_TAIL1],
+		sf::Vector2f((begin.x) + (length * std::cos(angle_rad)) -
+				     (GameMaster::texture_table[LASER_TAIL1]
+					      ->getSize()
+					      .y *
+				      std::cos(angle_rad)),
+			     (begin.y) - (length * std::sin(angle_rad)) +
+				     (GameMaster::texture_table[LASER_TAIL1]
+					      ->getSize()
+					      .y *
+				      std::sin(angle_rad))),
+		fn, count, sf::Vector2f(0.15, 1.0), 12);
         tail->set_color(sf::Color(0xa2, 0x93, 0xbd));
         tail->rotate(angle_kodo);
 }

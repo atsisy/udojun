@@ -67,8 +67,8 @@ RaceSceneMaster::RaceSceneMaster()
 	  window_frame(sf::IntRect(0, 0, 1366, 768),
 		       sf::IntRect(32, 32, 960, 704))
 {
-	test_bullet = new Bullet(GameMaster::texture_table[BULLET_HART],
-				 sf::Vector2f(400, 400), mf::stop, 0);
+	test_bullet = new Bullet(GameMaster::texture_table[BULLET_BIG_RED],
+				 sf::Vector2f(400, 400), mf::stop, 0, sf::Vector2f(0.05, 0.05), 9);
 	stamina_label.set_place(0, 50);
 	stamina.set_place(0, 80);
 	junko_param_label.set_place(0, 110);

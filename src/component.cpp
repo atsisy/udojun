@@ -383,14 +383,19 @@ float Conflictable::distance(Conflictable *c)
                          + std::pow(this->center.y - c->center.y, 2));
 }
 
-Bullet::Bullet(sf::Texture *t, sf::Vector2f p,
-	       std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)> f,
-	       u64 begin_count)
+Bullet::Bullet(
+	sf::Texture *t, sf::Vector2f p,
+	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)> f,
+	u64 begin_count, sf::Vector2f scale, float radius)
 	: MoveObject(t, p, f, begin_count), Conflictable(true)
 {
-	update_center(sf::Vector2f(place.x + (texture.getSize().x / 2),
-				   place.y + (texture.getSize().y / 2)));
-	set_radius(12);
+	update_center(sf::Vector2f(
+                              place.x + ((texture.getSize().x / 2) * scale.x),
+                              place.y + ((texture.getSize().y / 2) * scale.y)
+                              )
+                );
+        set_scale(scale);
+	set_radius(radius);
 }
 
 bool Bullet::is_finish(sf::IntRect window_rect)

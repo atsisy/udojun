@@ -6,6 +6,7 @@
 #include "utility.hpp"
 #include "character.hpp"
 #include "picojson.h"
+#include "textures.hpp"
 #include "game_component.hpp"
 
 #define DEF_MOVE_FUNC(name, ...) std::function<sf::Vector2f(sf::Vector2f&, sf::Vector2f&, u64, u64)> \
@@ -62,6 +63,9 @@ constexpr u64 AIMING_SELF = 0x08;
 constexpr u64 LASER_BULLET = 0x10;
 
 class BulletData {
+private:
+        void init_texture_data(TextureID id);
+        
 public:
         BulletFunctionID id;
         std::function<sf::Vector2f(sf::Vector2f&, sf::Vector2f&, u64, u64)> func;
@@ -69,20 +73,16 @@ public:
         u64 offset;
         u64 flags;
         sf::Vector2f appear_point;
+        sf::Texture *texture;
+        sf::Vector2f scale;
+        float radius;
         picojson::object original_data;
 
         BulletData(picojson::object &json_data);
         BulletData(picojson::object &json_data, u64 flg);
         
         BulletData(BulletFunctionID id, std::function<sf::Vector2f(sf::Vector2f&, sf::Vector2f&, u64, u64)> f,
-                   u64 time, sf::Vector2f appear_point)
-        {
-                this->id = id;
-                this->func = f;
-                this->offset = time;
-                this->appear_point = appear_point;
-                this->flags = 0;
-        }
+                   u64 time, sf::Vector2f appear_point);
 
         BulletData()
         {}

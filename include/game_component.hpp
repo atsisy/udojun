@@ -194,7 +194,7 @@ class Bullet : public MoveObject, public Conflictable {
         
 public:
         Bullet(sf::Texture *t, sf::Vector2f p,
-               std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)> f, u64 begin_count);
+               std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)> f, u64 begin_count, sf::Vector2f scale, float radius);
         bool is_finish(sf::IntRect window_rect);
         void move(u64 count);
 };

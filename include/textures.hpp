@@ -24,6 +24,7 @@ public:
  */
 enum TextureID {
         BULLET_HART = 0,
+        BULLET_BIG_RED,
         TILE_HART,
         MOON_CITY_TILE,
         STICK_MAN,
@@ -50,6 +51,8 @@ inline TextureID str_to_txid(const char *str)
 {
 	if (!strcmp(str, enum_to_str(BULLET_HART))) {
 		return BULLET_HART;
+	} else if (!strcmp(str, enum_to_str(BULLET_BIG_RED))) {
+		return BULLET_BIG_RED;
 	} else if (!strcmp(str, enum_to_str(TILE_HART))) {
 		return TILE_HART;
 	} else if (!strcmp(str, enum_to_str(STICK_MAN))) {

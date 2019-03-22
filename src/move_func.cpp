@@ -141,6 +141,13 @@ BulletData::BulletData(picojson::object &json_data)
                         flags |= (BEGIN_AT_RUNNING_CHARACTER_Y);
                 }
         }
+
+        if(original_data.find("texture") == std::end(original_data)){
+		init_texture_data(BULLET_HART);
+	}else{
+		init_texture_data(str_to_txid(
+			original_data["texture"].get<std::string>().c_str()));
+	}
 }
 
 BulletData::BulletData(picojson::object &json_data, u64 flg)
@@ -165,6 +172,46 @@ BulletData::BulletData(picojson::object &json_data, u64 flg)
 	}else{
 		this->appear_point = sf::Vector2f(original_data["x"].get<double>(), original_data["y"].get<double>());
 	}
+
+	if (original_data.find("texture") == std::end(original_data)) {
+                init_texture_data(BULLET_HART);
+	} else {
+		init_texture_data(BULLET_HART);
+		init_texture_data(str_to_txid(original_data["texture"].get<std::string>().c_str()));
+	}
+}
+
+
+void BulletData::init_texture_data(TextureID id)
+{
+	this->texture = GameMaster::texture_table[id];
+	switch(id){
+        case BULLET_HART:
+                scale = sf::Vector2f(1.0, 1.0);
+                radius = 11;
+                break;
+        case BULLET_BIG_RED:
+		scale = sf::Vector2f(0.05, 0.05);
+                radius = 30;
+		break;
+        default:
+		scale = sf::Vector2f(1.0, 1.0);
+                radius = 11;
+		break;
+	}
+}
+
+BulletData::BulletData(
+	BulletFunctionID id,
+	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)> f,
+	u64 time, sf::Vector2f appear_point)
+{
+	this->id = id;
+	this->func = f;
+	this->offset = time;
+	this->appear_point = appear_point;
+	this->flags = 0;
+        init_texture_data(BULLET_HART);
 }
 
 Bullet *BulletData::generate(DrawableCharacter &running_char, u64 count)
@@ -182,9 +229,10 @@ Bullet *BulletData::generate(DrawableCharacter &running_char, u64 count)
         }
         
         return new Bullet(
-                GameMaster::texture_table[BULLET_HART],
+                this->texture,
                 p,
-                func, count);
+                func, count,
+                scale, radius);
 }
 
 void BulletData::set_appear_time(u64 current)
@@ -218,12 +266,14 @@ std::vector<Bullet *> BulletGenerator::generate_bullet(BulletData *data, Drawabl
                 auto target = running_char.get_origin();
                 data->func = mf::aim_self_linear(target, 8, p);
         }
-
+        
         return {
                 new Bullet(
-                        GameMaster::texture_table[BULLET_HART],
+                        data->texture,
                         p,
-                        data->func, count)
+                        data->func, count,
+                        data->scale,
+                        data->radius)
         };
 }
 
