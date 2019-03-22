@@ -22,8 +22,11 @@ private:
         std::pair<std::string, std::vector<BulletData *> *> parse(std::string sub_file);
         std::vector<FunctionCallEssential> highlevel_controll_statement(picojson::object &obj);
         std::vector<FunctionCallEssential> parse_builtin_for(picojson::object &obj);
-        
-public:
+
+	void parse_multiple_function_call(std::string func_name,
+					  std::vector<BulletData *> *buf, u64 time);
+
+    public:
         BulletFuncTable(std::string main_file);
 
         std::vector<BulletData *> call_function(FunctionCallEssential e);

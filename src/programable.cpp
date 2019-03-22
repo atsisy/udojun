@@ -120,10 +120,15 @@ std::pair<std::string, std::vector<BulletData *> *> BulletFuncTable::parse(std::
                         bullets_sched->push_back(new BulletData(data, AIMING_SELF));
                 }else if(data["type"].get<std::string>() == "laser"){
                         bullets_sched->push_back(new BulletData(data, LASER_BULLET));
-                }else{
-                        bullets_sched->push_back(new BulletData(data));
-                }
-        }
+		}else if(data["type"].get<std::string>() == "function-call") {
+			parse_multiple_function_call(
+				data["function"].get<std::string>(),
+				bullets_sched,
+				data["time"].get<double>());
+		} else {
+			bullets_sched->push_back(new BulletData(data));
+		}
+	}
 
         std::sort(std::begin(*bullets_sched), std::end(*bullets_sched),
                   [](const BulletData *b1, const BulletData *b2){
@@ -131,6 +136,19 @@ std::pair<std::string, std::vector<BulletData *> *> BulletFuncTable::parse(std::
                   });
 
         return std::make_pair(func_name, bullets_sched);
+}
+
+void BulletFuncTable::parse_multiple_function_call(std::string func_name,
+				  std::vector<BulletData *> *buf, u64 time)
+{
+        std::vector<BulletData *> *fn_body = table[func_name];
+        BulletData *d;
+        
+        for(BulletData *b_data : *fn_body){
+                d = new BulletData(*b_data);
+                d->offset += time;
+                buf->push_back(d);
+        }
 }
 
 std::vector<FunctionCallEssential> BulletFuncTable::get_func_sched()
