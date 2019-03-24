@@ -222,6 +222,11 @@ DrawableObject::DrawableObject(sf::Texture *t, sf::Vector2f p,
 	sprite.setScale(texture_scale);
 }
 
+sf::Vector2f DrawableObject::get_scale(void)
+{
+        return this->sprite.getScale();
+}
+
 void DrawableObject::rotate(float rad)
 {
 	sprite.rotate(rad);
@@ -355,7 +360,7 @@ bool Conflictable::check_conflict(Conflictable &obj)
 {
 	if (!this->enable || !obj.enable)
 		return false;
-
+        
 	return (std::pow(obj.center.x - this->center.x, 2) +
 		std::pow(obj.center.y - this->center.y, 2)) <
 	       std::pow(obj.r + this->r, 2);
@@ -406,6 +411,6 @@ bool Bullet::is_finish(sf::IntRect window_rect)
 void Bullet::move(u64 count)
 {
 	MoveObject::move(count);
-	update_center(sf::Vector2f(place.x + (texture.getSize().x / 2),
-				   place.y + (texture.getSize().y / 2)));
+	update_center(sf::Vector2f(place.x + ((texture.getSize().x / 2) * this->get_scale().x),
+				   place.y + ((texture.getSize().y / 2) * this->get_scale().y)));
 }

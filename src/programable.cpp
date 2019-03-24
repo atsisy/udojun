@@ -122,9 +122,8 @@ std::pair<std::string, std::vector<BulletData *> *> BulletFuncTable::parse(std::
                         bullets_sched->push_back(new BulletData(data, LASER_BULLET));
 		}else if(data["type"].get<std::string>() == "function-call") {
 			parse_multiple_function_call(
-				data["function"].get<std::string>(),
-				bullets_sched,
-				data["time"].get<double>());
+				data,
+				bullets_sched);
 		} else {
 			bullets_sched->push_back(new BulletData(data));
 		}
@@ -138,15 +137,31 @@ std::pair<std::string, std::vector<BulletData *> *> BulletFuncTable::parse(std::
         return std::make_pair(func_name, bullets_sched);
 }
 
-void BulletFuncTable::parse_multiple_function_call(std::string func_name,
-				  std::vector<BulletData *> *buf, u64 time)
+void BulletFuncTable::parse_multiple_function_call(picojson::object &data,
+				  std::vector<BulletData *> *buf)
 {
-        std::vector<BulletData *> *fn_body = table[func_name];
+        std::string called_func = data["function"].get<std::string>();
+        u64 time_offset = 0;
+        sf::Vector2f pos_offset(0, 0);
+        
+        std::vector<BulletData *> *fn_body = table[called_func];
         BulletData *d;
+
+        if(data.find("time") != std::end(data)){
+                time_offset = data["time"].get<double>();
+        }
+        if(data.find("position") != std::end(data)){
+                auto &&pos_data = data["position"].get<picojson::object>();
+                pos_offset = sf::Vector2f(
+                        pos_data["x"].get<double>(),
+                        pos_data["y"].get<double>()
+                        );
+        }
         
         for(BulletData *b_data : *fn_body){
                 d = new BulletData(*b_data);
-                d->offset += time;
+                d->offset += time_offset;
+                d->appear_point += pos_offset;
                 buf->push_back(d);
         }
 }

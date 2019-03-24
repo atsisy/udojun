@@ -8,6 +8,7 @@
 #include "laser.hpp"
 #include <fstream>
 #include <random>
+#include "value.hpp"
 #include "effect.hpp"
 
 SceneMaster::SceneMaster()
@@ -68,7 +69,7 @@ RaceSceneMaster::RaceSceneMaster()
 		       sf::IntRect(32, 32, 960, 704))
 {
 	test_bullet = new Bullet(GameMaster::texture_table[BULLET_BIG_RED],
-				 sf::Vector2f(400, 400), mf::stop, 0, sf::Vector2f(0.05, 0.05), 9);
+				 sf::Vector2f(400, 400), mf::stop, 0, sf::Vector2f(0.05, 0.05), BulletSize::BIG_CIRCLE_RED);
 	stamina_label.set_place(0, 50);
 	stamina.set_place(0, 80);
 	junko_param_label.set_place(0, 110);
@@ -182,9 +183,9 @@ void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
 
         if(!(util::generate_random() % 60)){
 		func_table.add_function_dynamic(FunctionCallEssential(
-			"china-flower",
+			"junko1",
 			get_count() + (util::generate_random() % 60),
-			sf::Vector2f(util::generate_random(0, 400),
+			sf::Vector2f(util::generate_random(0, 800),
 				     util::generate_random(0, 400))));
 	}else if(!(util::generate_random() % 300)){
                 func_table.add_function_dynamic("ringo", get_count() + (util::generate_random() % 60));
@@ -278,6 +279,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 {
         add_new_functional_bullets_to_schedule();
         proceed_bullets_schedule();
+
 
 	for (auto &&bullet : bullets) {
 		if (bullet->check_conflict(running_char)) {

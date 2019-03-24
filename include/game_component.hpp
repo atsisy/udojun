@@ -133,6 +133,7 @@ protected:
         sf::Vector2f place;
 
         void set_place(sf::Vector2f &&np);
+        sf::Vector2f get_scale(void);
 public:
         DrawableObject(sf::Texture *t, sf::Vector2f p, sf::Vector2f texture_scale = sf::Vector2f(1.0, 1.0));
         void draw(sf::RenderWindow &window) override;

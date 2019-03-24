@@ -3,6 +3,7 @@
 #include "gm.hpp"
 #include "utility.hpp"
 #include "laser.hpp"
+#include "value.hpp"
 
 namespace mf {
         sf::Vector2f stop(sf::Vector2f &init, sf::Vector2f &p, u64 now, u64 begin)
@@ -188,15 +189,16 @@ void BulletData::init_texture_data(TextureID id)
 	switch(id){
         case BULLET_HART:
                 scale = sf::Vector2f(1.0, 1.0);
-                radius = 11;
+                radius = BulletSize::HART_NORMAL_BULLET;
                 break;
         case BULLET_BIG_RED:
 		scale = sf::Vector2f(0.05, 0.05);
-                radius = 30;
+                radius = BulletSize::BIG_CIRCLE_RED;
 		break;
         default:
+                std::cerr << "Invalid Texture ID" << std::endl;
 		scale = sf::Vector2f(1.0, 1.0);
-                radius = 11;
+		radius = BulletSize::HART_NORMAL_BULLET;
 		break;
 	}
 }
