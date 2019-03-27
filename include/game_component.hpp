@@ -137,7 +137,8 @@ protected:
 public:
         DrawableObject(sf::Texture *t, sf::Vector2f p, sf::Vector2f texture_scale = sf::Vector2f(1.0, 1.0));
         void draw(sf::RenderWindow &window) override;
-        sf::Vector2f get_origin();
+        sf::Vector2f get_origin(void);
+        sf::Vector2f get_place(void);
         void set_scale(sf::Vector2f scale);
         void set_scale(float x, float y);
         void set_color(sf::Color color);
@@ -159,16 +160,18 @@ class MoveObject : public DrawableObject {
 protected:
         u64 begin_count;
         sf::Vector2f init_pos;
-        std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)> move_func;
+        std::function<sf::Vector2f(MoveObject *, u64, u64)> move_func;
 	std::vector<std::function<void(MoveObject *, u64, u64)> > effects;
 
 public:
         MoveObject(sf::Texture *t, sf::Vector2f p,
-                   std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)> f, u64 begin_count);
+                   std::function<sf::Vector2f(MoveObject *, u64, u64)> f, u64 begin_count);
 	void add_effect(std::vector<std::function<void(MoveObject *, u64, u64)>> fn);
 	void move(u64 count);
         void draw(sf::RenderWindow &window) override;
 	void effect(u64 count);
+
+        sf::Vector2f get_inital_position(void);
 };
 
 class Conflictable {
@@ -195,7 +198,8 @@ class Bullet : public MoveObject, public Conflictable {
         
 public:
         Bullet(sf::Texture *t, sf::Vector2f p,
-               std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)> f, u64 begin_count, sf::Vector2f scale, float radius);
+               std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
+               u64 begin_count, sf::Vector2f scale, float radius);
         bool is_finish(sf::IntRect window_rect);
         void move(u64 count);
 };

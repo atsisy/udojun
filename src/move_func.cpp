@@ -6,64 +6,69 @@
 #include "value.hpp"
 
 namespace mf {
-        sf::Vector2f stop(sf::Vector2f &init, sf::Vector2f &p, u64 now, u64 begin)
+        sf::Vector2f stop(MoveObject *bullet, u64 now, u64 begin)
         {
-                return p;
+                return bullet->get_place();
         }
 
-        std::function<sf::Vector2f(sf::Vector2f& ,sf::Vector2f&, u64, u64)>
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
         sin(float bias, float dx)
         {
-                return [=](sf::Vector2f &init, sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd){
+                return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd){
+                               const sf::Vector2f &&now = bullet->get_place();
                                return sf::Vector2f(
-                                       p_lmd.x + (bias * std::sin(util::count_to_second(now_lmd, begin_lmd, 60))),
-                                       p_lmd.y - dx);
+                                       now.x + (bias * std::sin(util::count_to_second(now_lmd, begin_lmd, 60))),
+                                       now.y - dx);
                        };
         }
 
-	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)>
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	horizon_sin(float bias, float dx)
 	{
-                return [=](sf::Vector2f &init, sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd){
+                return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd){
+                               const sf::Vector2f &&now = bullet->get_place();
                                return sf::Vector2f(
-                                       p_lmd.x + (bias * std::sin(util::count_to_second(now_lmd, begin_lmd, 60))),
-                                       p_lmd.y - dx);
+                                       now.x + (bias * std::sin(util::count_to_second(now_lmd, begin_lmd, 60))),
+                                       now.y - dx);
                        };
         }
 
-	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)>
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	cos(float bias, float dx)
 	{
-                return [=](sf::Vector2f &init, sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd){
+                return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd){
+                               const sf::Vector2f &&now = bullet->get_place();
                                return sf::Vector2f(
-                                       p_lmd.x + (bias * std::cos(util::count_to_second(now_lmd, begin_lmd, 60))),
-                                       p_lmd.y - dx);
+                                       now.x + (bias * std::cos(util::count_to_second(now_lmd, begin_lmd, 60))),
+                                       now.y - dx);
                        };
         }
 
-	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)>
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	linear(float bias, float dx, float c)
 	{
-                return [=](sf::Vector2f &init, sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd){
+                return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd){
+                               const sf::Vector2f &&now = bullet->get_place();
                                return sf::Vector2f(
-                                       p_lmd.x + dx,
-                                       p_lmd.y - (bias * dx) + c);
+                                       now.x + dx,
+                                       now.y - (bias * dx) + c);
                        };
         }
 
-	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)>
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	up(float c)
 	{
-                return [=](sf::Vector2f &init, sf::Vector2f &p_lmd, u64 now_lmd, u64 begin_lmd){
+                return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd){
+                               const sf::Vector2f &&now = bullet->get_place();
                                return sf::Vector2f(
-                                       p_lmd.x,
-                                       p_lmd.y - c);
+                                       now.x,
+                                       now.y - c);
                        };
         }
 
-	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)>
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	aim_self_linear(sf::Vector2f &target, float speed,
-			sf::Vector2f &begin_point)
+			sf::Vector2f begin_point)
 	{
                 float rad = std::atan((float)(target.x - begin_point.x) / (float)(target.y - begin_point.y));
                 
@@ -71,14 +76,15 @@ namespace mf {
                         rad -= (M_PI);
                 }
 
-		return [=](sf::Vector2f &init, sf::Vector2f &p_lmd, u64 now_lmd,
+		return [=](MoveObject *bullet, u64 now_lmd,
 			   u64 begin_lmd) {
-			return sf::Vector2f(p_lmd.x + (std::sin(rad) * speed),
-					    p_lmd.y + (std::cos(rad) * speed));
-		};
+                               const sf::Vector2f &&now = bullet->get_place();
+                               return sf::Vector2f(now.x + (std::sin(rad) * speed),
+                                                   now.y + (std::cos(rad) * speed));
+                       };
 	}
-
-	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)>
+        
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	uzumaki(sf::Vector2f origin, sf::Vector2f begin, float speed,
 		float angle, float r_bias)
 	{
@@ -87,30 +93,33 @@ namespace mf {
                         std::pow(begin.y - origin.y, 2));
                 float angle_rad = util::degree_to_radian(angle);
 
-		return [=](sf::Vector2f &init, sf::Vector2f &p_lmd, u64 now_lmd,
+		return [=](MoveObject *bullet, u64 now_lmd,
 			   u64 begin_lmd) {
-			float s = util::count_to_second(now_lmd, begin_lmd, 60);
-			float r = init_r + (s * r_bias);
-			if (r == 0)
-				r = 0.00001;
-			float theta = angle_rad + speed / r;
-
-			sf::Vector2f diff = geometry::rotate_point(
-				angle_rad, sf::Vector2f(r * std::cos(theta),
-							r * std::sin(theta)));
-
-			return sf::Vector2f(init.x + diff.x,
-					    init.y + diff.y);
-		};
+                               const sf::Vector2f &&init = bullet->get_inital_position();
+                               
+                               float s = util::count_to_second(now_lmd, begin_lmd, 60);
+                               float r = init_r + (s * r_bias);
+                               if (r == 0)
+                                       r = 0.00001;
+                               float theta = angle_rad + speed / r;
+                               
+                               sf::Vector2f diff = geometry::rotate_point(
+                                       angle_rad, sf::Vector2f(r * std::cos(theta),
+                                                               r * std::sin(theta)));
+                               
+                               return sf::Vector2f(init.x + diff.x,
+                                                   init.y + diff.y);
+                       };
 	}
-
-	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)>
+        
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	tachie_move_constant(float dx, float dy)
 	{
-		return [=](sf::Vector2f &init, sf::Vector2f &p_lmd, u64 now_lmd,
+		return [=](MoveObject *bullet, u64 now_lmd,
 			   u64 begin_lmd) {
-			return sf::Vector2f(p_lmd.x + dx, p_lmd.y + dy);
-		};
+                               const sf::Vector2f &&now = bullet->get_place();
+                               return sf::Vector2f(now.x + dx, now.y + dy);
+                       };
 	}
 }
 
@@ -205,7 +214,7 @@ void BulletData::init_texture_data(TextureID id)
 
 BulletData::BulletData(
 	BulletFunctionID id,
-	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)> f,
+	std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
 	u64 time, sf::Vector2f appear_point)
 {
 	this->id = id;
@@ -265,8 +274,13 @@ std::vector<Bullet *> BulletGenerator::generate_bullet(BulletData *data, Drawabl
                 p.y = running_char.get_origin().y;
         }
         if(data->flags & AIMING_SELF){
-                auto target = running_char.get_origin();
-                data->func = mf::aim_self_linear(target, 8, p);
+                auto &&target = running_char.get_origin();
+                auto texture_scale = data->scale;
+                auto texture_size = data->texture->getSize();
+                
+                data->func = mf::aim_self_linear(target, 8, sf::Vector2f(
+                                                         p.x + (texture_size.x * texture_scale.x / 2),
+                                                         p.y + (texture_size.y * texture_scale.y / 2)));
         }
         
         return {
@@ -284,6 +298,6 @@ std::vector<Bullet *> BulletGenerator::generate(BulletData *data, DrawableCharac
         if(data->flags & LASER_BULLET){
                 return generate_laser(data, running_char, count);
         }else{
-                return generate_bullet(data, running_char, count);                
+                return generate_bullet(data, running_char, count);
         }
 }

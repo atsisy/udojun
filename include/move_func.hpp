@@ -9,17 +9,17 @@
 #include "textures.hpp"
 #include "game_component.hpp"
 
-#define DEF_MOVE_FUNC(name, ...) std::function<sf::Vector2f(sf::Vector2f&, sf::Vector2f&, u64, u64)> \
+#define DEF_MOVE_FUNC(name, ...) std::function<sf::Vector2f(MoveObject *, u64, u64)> \
         name(__VA_ARGS__);
 
-namespace mf {
+	namespace mf {
         
-        sf::Vector2f stop(sf::Vector2f &init, sf::Vector2f &p, u64 now, u64 begin);
+        sf::Vector2f stop(MoveObject *, u64 now, u64 begin);
         DEF_MOVE_FUNC(sin, float bias, float dx);
         DEF_MOVE_FUNC(cos, float bias, float dx);
         DEF_MOVE_FUNC(linear, float bias, float dx, float c);
         DEF_MOVE_FUNC(up, float c);
-        DEF_MOVE_FUNC(aim_self_linear, sf::Vector2f &target, float speed, sf::Vector2f &begin_point);
+        DEF_MOVE_FUNC(aim_self_linear, sf::Vector2f &target, float speed, sf::Vector2f begin_point);
 	DEF_MOVE_FUNC(tachie_move_constant, float dx, float dy);
 	DEF_MOVE_FUNC(uzumaki, sf::Vector2f origin,
 		      sf::Vector2f begin, float speed, float angle,
@@ -68,7 +68,7 @@ private:
         
 public:
         BulletFunctionID id;
-        std::function<sf::Vector2f(sf::Vector2f&, sf::Vector2f&, u64, u64)> func;
+        std::function<sf::Vector2f(MoveObject *, u64, u64)> func;
         u64 appear_time;
         u64 offset;
         u64 flags;
@@ -81,7 +81,7 @@ public:
         BulletData(picojson::object &json_data);
         BulletData(picojson::object &json_data, u64 flg);
         
-        BulletData(BulletFunctionID id, std::function<sf::Vector2f(sf::Vector2f&, sf::Vector2f&, u64, u64)> f,
+        BulletData(BulletFunctionID id, std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
                    u64 time, sf::Vector2f appear_point);
 
         BulletData()
@@ -102,7 +102,7 @@ public:
         static std::vector<Bullet *> generate(BulletData *data, DrawableCharacter &running_char, u64 count);
 };
 
-inline std::function<sf::Vector2f(sf::Vector2f&, sf::Vector2f&, u64, u64)>
+inline std::function<sf::Vector2f(MoveObject *, u64, u64)>
 select_bullet_function(BulletFunctionID id, picojson::object &data)
 {
         switch(id){

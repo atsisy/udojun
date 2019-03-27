@@ -260,12 +260,17 @@ void DrawableObject::set_scale(float x, float y)
 	sprite.setScale(x, y);
 }
 
-sf::Vector2f DrawableObject::get_origin()
+sf::Vector2f DrawableObject::get_origin(void)
 {
 	return sf::Vector2f(place.x + (texture.getSize().x >> 1),
 			    place.y + (texture.getSize().y >> 1));
 }
 
+sf::Vector2f DrawableObject::get_place(void)
+{
+        return this->place;
+}
+       
 void DrawableObject::draw(sf::RenderWindow &window)
 {
 	window.draw(sprite);
@@ -307,7 +312,7 @@ void BackgroundTile::scroll(i32 speed)
 }
 
 MoveObject::MoveObject(sf::Texture *t, sf::Vector2f p,
-		       std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)> f,
+		       std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
 		       u64 begin_count)
 	: DrawableObject(t, p)
 {
@@ -323,7 +328,7 @@ void MoveObject::add_effect(std::vector<std::function<void(MoveObject *, u64, u6
 
 void MoveObject::move(u64 count)
 {
-	set_place(move_func(init_pos, place, count, begin_count));
+	set_place(move_func(this, count, begin_count));
 }
 
 void MoveObject::draw(sf::RenderWindow &window)
@@ -334,6 +339,11 @@ void MoveObject::draw(sf::RenderWindow &window)
 void MoveObject::effect(u64 count)
 {
         for(auto &&fn : effects) fn(this, count, begin_count);
+}
+
+sf::Vector2f MoveObject::get_inital_position(void)
+{
+        return this->init_pos;
 }
 
 Conflictable::Conflictable(sf::Vector2f &p, bool default_on) : center(p)
@@ -388,10 +398,9 @@ float Conflictable::distance(Conflictable *c)
                          + std::pow(this->center.y - c->center.y, 2));
 }
 
-Bullet::Bullet(
-	sf::Texture *t, sf::Vector2f p,
-	std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)> f,
-	u64 begin_count, sf::Vector2f scale, float radius)
+Bullet::Bullet(sf::Texture *t, sf::Vector2f p,
+	       std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
+	       u64 begin_count, sf::Vector2f scale, float radius)
 	: MoveObject(t, p, f, begin_count), Conflictable(true)
 {
 	update_center(sf::Vector2f(

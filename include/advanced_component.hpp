@@ -7,7 +7,7 @@ private:
         std::string name;
 public:
 	Tachie(sf::Texture *t, sf::Vector2f p,
-	       std::function<sf::Vector2f(sf::Vector2f &, sf::Vector2f &, u64, u64)> f,
+	       std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
                u64 begin_count, std::string name);
         void move(u64 count);
         bool are_you(std::string name);
