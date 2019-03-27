@@ -1,5 +1,6 @@
 #include "programable.hpp"
 #include <fstream>
+#include <regex>
 
 FunctionCallEssential::FunctionCallEssential(std::string fn, u64 t,
 					     sf::Vector2f origin_p)
@@ -109,6 +110,8 @@ std::pair<std::string, std::vector<BulletData *> *> BulletFuncTable::parse(std::
         picojson::array &array = obj["schedule"].get<picojson::array>();
         std::string func_name = obj["function"].get<std::string>();
 
+        std::cout << "function: "  << func_name << " ... ";
+        
         for(auto &array_element : array){
                 picojson::object &data = array_element.get<picojson::object>();
                 if(data["type"].get<std::string>() == "macro"){
@@ -134,36 +137,69 @@ std::pair<std::string, std::vector<BulletData *> *> BulletFuncTable::parse(std::
                           return b1->appear_time < b2->appear_time;
                   });
 
+        std::cout << "OK!!" << std::endl;
+        
         return std::make_pair(func_name, bullets_sched);
 }
 
 void BulletFuncTable::parse_multiple_function_call(picojson::object &data,
 				  std::vector<BulletData *> *buf)
 {
+	std::regex regex("^builtin.*");
         std::string called_func = data["function"].get<std::string>();
-        u64 time_offset = 0;
-        sf::Vector2f pos_offset(0, 0);
-        
-        std::vector<BulletData *> *fn_body = table[called_func];
-        BulletData *d;
 
-        if(data.find("time") != std::end(data)){
-                time_offset = data["time"].get<double>();
-        }
-        if(data.find("position") != std::end(data)){
-                auto &&pos_data = data["position"].get<picojson::object>();
-                pos_offset = sf::Vector2f(
-                        pos_data["x"].get<double>(),
-                        pos_data["y"].get<double>()
-                        );
-        }
-        
-        for(BulletData *b_data : *fn_body){
-                d = new BulletData(*b_data);
-                d->offset += time_offset;
-                d->appear_point += pos_offset;
-                buf->push_back(d);
-        }
+	if(std::regex_match(called_func, regex)){
+		parse_builtin_function_multiple_calling(called_func, data, buf);
+	}else{
+		parse_general_multiple_function_call(called_func, data, buf);
+	}
+}
+
+void BulletFuncTable::parse_general_multiple_function_call(std::string func_name,
+					  picojson::object &data,
+					  std::vector<BulletData *> *buf)
+{
+	u64 time_offset = 0;
+	sf::Vector2f pos_offset(0, 0);
+
+	std::vector<BulletData *> *fn_body = table[func_name];
+	BulletData *d;
+
+	if (data.find("time") != std::end(data)) {
+		time_offset = data["time"].get<double>();
+	}
+	if (data.find("position") != std::end(data)) {
+		auto &&pos_data = data["position"].get<picojson::object>();
+		pos_offset = sf::Vector2f(pos_data["x"].get<double>(),
+					  pos_data["y"].get<double>());
+	}
+
+	for (BulletData *b_data : *fn_body) {
+		d = new BulletData(*b_data);
+		d->offset += time_offset;
+		d->appear_point += pos_offset;
+		buf->push_back(d);
+	}
+}
+
+void BulletFuncTable::parse_builtin_function_multiple_calling(std::string func_name,
+					     picojson::object &data,
+					     std::vector<BulletData *> *buf)
+{
+	u64 dist_count = data["distance"].get<double>();
+	u64 original_time = data["time"].get<double>();
+	u64 times = data["times"].get<double>();
+	std::string call = data["call"].get<std::string>();
+
+        u64 loop_tmp_time = original_time;
+
+	while (times--) {
+                parse_general_multiple_function_call(call, data, buf);
+                loop_tmp_time += dist_count;
+                data["time"] = picojson::value((double)loop_tmp_time);
+	}
+
+	data["time"] = picojson::value((double)original_time);
 }
 
 std::vector<FunctionCallEssential> BulletFuncTable::get_func_sched()

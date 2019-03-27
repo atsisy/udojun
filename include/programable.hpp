@@ -25,11 +25,19 @@ private:
 
 	void parse_multiple_function_call(picojson::object &data,
 					  std::vector<BulletData *> *buf);
+	void
+	parse_general_multiple_function_call(std::string func_name,
+                                             picojson::object &data,
+					     std::vector<BulletData *> *buf);
+	void
+	parse_builtin_function_multiple_calling(std::string func_name,
+						picojson::object &data,
+						std::vector<BulletData *> *buf);
 
     public:
         BulletFuncTable(std::string main_file);
 
-        std::vector<BulletData *> call_function(FunctionCallEssential e);
+	std::vector<BulletData *> call_function(FunctionCallEssential e);
         std::vector<FunctionCallEssential> get_func_sched();
 
 	void add_function_dynamic(FunctionCallEssential e);
