@@ -149,7 +149,8 @@ public:
 
 class BackgroundTile : public DrawableObject {
 private:
-
+        sf::Vector2f init_position;
+        
 public:
         BackgroundTile(sf::Texture *t, sf::Vector2f p, sf::IntRect sprite_rect, sf::Vector2f texture_scale);
         void draw(sf::RenderWindow &window) override;

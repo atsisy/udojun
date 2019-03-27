@@ -320,7 +320,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 		p->effect(get_count());
 	}
         
-	backgroundTile.scroll(4);
+	backgroundTile.scroll(8);
 
 	update_count();
 }

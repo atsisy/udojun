@@ -286,7 +286,7 @@ sf::Vector2f DrawableObject::displaying_size()
 BackgroundTile::BackgroundTile(sf::Texture *t, sf::Vector2f p,
 			       sf::IntRect sprite_rect,
 			       sf::Vector2f texture_scale)
-	: DrawableObject(t, p, texture_scale)
+	: DrawableObject(t, p, texture_scale), init_position(p)
 {
 	texture.setRepeated(true);
 	sprite.setTextureRect(
@@ -303,12 +303,12 @@ void BackgroundTile::draw(sf::RenderWindow &window)
 
 void BackgroundTile::scroll(i32 speed)
 {
-	static i32 i;
-	set_place(sf::Vector2f(place.x, place.y + speed));
-	if (i % (texture.getSize().y / speed) == 0) {
-		set_place(sf::Vector2f(place.x, place.y - texture.getSize().y));
-	}
-	i++;
+	static float remain;
+	const float mod = (u64)(speed + remain) % texture.getSize().y;
+        
+        set_place(sf::Vector2f(init_position.x, init_position.y + mod - init_position.y));
+
+        remain = mod;
 }
 
 MoveObject::MoveObject(sf::Texture *t, sf::Vector2f p,
