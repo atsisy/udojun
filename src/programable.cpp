@@ -7,6 +7,67 @@ FunctionCallEssential::FunctionCallEssential(std::string fn, u64 t,
 	: func_name(fn), time(t), origin(origin_p)
 {}
 
+GeneralJSONFunctionArgs::GeneralJSONFunctionArgs(void)
+        : position(0, 0), time(0)
+{}
+
+void GeneralJSONFunctionArgs::move_position(sf::Vector2f distance)
+{
+        this->position += distance;
+}
+
+void GeneralJSONFunctionArgs::postpone(u64 time)
+{
+        this->time += time;
+}
+
+void GeneralJSONFunctionArgs::advance(u64 time)
+{
+        this->time -= time;
+}
+
+void GeneralJSONFunctionArgs::set_position(sf::Vector2f pos)
+{
+        this->position = pos;
+}
+
+void GeneralJSONFunctionArgs::set_position(float x, float y)
+{
+        this->position = sf::Vector2f(x, y);
+}
+
+void GeneralJSONFunctionArgs::set_time(u64 time)
+{
+        this->time = time;
+}
+
+sf::Vector2f GeneralJSONFunctionArgs::get_position(void)
+{
+        return this->position;
+}
+
+u64 GeneralJSONFunctionArgs::get_time(void)
+{
+        return this->time;
+}
+
+GeneralJSONFunctionArgs
+GeneralJSONFunctionArgs::constract_this_object(
+	picojson::object &data)
+{
+        GeneralJSONFunctionArgs args;
+
+	if (data.find("time") != std::end(data)) {
+		args.set_time(data["time"].get<double>());
+	}
+	if (data.find("position") != std::end(data)) {
+		auto &&pos_data = data["position"].get<picojson::object>();
+		args.set_position(pos_data["x"].get<double>(),
+                                  pos_data["y"].get<double>());
+	}
+
+        return args;
+}
 
 BulletFuncTable::BulletFuncTable(std::string main_file)
 {
@@ -151,33 +212,23 @@ void BulletFuncTable::parse_multiple_function_call(picojson::object &data,
 	if(std::regex_match(called_func, regex)){
 		parse_builtin_function_multiple_calling(called_func, data, buf);
 	}else{
-		parse_general_multiple_function_call(called_func, data, buf);
+		parse_general_multiple_function_call(called_func,
+                                                     GeneralJSONFunctionArgs::constract_this_object(data),
+                                                     buf);
 	}
 }
 
-void BulletFuncTable::parse_general_multiple_function_call(std::string func_name,
-					  picojson::object &data,
-					  std::vector<BulletData *> *buf)
+void BulletFuncTable::parse_general_multiple_function_call(
+	std::string func_name, GeneralJSONFunctionArgs args,
+	std::vector<BulletData *> *buf)
 {
-	u64 time_offset = 0;
-	sf::Vector2f pos_offset(0, 0);
-
 	std::vector<BulletData *> *fn_body = table[func_name];
 	BulletData *d;
 
-	if (data.find("time") != std::end(data)) {
-		time_offset = data["time"].get<double>();
-	}
-	if (data.find("position") != std::end(data)) {
-		auto &&pos_data = data["position"].get<picojson::object>();
-		pos_offset = sf::Vector2f(pos_data["x"].get<double>(),
-					  pos_data["y"].get<double>());
-	}
-
 	for (BulletData *b_data : *fn_body) {
 		d = new BulletData(*b_data);
-		d->offset += time_offset;
-		d->appear_point += pos_offset;
+		d->offset += args.get_time();
+		d->appear_point += args.get_position();
 		buf->push_back(d);
 	}
 }
@@ -186,20 +237,23 @@ void BulletFuncTable::parse_builtin_function_multiple_calling(std::string func_n
 					     picojson::object &data,
 					     std::vector<BulletData *> *buf)
 {
+        auto &&args = GeneralJSONFunctionArgs::constract_this_object(data);
 	u64 dist_count = data["distance"].get<double>();
-	u64 original_time = data["time"].get<double>();
 	u64 times = data["times"].get<double>();
 	std::string call = data["call"].get<std::string>();
+	sf::Vector2f pos_offset(0, 0);
 
-        u64 loop_tmp_time = original_time;
-
-	while (times--) {
-                parse_general_multiple_function_call(call, data, buf);
-                loop_tmp_time += dist_count;
-                data["time"] = picojson::value((double)loop_tmp_time);
+	if(data.find("move") != std::end(data)){
+		auto &&move_data = data["move"].get<picojson::object>();
+		pos_offset.x = move_data["x"].get<double>();
+		pos_offset.y = move_data["y"].get<double>();
 	}
 
-	data["time"] = picojson::value((double)original_time);
+	while (times--) {
+                parse_general_multiple_function_call(call, args, buf);
+                args.postpone(dist_count);
+                args.move_position(pos_offset);
+	}
 }
 
 std::vector<FunctionCallEssential> BulletFuncTable::get_func_sched()

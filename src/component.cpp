@@ -398,6 +398,11 @@ float Conflictable::distance(Conflictable *c)
                          + std::pow(this->center.y - c->center.y, 2));
 }
 
+float Conflictable::outer_distance(Conflictable *c)
+{
+	return distance(c) - (this->r + c->r);
+}
+
 Bullet::Bullet(sf::Texture *t, sf::Vector2f p,
 	       std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
 	       u64 begin_count, sf::Vector2f scale, float radius)

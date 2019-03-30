@@ -103,7 +103,7 @@ void RaceSceneMaster::player_move()
 	static float speed;
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) {
 		running_char.core_on();
-		speed = 2;
+		speed = 1.9;
 	} else {
 		running_char.core_off();
 		speed = 4;
@@ -307,7 +307,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 			if (!bullets.size()) {
 				break;
 			}
-		}else if(running_char.distance(bullets[i]) < 30){
+		}else if(running_char.outer_distance(bullets[i]) < 15){
                         graze_counter.counter_method().add(1);
                 }
 		bullets[i]->move(get_count());
@@ -320,7 +320,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 		p->effect(get_count());
 	}
         
-	backgroundTile.scroll(8);
+	backgroundTile.scroll(-8);
 
 	update_count();
 }

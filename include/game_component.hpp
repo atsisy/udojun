@@ -163,7 +163,7 @@ protected:
         sf::Vector2f init_pos;
         std::function<sf::Vector2f(MoveObject *, u64, u64)> move_func;
 	std::vector<std::function<void(MoveObject *, u64, u64)> > effects;
-
+        
 public:
         MoveObject(sf::Texture *t, sf::Vector2f p,
                    std::function<sf::Vector2f(MoveObject *, u64, u64)> f, u64 begin_count);
@@ -193,6 +193,14 @@ public:
         void set_radius(float r);
 
         float distance(Conflictable *c);
+	float outer_distance(Conflictable *c);
+};
+
+class Rotatable {
+protected:
+        
+public:
+        
 };
 
 class Bullet : public MoveObject, public Conflictable {
@@ -204,3 +212,4 @@ public:
         bool is_finish(sf::IntRect window_rect);
         void move(u64 count);
 };
+
