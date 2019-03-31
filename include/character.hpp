@@ -21,7 +21,7 @@ protected:
         CharacterAttribute char_info;
 
 public:
-        DrawableCharacter(CharacterAttribute attribute, sf::Texture *t, sf::Vector2f p);
+        DrawableCharacter(CharacterAttribute attribute, sf::Texture *t, sf::Vector2f p, sf::Vector2f scale);
 
         void draw(sf::RenderWindow &window);
         

@@ -47,7 +47,7 @@ Bullet *test_bullet;
 
 RaceSceneMaster::RaceSceneMaster()
 	: running_char(CharacterAttribute("stick man"),
-		       GameMaster::texture_table[UDON1],
+		       GameMaster::texture_table[DOT_JUNKO],
 		       GameMaster::texture_table[PLAYER_CORE],
 		       sf::Vector2f(400, 200)),
 	  backgroundTile(GameMaster::texture_table[MOON_CITY_TILE],
@@ -163,7 +163,7 @@ void RaceSceneMaster::player_move()
 
 	running_char.move_diff(sf::Vector2f(0, 0));
 	stamina.add(1);
-
+/*
 	if (get_count() % 20 == 16) {
 		running_char.change_textures(GameMaster::texture_table[UDON5]);
 	} else if (get_count() % 20 == 12) {
@@ -175,6 +175,7 @@ void RaceSceneMaster::player_move()
 	} else if (get_count() % 20 == 0) {
 		running_char.change_textures(GameMaster::texture_table[UDON1]);
 	}
+*/
 }
 
 void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)

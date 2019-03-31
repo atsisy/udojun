@@ -19,6 +19,8 @@ void GameMaster::load_textures(const char *json_path)
         std::ifstream ifs(json_path, std::ios::in);
         sf::Texture *t;
 
+        std::cout << "Loading textures listed in " << json_path << "..." << std::endl;
+
         if (ifs.fail()) {
                 std::cerr << "failed to read json file" << std::endl;
                 exit(1);
@@ -38,12 +40,16 @@ void GameMaster::load_textures(const char *json_path)
 
         for(const auto &[key, val] : obj){
                 t = new sf::Texture;
+                std::cout << "\t" << val.to_str() << "...";
                 if(!t->loadFromFile(val.to_str())){
                         exit(0);
                 }
+                std::cout << "done!!" << std::endl;
                 t->setSmooth(true);
                 texture_table.emplace(str_to_txid(key.c_str()), t);
         }
+
+        std::cout << "All textures have been loaded." << std::endl;
 }
 
 void GameMaster::init()

@@ -1,5 +1,6 @@
 #include "character.hpp"
 #include "gm.hpp"
+#include "value.hpp"
 #include <iostream>
 
 CharacterAttribute::CharacterAttribute(std::string name)
@@ -7,11 +8,13 @@ CharacterAttribute::CharacterAttribute(std::string name)
         this->name = name;
 }
 
-DrawableCharacter::DrawableCharacter(CharacterAttribute attribute, sf::Texture *t, sf::Vector2f p)
-        : DrawableObject(t, p), Conflictable(true), char_info(attribute)
+DrawableCharacter::DrawableCharacter(CharacterAttribute attribute,
+				     sf::Texture *t, sf::Vector2f p,
+				     sf::Vector2f scale)
+	: DrawableObject(t, p), Conflictable(true), char_info(attribute)
 {
         set_radius(8);
-        sprite.setScale(0.80, 0.75);
+        sprite.setScale(scale.x, scale.y);
         update_center(sf::Vector2f(
                               place.x + ((texture.getSize().x * sprite.getScale().x) / 2),
                               place.y + ((texture.getSize().y * sprite.getScale().y) / 2)));
@@ -48,7 +51,10 @@ void DrawableCharacter::change_textures(sf::Texture *t)
 
 PlayerCharacter::PlayerCharacter(CharacterAttribute attribute,
                                  sf::Texture *character, sf::Texture *core, sf::Vector2f p)
-        : DrawableCharacter(attribute, character, p)
+        : DrawableCharacter(attribute, character, p,
+                            sf::Vector2f(
+                                    TextureSize::PLAYER_CHARACTER_SIZE_X / character->getSize().x,
+                                    TextureSize::PLAYER_CHARACTER_SIZE_Y / character->getSize().y))
 {
         this->core_texture = *core;
         core_sprite.setTexture(core_texture);
