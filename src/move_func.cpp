@@ -127,11 +127,11 @@ BulletData::BulletData(picojson::object &json_data)
         : original_data(json_data)
 {
         this->id = str_to_bfid(original_data["ID"].get<std::string>().c_str());
-        this->func = select_bullet_function(this->id, original_data);
+	this->func = select_bullet_function(this->id, original_data);
         this->offset = original_data["time"].get<double>();
         this->flags = 0;
 
-        if(original_data.find("x") != std::end(original_data) && original_data.find("y") != std::end(original_data)){
+	if(original_data.find("x") != std::end(original_data) && original_data.find("y") != std::end(original_data)){
                 this->appear_point = sf::Vector2f(original_data["x"].get<double>(), original_data["y"].get<double>());
         }else if(original_data.find("x") != std::end(original_data)){
                 this->appear_point = sf::Vector2f(original_data["x"].get<double>(), -1);

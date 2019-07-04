@@ -16,8 +16,8 @@ DrawableCharacter::DrawableCharacter(CharacterAttribute attribute,
         set_radius(8);
         sprite.setScale(scale.x, scale.y);
         update_center(sf::Vector2f(
-                              place.x + ((texture.getSize().x * sprite.getScale().x) / 2),
-                              place.y + ((texture.getSize().y * sprite.getScale().y) / 2)));
+                              place.x + ((texture.getSize().x * scale.x) / 2),
+                              place.y + ((texture.getSize().y * scale.y) / 2)));
 }
 
 void DrawableCharacter::move_diff(sf::Vector2f diff)
@@ -61,7 +61,7 @@ PlayerCharacter::PlayerCharacter(CharacterAttribute attribute,
         set_core_place();
         core_sprite.setScale(0.14, 0.14);
         core_sprite.setColor(sf::Color(255, 230, 230));
-        set_radius(9);
+        set_radius(6);
         core_off();
 }
 

@@ -11,8 +11,11 @@
 #include "move_func.hpp"
 #include "programable.hpp"
 #include "sched.hpp"
+#include "fonts.hpp"
 #include <unordered_map>
 #include <forward_list>
+
+class GameData;
 
 enum GameState {
         START = 0,
@@ -40,6 +43,23 @@ public:
         void update_count();
 };
 
+class TitleSceneMaster : public SceneMaster {
+private:
+        util::str_hash<Label *> choice_label_set;
+	BackgroundTile background;
+	util::SelecterImplements<std::string> selecter;
+        GameState game_state;
+
+        bool keyboard_function(void);
+
+public:
+        TitleSceneMaster(GameData *game_data);
+        
+        void pre_process(sf::RenderWindow &window) override;
+        void drawing_process(sf::RenderWindow &window) override;
+        GameState post_process(sf::RenderWindow &window) override;
+};
+
 class RaceSceneMaster : public SceneMaster {
 private:
         std::forward_list<Tachie *> tachie_container;
@@ -64,12 +84,23 @@ private:
         void proceed_bullets_schedule(void);
 
 public:
-        RaceSceneMaster();
+        RaceSceneMaster(GameData *game_data);
 
         void player_move();
         void pre_process(sf::RenderWindow &window) override;
         void drawing_process(sf::RenderWindow &window) override;
         GameState post_process(sf::RenderWindow &window) override;
+};
+
+
+class GameData {
+private:
+        FontContainer *font_container;
+
+public:
+        GameData();
+        sf::Font *get_font(FontID id);
+        
 };
 
 class GameMaster {
@@ -79,8 +110,9 @@ private:
 
         SceneMaster *current_scene;
         RaceSceneMaster *race_scene_master;
-
+        TitleSceneMaster *title_scene_master;
         GameState current_state;
+        GameData *game_data;
         
 public:
         static TextureTable texture_table;

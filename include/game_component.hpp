@@ -54,19 +54,20 @@ public:
 class Label : public DrawableComponent {
 private:
         sf::Text text;
-        sf::Font font;
         sf::Vector2f place;
         sf::Color color;
+        sf::Font font;
         u8 font_size;
         
 public:
-        Label(const wchar_t *str);
+        Label(const wchar_t *str, sf::Font *f);
         Label(const char *str);
 
         void set_place(i16 x, i16 y);
         void set_color(sf::Color color);
         void set_font_size(u8 size);
         void set_text(const char *text);
+        std::string get_text(void);
         
         void draw(sf::RenderWindow &window) override;
 };
@@ -120,7 +121,7 @@ private:
         Label label;
 
 public:
-        DrawableScoreCounter(i64 initial);
+        DrawableScoreCounter(i64 initial, sf::Font *f);
         void draw(sf::RenderWindow &window) override;
         ScoreCounter<i64> &counter_method();
         void set_place(i16 x, i16 y);
@@ -132,8 +133,8 @@ protected:
         sf::Sprite sprite;
         sf::Vector2f place;
 
-        void set_place(sf::Vector2f &&np);
-        sf::Vector2f get_scale(void);
+        void set_place(sf::Vector2f np);
+	sf::Vector2f get_scale(void);
 public:
         DrawableObject(sf::Texture *t, sf::Vector2f p, sf::Vector2f texture_scale = sf::Vector2f(1.0, 1.0));
         void draw(sf::RenderWindow &window) override;
@@ -155,6 +156,9 @@ public:
         BackgroundTile(sf::Texture *t, sf::Vector2f p, sf::IntRect sprite_rect, sf::Vector2f texture_scale);
         void draw(sf::RenderWindow &window) override;
         void scroll(i32 speed);
+	void scroll(std::function<
+		    sf::Vector2f(sf::Vector2f init, sf::Vector2f current)>
+			    f);
 };
 
 class MoveObject : public DrawableObject {
@@ -204,12 +208,16 @@ public:
 };
 
 class Bullet : public MoveObject, public Conflictable {
+private:
+        bool grazable;
         
 public:
         Bullet(sf::Texture *t, sf::Vector2f p,
                std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
                u64 begin_count, sf::Vector2f scale, float radius);
         bool is_finish(sf::IntRect window_rect);
+        bool is_grazable(void);
+        void disable_graze(void);
+        void enable_graze(void);
         void move(u64 count);
 };
-

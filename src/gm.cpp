@@ -7,11 +7,22 @@
 TextureTable GameMaster::texture_table;
 util::xor128 util::generate_random;
 
+GameData::GameData()
+{
+        font_container = new FontContainer("fonts.json");
+}
+
+sf::Font *GameData::get_font(FontID id)
+{
+        return font_container->get(id);
+}
+
 GameMaster::GameMaster()
         : window(sf::VideoMode(1366, 768), "udjn")
 {
         window_handle = window.getSystemHandle();
         current_scene = nullptr;
+        game_data = new GameData();
 }
 
 void GameMaster::load_textures(const char *json_path)
@@ -55,17 +66,19 @@ void GameMaster::load_textures(const char *json_path)
 void GameMaster::init()
 {
         window.setVerticalSyncEnabled(true);
-        current_state = RACE;
+        current_state = START;
 
         load_textures("textures.json");
 
-        race_scene_master = new RaceSceneMaster();
+	title_scene_master = new TitleSceneMaster(this->game_data);
+	race_scene_master = new RaceSceneMaster(this->game_data);
 }
 
 void GameMaster::switch_scene()
 {
         switch(current_state){
         case START:
+                current_scene = title_scene_master;
                 break;
         case RACE:
                 current_scene = race_scene_master;
@@ -91,8 +104,8 @@ void GameMaster::main_loop()
                 window.clear();
 
                 current_scene->drawing_process(window);
-                
-                window.display();
+
+		window.display();
 
                 current_state = current_scene->post_process(window);
         }

@@ -45,7 +45,7 @@ void SceneMaster::update_count()
 
 Bullet *test_bullet;
 
-RaceSceneMaster::RaceSceneMaster()
+RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 	: running_char(CharacterAttribute("stick man"),
 		       GameMaster::texture_table[DOT_JUNKO],
 		       GameMaster::texture_table[PLAYER_CORE],
@@ -56,15 +56,19 @@ RaceSceneMaster::RaceSceneMaster()
 	  game_background(GameMaster::texture_table[ICHIMATSU1],
 			  sf::Vector2f(0, 0), sf::IntRect(0, 0, 1366, 768),
 			  sf::Vector2f(0.2, 0.2)),
-	  score_counter(0), func_table("main.json"), bullets_sched(),
+	  score_counter(0, game_data->get_font(JP_DEFAULT)),
+          func_table("main.json"), bullets_sched(),
 	  stamina(sf::Vector2f(300, 20), sf::Vector2f(2, 2), 400, 400,
 		  sf::Color(10, 10, 20), sf::Color::Green,
 		  sf::Color(20, 100, 20)),
 	  junko_param(sf::Vector2f(300, 20), sf::Vector2f(2, 2), 0, 400,
 		      sf::Color(10, 10, 20), sf::Color(213, 67, 67),
 		      sf::Color(110, 50, 50)),
-	  stamina_label(L"体力"), junko_param_label(L"純化度"),
-	  rec_label(L"●REC"), graze_label(L"グレイズ"), graze_counter(0),
+	  stamina_label(L"体力", game_data->get_font(JP_DEFAULT)),
+          junko_param_label(L"純化度", game_data->get_font(JP_DEFAULT)),
+	  rec_label(L"●REC", game_data->get_font(JP_DEFAULT)),
+          graze_label(L"グレイズ", game_data->get_font(JP_DEFAULT)),
+          graze_counter(0, game_data->get_font(JP_DEFAULT)),
 	  window_frame(sf::IntRect(0, 0, 1366, 768),
 		       sf::IntRect(32, 32, 960, 704))
 {
@@ -106,7 +110,7 @@ void RaceSceneMaster::player_move()
 		speed = 1.9;
 	} else {
 		running_char.core_off();
-		speed = 4;
+		speed = 4.5;
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
@@ -161,7 +165,7 @@ void RaceSceneMaster::player_move()
 		}
 	}
 
-	running_char.move_diff(sf::Vector2f(0, 0));
+        running_char.move_diff(sf::Vector2f(0, 0));
 	stamina.add(1);
 /*
 	if (get_count() % 20 == 16) {
@@ -199,6 +203,11 @@ void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
 				     util::generate_random(0, 400))));
 	}
 
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) {
+		func_table.add_function_dynamic(
+			FunctionCallEssential("shot", get_count()));
+	}
+
 	// スケジュールされる予定の弾幕がまだある場合継続
 	while (func_table.get_func_sched().size() > i) {
 		/*
@@ -211,7 +220,6 @@ void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
 			// 生成
 			std::vector<BulletData *> &&v =
 				func_table.call_function(f_essential);
-
 			// 生成されたそれぞれの弾丸データに出現時刻をセットする
                         // 基本的には即時出現
 			std::for_each(std::begin(v), std::end(v),
@@ -221,7 +229,7 @@ void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
                                               bullets_sched.add(d);
 					});
 			} else {
-				/*
+                        /*
                          * この待ち行列（のようなもの）は既にスケジュール時刻でソートされているため、
                          * 先頭が達していない場合は、それ以降すべて達していないことになり、breakする
                          */
@@ -281,7 +289,6 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
         add_new_functional_bullets_to_schedule();
         proceed_bullets_schedule();
 
-
 	for (auto &&bullet : bullets) {
 		if (bullet->check_conflict(running_char)) {
 			bullet->hide();
@@ -309,7 +316,10 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 				break;
 			}
 		}else if(running_char.outer_distance(bullets[i]) < 15){
-                        graze_counter.counter_method().add(1);
+			if (bullets[i]->is_grazable()){
+				graze_counter.counter_method().add(5);
+                                bullets[i]->disable_graze();
+                        }
                 }
 		bullets[i]->move(get_count());
 	}

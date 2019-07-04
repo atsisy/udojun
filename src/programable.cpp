@@ -156,6 +156,8 @@ std::pair<std::string, std::vector<BulletData *> *> BulletFuncTable::parse(std::
                 exit(1);
         }
 
+        std::cout << "Loading " << sub_file << "..." << std::endl;
+
         const std::string json((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
         ifs.close();
         
@@ -168,10 +170,14 @@ std::pair<std::string, std::vector<BulletData *> *> BulletFuncTable::parse(std::
 
         auto bullets_sched = new std::vector<BulletData *>;
         auto &obj = v.get<picojson::object>();
-        picojson::array &array = obj["schedule"].get<picojson::array>();
-        std::string func_name = obj["function"].get<std::string>();
 
-        std::cout << "function: "  << func_name << " ... ";
+        std::cout << "\tParse: schedule, function" << std::endl;
+
+	std::string func_name = obj["function"].get<std::string>();
+	picojson::array &array = obj["schedule"].get<picojson::array>();
+
+	std::cout << "\tfunction: "  << func_name << " ... ";
+        std::fflush(stdout);
         
         for(auto &array_element : array){
                 picojson::object &data = array_element.get<picojson::object>();

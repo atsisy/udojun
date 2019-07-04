@@ -16,6 +16,9 @@ set(udjn_src
   src/sched.cpp
   src/advanced_component.cpp
   src/effect.cpp
+  src/title_scene.cpp
+  src/keyboard.cpp
+  src/fonts.cpp
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

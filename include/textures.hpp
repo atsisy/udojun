@@ -23,25 +23,26 @@ public:
  * 3. str_to_txid関数に追記する。
  */
 enum TextureID {
-        BULLET_HART = 0,
-        BULLET_BIG_RED,
-        TILE_HART,
-        MOON_CITY_TILE,
-        STICK_MAN,
-        UDON1,
-        UDON2,
-        UDON3,
-        UDON4,
-        UDON5,
-        PLAYER_CORE,
-        ICHIMATSU1,
-        ICHIMATSU2,
-        LASER_HEAD1,
-        LASER_BODY1,
-        LASER_TAIL1,
-        UNKNOWN_TXID,
-        UDON_TACHIE,
-        DOT_JUNKO,
+	BULLET_HART = 0,
+	BULLET_BIG_RED,
+	TILE_HART,
+	MOON_CITY_TILE,
+	STICK_MAN,
+	UDON1,
+	UDON2,
+	UDON3,
+	UDON4,
+	UDON5,
+	PLAYER_CORE,
+	ICHIMATSU1,
+	ICHIMATSU2,
+	ICHIMATSU3,
+	LASER_HEAD1,
+	LASER_BODY1,
+	LASER_TAIL1,
+	UNKNOWN_TXID,
+	UDON_TACHIE,
+	DOT_JUNKO,
 };
 
 enum LaserTextureID {
@@ -78,6 +79,8 @@ inline TextureID str_to_txid(const char *str)
 		return ICHIMATSU1;
 	} else if (!strcmp(str, enum_to_str(ICHIMATSU2))) {
 		return ICHIMATSU2;
+	} else if (!strcmp(str, enum_to_str(ICHIMATSU3))) {
+		return ICHIMATSU3;
 	} else if (!strcmp(str, enum_to_str(LASER_HEAD1))) {
 		return LASER_HEAD1;
 	} else if (!strcmp(str, enum_to_str(LASER_BODY1))) {

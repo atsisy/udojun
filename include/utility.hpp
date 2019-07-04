@@ -6,6 +6,8 @@
 #include <climits>
 #include <string>
 #include <cmath>
+#include <cstdint>
+#include <cstring>
 #include "types.hpp"
 
 namespace util {
@@ -80,7 +82,63 @@ namespace util {
 
 	template <class T>
         using str_hash = std::unordered_map<std::string, T>;
+
+        template <class T>
+        class SelecterImplements {
+        private:
+                std::vector<T> items;
+                std::int32_t index;
+
+                void move_index_offset(std::int32_t offset)
+                {
+                        index += offset;
+                        if(index >= 0){
+                                index %= items.size();
+                        }else{
+                                index = items.size() - (std::abs(index) % items.size());
+                        }
+                 }
+
+        public:
+                SelecterImplements()
+                {
+                        index = 0;
+                }
+
+		void add_item(T item)
+		{
+			items.push_back(item);
+		}
+
+		void down(std::int32_t offset)
+                {
+                        move_index_offset(-offset);
+                }
+
+		void up(std::int32_t offset)
+		{
+			move_index_offset(offset);
+		}
+
+		void down(void)
+		{
+			move_index_offset(-1);
+		}
+
+		void up(void)
+		{
+			move_index_offset(1);
+		}
+
+                T get(void)
+                {
+                        return items[index];
+                }
+	};
 }
 
 #define enum_to_str(var) #var
+#define str_to_idx_sub(str, _enum) if (!strcmp(str, enum_to_str(_enum))) { \
+        return _enum; }
+
 #define container_entire_range(x) std::begin(x), std::end(x)

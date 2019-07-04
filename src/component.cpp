@@ -23,8 +23,9 @@ bool DrawableComponent::visible()
 	return !hide_flag;
 }
 
-Label::Label(const wchar_t *str)
-	: place(0, 0), color(sf::Color(0xa2, 0x93, 0xbd))
+Label::Label(const wchar_t *str, sf::Font *f)
+	: place(0, 0), color(sf::Color(0xa2, 0x93, 0xbd)),
+          font(*f)
 {
 	if (!this->font.loadFromFile("/home/takai/.fonts/azuki.ttf")) {
 		std::cout << "failed to load font" << std::endl;
@@ -61,6 +62,11 @@ void Label::set_color(sf::Color color)
 {
 	this->color = color;
 	text.setFillColor(color);
+}
+
+std::string Label::get_text(void)
+{
+        return text.getString();
 }
 
 void Label::set_font_size(u8 size)
@@ -191,8 +197,8 @@ float Meter::get_value()
 	return value;
 }
 
-DrawableScoreCounter::DrawableScoreCounter(i64 initial)
-	: score_counter(initial), label(L"0")
+DrawableScoreCounter::DrawableScoreCounter(i64 initial, sf::Font *f)
+	: score_counter(initial), label(L"0", f)
 {
 	//label.set_color(sf::Color::White);
 }
@@ -232,7 +238,7 @@ void DrawableObject::rotate(float rad)
 	sprite.rotate(rad);
 }
 
-void DrawableObject::set_place(sf::Vector2f &&np)
+void DrawableObject::set_place(sf::Vector2f np)
 {
 	this->place = np;
 	sprite.setPosition(this->place);
@@ -262,8 +268,9 @@ void DrawableObject::set_scale(float x, float y)
 
 sf::Vector2f DrawableObject::get_origin(void)
 {
-	return sf::Vector2f(place.x + (texture.getSize().x >> 1),
-			    place.y + (texture.getSize().y >> 1));
+	return sf::Vector2f(
+		place.x + ((texture.getSize().x * sprite.getScale().x) / 2),
+		place.y + ((texture.getSize().y * sprite.getScale().y) / 2));
 }
 
 sf::Vector2f DrawableObject::get_place(void)
@@ -309,6 +316,13 @@ void BackgroundTile::scroll(i32 speed)
         set_place(sf::Vector2f(init_position.x, init_position.y + mod - init_position.y));
 
         remain = mod;
+}
+
+void BackgroundTile::scroll(
+	std::function<sf::Vector2f(sf::Vector2f init, sf::Vector2f current)> f)
+{
+        sf::Vector2f &&p = f(init_position, this->get_place());
+        set_place(p);
 }
 
 MoveObject::MoveObject(sf::Texture *t, sf::Vector2f p,
@@ -406,7 +420,7 @@ float Conflictable::outer_distance(Conflictable *c)
 Bullet::Bullet(sf::Texture *t, sf::Vector2f p,
 	       std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
 	       u64 begin_count, sf::Vector2f scale, float radius)
-	: MoveObject(t, p, f, begin_count), Conflictable(true)
+	: MoveObject(t, p, f, begin_count), Conflictable(true), grazable(true)
 {
 	update_center(sf::Vector2f(
                               place.x + ((texture.getSize().x / 2) * scale.x),
@@ -428,3 +442,19 @@ void Bullet::move(u64 count)
 	update_center(sf::Vector2f(place.x + ((texture.getSize().x / 2) * this->get_scale().x),
 				   place.y + ((texture.getSize().y / 2) * this->get_scale().y)));
 }
+
+bool Bullet::is_grazable(void)
+{
+        return this->grazable;
+}
+
+void Bullet::disable_graze(void)
+{
+        grazable = false;
+}
+
+void Bullet::enable_graze(void)
+{
+	grazable = true;
+}
+
