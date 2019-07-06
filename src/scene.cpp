@@ -139,8 +139,8 @@ void RaceSceneMaster::player_move()
 					mf::tachie_move_constant(4, 0),
 					get_count(), "udon");
 				tachie_container.emplace_front(p);
-				p->add_effect({ effect::fade_out(180),
-						effect::kill_at(180) });
+				p->add_effect({ effect::fade_out(150),
+						effect::kill_at(150) });
                                 {
 					int n = 0;
 					for (u32 i = 0; i < bullets.size();

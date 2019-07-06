@@ -14,6 +14,7 @@
 #include "fonts.hpp"
 #include <unordered_map>
 #include <forward_list>
+#include "animation.hpp"
 
 class GameData;
 
@@ -43,14 +44,17 @@ public:
         void update_count();
 };
 
-class TitleSceneMaster : public SceneMaster {
+class TitleSceneMaster : public SceneMaster, public SceneAnimation {
 private:
-        util::str_hash<Label *> choice_label_set;
+        util::str_hash<DynamicText *> choice_label_set;
 	BackgroundTile background;
 	util::SelecterImplements<std::string> selecter;
         GameState game_state;
+        util::SimpleTimerList timer_list;
 
         bool keyboard_function(void);
+        void start_handler(void);
+        
 
 public:
         TitleSceneMaster(GameData *game_data);

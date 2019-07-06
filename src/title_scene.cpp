@@ -14,20 +14,43 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 		     sf::IntRect(0, 0, 1366 + 128, 768 + 128), sf::Vector2f(0.2, 0.2)),
           game_state(START)
 {
-        choice_label_set.emplace("Start", new  Label(L"Start", game_data->get_font(JP_DEFAULT)));
-        choice_label_set.emplace("Exit", new Label(L"Exit", game_data->get_font(JP_DEFAULT)));
+	choice_label_set.emplace(
+		"Start",
+		new DynamicText(L"Start", game_data->get_font(JP_DEFAULT),
+				sf::Vector2f(WindowInformation::HALF_WIDTH, 100)));
+        choice_label_set.emplace(
+		"Exit",
+		new DynamicText(L"Exit", game_data->get_font(JP_DEFAULT),
+				sf::Vector2f(WindowInformation::HALF_WIDTH, 500))
+                );
 
         selecter.add_item("Start");
 	selecter.add_item("Exit");
 
-	choice_label_set.at("Start")->set_place(WindowInformation::HALF_WIDTH, 100);
-	choice_label_set.at("Exit")->set_place(WindowInformation::HALF_WIDTH, 500);
- 
-        choice_label_set.at("Start")->set_color(sf::Color::Black);
-        choice_label_set.at("Exit")->set_color(sf::Color::Black);
+        //choice_label_set.at("Start")->set_color(sf::Color::Black);
+        //choice_label_set.at("Exit")->set_color(sf::Color::Black);
 
 	choice_label_set.at("Start")->set_font_size(28);
 	choice_label_set.at("Exit")->set_font_size(28);
+
+        choice_label_set.at("Exit")->set_move_func(
+                [](DynamicText *p, u64 current, u64 begin) {
+                        auto &&init = p->get_init_position();
+                        float width = 5 * std::sin((float)(current - begin) / 20.0);
+                        p->set_place(init.x, init.y + width);
+		},
+		0);
+
+}
+
+void TitleSceneMaster::start_handler(void)
+{
+	auto p = new MoveObject(GameMaster::texture_table[BLACK_ANTEN],
+				sf::Vector2f(0, 0),
+                                mf::stop,
+                                get_count());
+        add_animation_object(p);
+        p->add_effect({ effect::fade_in(100) });
 }
 
 bool TitleSceneMaster::keyboard_function(void)
@@ -43,7 +66,10 @@ bool TitleSceneMaster::keyboard_function(void)
 		if (command == "Exit") {
 			exit(0);
 		} else if (command == "Start") {
-			game_state = RACE;
+                        start_handler();
+                        timer_list.add_timer([this](void){
+                                                     this->game_state = RACE;
+                                             }, 180, get_count());
 		}
 	}else{
                 return false;
@@ -80,7 +106,11 @@ void TitleSceneMaster::pre_process(sf::RenderWindow &window)
 				  return next;
 	});
 
-	update_count();
+        for(auto &[hash, label] : choice_label_set){
+		label->move(get_count());
+        }
+
+        flush_effect_buffer(get_count());
 }
 
 void TitleSceneMaster::drawing_process(sf::RenderWindow &window)
@@ -90,9 +120,13 @@ void TitleSceneMaster::drawing_process(sf::RenderWindow &window)
 	for(auto &[hash, label] : choice_label_set){
 		label->draw(window);
         }
+
+        draw_animation(window);
 }
 
 GameState TitleSceneMaster::post_process(sf::RenderWindow &window)
 {
+        timer_list.check_and_call(get_count());
+	update_count();
 	return game_state;
 }

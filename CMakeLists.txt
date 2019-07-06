@@ -19,6 +19,7 @@ set(udjn_src
   src/title_scene.cpp
   src/keyboard.cpp
   src/fonts.cpp
+  src/scene_animation.cpp
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

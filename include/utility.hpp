@@ -8,6 +8,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <functional>
 #include "types.hpp"
 
 namespace util {
@@ -135,6 +136,65 @@ namespace util {
                         return items[index];
                 }
 	};
+
+        class SimpleTimer {
+        private:
+                std::function<void(void)> fn;
+                u64 wakeup;
+
+        public:
+                SimpleTimer(std::function<void(void)> f, u64 wakeup_abs)
+                        : fn(f)
+                {
+                        this->wakeup = wakeup_abs;
+                }
+
+		SimpleTimer(std::function<void(void)> f, u64 wakeup_offset, u64 now)
+                        : fn(f)
+		{
+			this->wakeup = now + wakeup_offset;
+		}
+
+		bool try_call(u64 current)
+                {
+                        if(current >= wakeup){
+                                fn();
+                                return true;
+                        }
+                        
+                        return false;
+                }
+                
+        };
+
+        class SimpleTimerList {
+        private:
+                std::vector<SimpleTimer> timers;
+
+        public:
+                void add_timer(std::function<void(void)> f,
+                               u64 wakeup_abs)
+                        {
+                                timers.emplace_back(f, wakeup_abs);
+                        }
+                
+                void add_timer(std::function<void(void)> f,
+                               u64 wakeup_offset, u64 now)
+			{
+				timers.emplace_back(f, wakeup_offset, now);
+			}
+
+		size_t check_and_call(u64 current)
+                        {
+                                size_t count = 0;
+                                for(SimpleTimer &t : timers){
+                                        count += t.try_call(current);
+                                }
+
+                                return count;
+                        }
+                
+        };
 }
 
 #define enum_to_str(var) #var

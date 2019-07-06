@@ -51,6 +51,11 @@ Label::Label(const char *str) : place(0, 0), color(sf::Color::White)
 	set_font_size(25);
 }
 
+sf::Vector2f Label::get_place(void)
+{
+        return this->place;
+}
+
 void Label::set_place(i16 x, i16 y)
 {
 	place.x = x;

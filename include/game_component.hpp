@@ -52,7 +52,7 @@ public:
 };
 
 class Label : public DrawableComponent {
-private:
+protected:
         sf::Text text;
         sf::Vector2f place;
         sf::Color color;
@@ -68,6 +68,7 @@ public:
         void set_font_size(u8 size);
         void set_text(const char *text);
         std::string get_text(void);
+        sf::Vector2f get_place(void);
         
         void draw(sf::RenderWindow &window) override;
 };
