@@ -30,7 +30,7 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
         //choice_label_set.at("Start")->set_color(sf::Color::Black);
         //choice_label_set.at("Exit")->set_color(sf::Color::Black);
 
-	choice_label_set.at("Start")->set_font_size(28);
+	choice_label_set.at("Start")->set_font_size(40);
 	choice_label_set.at("Exit")->set_font_size(28);
 
         choice_label_set.at("Exit")->set_move_func(
@@ -68,7 +68,7 @@ bool TitleSceneMaster::keyboard_function(void)
 		} else if (command == "Start") {
                         start_handler();
                         timer_list.add_timer([this](void){
-                                                     this->game_state = RACE;
+                                                     this->game_state = OPENING_EPISODE;
                                              }, 180, get_count());
 		}
 	}else{

@@ -24,10 +24,9 @@ std::function<void(MoveObject *, u64, u64)> effect::fade_out(u64 distance)
                                r = 0;
                        } else {
                                r = 255.0 *
-                                       (float)((float)(now - begin) / (float)distance);
+                                       (1 - (float)((float)(now - begin) / (float)distance));
                        }
-                       obj->set_alpha(255.0 * (float)(1.0 - ((float)(now - begin) /
-                                                             (float)distance)));
+                       obj->set_alpha(r);
                };
 }
 

@@ -20,8 +20,9 @@ class GameData;
 
 enum GameState {
         START = 0,
-        RACE = 1,
-        END = 2,
+        OPENING_EPISODE,
+        RACE,
+        END,
 };
 
 class SceneMaster {
@@ -37,6 +38,7 @@ protected:
         
 public:
         SceneMaster();
+        virtual ~SceneMaster();
         virtual void pre_process(sf::RenderWindow &window) = 0;
         virtual void drawing_process(sf::RenderWindow &window) = 0;
         virtual GameState post_process(sf::RenderWindow &window) = 0;
@@ -58,6 +60,34 @@ private:
 
 public:
         TitleSceneMaster(GameData *game_data);
+        
+        void pre_process(sf::RenderWindow &window) override;
+        void drawing_process(sf::RenderWindow &window) override;
+        GameState post_process(sf::RenderWindow &window) override;
+};
+
+class EpisodeController {
+private:
+	std::vector<NovelText *> episode;
+        u64 page_index;
+
+public:
+        EpisodeController(const char *path, sf::Font *font);
+        void next(void);
+        void back(void);
+        void end(void);
+        void top(void);
+        NovelText *get_current_page(void);
+};
+
+class OpeningEpisodeSceneMaster : public SceneMaster, public SceneAnimation {
+private:
+	GameState game_state;
+	BackgroundTile background;
+	EpisodeController episode;
+
+public:
+        OpeningEpisodeSceneMaster(GameData *game_data);
         
         void pre_process(sf::RenderWindow &window) override;
         void drawing_process(sf::RenderWindow &window) override;
@@ -117,6 +147,8 @@ private:
         TitleSceneMaster *title_scene_master;
         GameState current_state;
         GameData *game_data;
+
+        SceneMaster *create_new_scene(GameState state);
         
 public:
         static TextureTable texture_table;
@@ -124,6 +156,6 @@ public:
         GameMaster();
         void init();
         void main_loop();
-        void switch_scene();
+        void switch_scene(GameState res);
         void load_textures(const char *json_path);
 };

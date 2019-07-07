@@ -8,17 +8,18 @@ private:
         std::function<void(T *, u64, u64)> move_func;
         std::vector<std::function<void(T *, u64, u64)> > effects;
 	u64 move_start_count;
+        u64 kill_count;
 
 protected:
         void set_move_start_count(u64 count)
-                {
-                        this->move_start_count = count;
-                }
+        {
+                this->move_start_count = count;
+        }
 
         u64 get_move_start_count(void)
-                {
-                        return this->move_start_count;
-                }
+        {
+                return this->move_start_count;
+        }
 
         void call_move_func(T *p, u64 current, u64 begin)
         {
@@ -26,9 +27,16 @@ protected:
         }
 public:
         DynamicComponent()
-                {
-                        move_start_count = 0;
-                }
+        {
+                kill_count = -1;
+                move_start_count = 0;
+        }
+
+
+        void set_kill_count(u64 c)
+        {
+                this->kill_count = c;
+        }
         
         void set_move_func(std::function<void(T *, u64, u64)> f)
         {
@@ -41,9 +49,14 @@ public:
         }
 
         bool move_func_is_available(void)
-                {
-                        return (bool)move_func;
-                }
+        {
+                return (bool)move_func;
+        }
+
+	bool is_zombie(u64 current)
+        {
+                return current > kill_count;
+        }
 };
 
 class DynamicText : public Label, public DynamicComponent<DynamicText> {
@@ -58,10 +71,10 @@ public:
         }
 
 	void set_move_func(std::function<void(DynamicText *, u64, u64)> f, u64 begin)
-                {
-                        set_move_start_count(begin);
-                        DynamicComponent::set_move_func(f);
-                }
+        {
+                set_move_start_count(begin);
+                DynamicComponent::set_move_func(f);
+        }
         
         void run_animation(
                 std::function<void(DynamicText *, u64, u64)> effect)
@@ -70,15 +83,15 @@ public:
         }
 
         void move(u64 current_count)
-                {
-                        if(move_func_is_available()){
-				if (get_move_start_count() < current_count) {
-					call_move_func(this, current_count,
-						       get_move_start_count());
-				}
-			}
-		}
-
+        {
+                if(move_func_is_available()){
+                        if (get_move_start_count() < current_count) {
+                                call_move_func(this, current_count,
+                                               get_move_start_count());
+                        }
+                }
+        }
+        
         void draw(sf::RenderWindow &window)
                 {
                         Label::draw(window);
@@ -88,6 +101,16 @@ public:
                 {
                         return init_position;
                 }
+};
+
+class NovelText : public DrawableComponent {
+private:
+        std::vector<DynamicText *> text_lines;
+        
+public:
+        NovelText(std::vector<wchar_t *> list, sf::Font *font,
+                  sf::Vector2f pos, float offset, u8 font_size);
+	void draw(sf::RenderWindow &window) override;
 };
 
 class SceneAnimation {

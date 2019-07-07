@@ -70,21 +70,31 @@ void GameMaster::init()
 
         load_textures("textures.json");
 
-	title_scene_master = new TitleSceneMaster(this->game_data);
-	race_scene_master = new RaceSceneMaster(this->game_data);
+	current_scene = title_scene_master = new TitleSceneMaster(this->game_data);
 }
 
-void GameMaster::switch_scene()
+SceneMaster *GameMaster::create_new_scene(GameState req)
 {
-        switch(current_state){
-        case START:
-                current_scene = title_scene_master;
-                break;
-        case RACE:
-                current_scene = race_scene_master;
-                break;
-        case END:
-                break;
+	switch (req) {
+	case START:
+		return new TitleSceneMaster(this->game_data);
+	case RACE:
+		return new RaceSceneMaster(this->game_data);
+        case OPENING_EPISODE:
+		return new OpeningEpisodeSceneMaster(this->game_data);
+	case END:
+                return nullptr;
+	}
+
+        return nullptr;
+}
+
+void GameMaster::switch_scene(GameState res)
+{
+        if(current_state != res){
+                delete current_scene;
+                current_state = res;
+                current_scene = create_new_scene(res);
         }
 }
 
@@ -96,8 +106,6 @@ void GameMaster::main_loop()
                         if(event.type == sf::Event::Closed)
                                 window.close();
                 }
-
-                switch_scene();
                 
                 current_scene->pre_process(window);
                 
@@ -107,7 +115,7 @@ void GameMaster::main_loop()
 
 		window.display();
 
-                current_state = current_scene->post_process(window);
-        }
+		switch_scene(current_scene->post_process(window));
+	}
 
 }

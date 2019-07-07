@@ -16,6 +16,9 @@ SceneMaster::SceneMaster()
 	t = 0;
 }
 
+SceneMaster::~SceneMaster()
+{}
+
 sf::View *SceneMaster::create_view(std::string key, sf::FloatRect area)
 {
         sf::View *p = new sf::View(area);
