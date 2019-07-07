@@ -27,9 +27,6 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
         selecter.add_item("Start");
 	selecter.add_item("Exit");
 
-        //choice_label_set.at("Start")->set_color(sf::Color::Black);
-        //choice_label_set.at("Exit")->set_color(sf::Color::Black);
-
 	choice_label_set.at("Start")->set_font_size(40);
 	choice_label_set.at("Exit")->set_font_size(28);
 
@@ -41,6 +38,35 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 		},
 		0);
 
+	key_listener.add_key_event(key::ARROW_KEY_DOWN, [this](key::KeyStatus status) {
+		if (status & key::KEY_FIRST_PRESSED) {
+			this->selecter.down();
+                        
+		}
+	});
+	key_listener.add_key_event(
+		key::ARROW_KEY_UP, [this](key::KeyStatus status) {
+			if (status & key::KEY_FIRST_PRESSED) {
+				this->selecter.up();
+			}
+		});
+	key_listener.add_key_event(
+		key::VKEY_1, [this](key::KeyStatus status) {
+			if (status & key::KEY_FIRST_PRESSED) {
+				std::string command = selecter.get();
+				if (command == "Exit") {
+					exit(0);
+				} else if (command == "Start") {
+					start_handler();
+					timer_list.add_timer(
+						[this](void) {
+							this->game_state =
+								OPENING_EPISODE;
+						},
+						180, get_count());
+				}
+			}
+		});
 }
 
 void TitleSceneMaster::start_handler(void)
@@ -53,47 +79,13 @@ void TitleSceneMaster::start_handler(void)
         p->add_effect({ effect::fade_in(100) });
 }
 
-bool TitleSceneMaster::keyboard_function(void)
-{
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-		selecter.down();
-		choice_label_set.at(selecter.get())->set_font_size(40);
-	} else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-		selecter.up();
-		choice_label_set.at(selecter.get())->set_font_size(40);
-	} else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
-		std::string command = selecter.get();
-		if (command == "Exit") {
-			exit(0);
-		} else if (command == "Start") {
-                        start_handler();
-                        timer_list.add_timer([this](void){
-                                                     this->game_state = OPENING_EPISODE;
-                                             }, 180, get_count());
-		}
-	}else{
-                return false;
-        }
-
-        return true;
-}
-
 void TitleSceneMaster::pre_process(sf::RenderWindow &window)
-{
-        static bool key_disable;
-        
+{        
 	for (auto &[hash, label] : choice_label_set) {
                 if(selecter.get() != label->get_text())
                         label->set_font_size(28);
-	}
-
-        if(!key_disable){
-                if(keyboard_function())
-                        key_disable = true;
-        }
-
-	if (!(get_count() % 30)) {
-		key_disable = false;
+                else
+			label->set_font_size(40);
 	}
 
 	background.scroll([&](sf::Vector2f init, sf::Vector2f current) {
@@ -110,6 +102,7 @@ void TitleSceneMaster::pre_process(sf::RenderWindow &window)
 		label->move(get_count());
         }
 
+        key_listener.key_update();
         flush_effect_buffer(get_count());
 }
 

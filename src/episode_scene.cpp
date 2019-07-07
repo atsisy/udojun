@@ -14,7 +14,7 @@ EpisodeController::EpisodeController(const char *path, sf::Font *font)
         std::string str;
 
         if (ifs.fail()){
-                std::cerr << "失敗" << std::endl;
+                std::cerr << "failed to load episode text: " << path << std::endl;
         }
 
         std::cout << "Loading opening episode text..." << std::endl;
@@ -77,10 +77,17 @@ OpeningEpisodeSceneMaster::OpeningEpisodeSceneMaster(GameData *game_data)
         add_animation_object(p);
         p->add_effect({ effect::fade_out(100) });
 
+        key_listener.add_key_event(key::VKEY_1, [&](key::KeyStatus status){
+                                                        if(status & key::KEY_FIRST_PRESSED){
+                                                                episode.next();
+                                                        }
+                                                });
+        
 }
 
 void OpeningEpisodeSceneMaster::pre_process(sf::RenderWindow &window)
 {
+        key_listener.key_update();
         flush_effect_buffer(get_count());
 }
 

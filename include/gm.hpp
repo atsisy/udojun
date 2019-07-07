@@ -15,6 +15,7 @@
 #include <unordered_map>
 #include <forward_list>
 #include "animation.hpp"
+#include "key_input.hpp"
 
 class GameData;
 
@@ -53,6 +54,7 @@ private:
 	util::SelecterImplements<std::string> selecter;
         GameState game_state;
         util::SimpleTimerList timer_list;
+        key::KeyboardListener key_listener;
 
         bool keyboard_function(void);
         void start_handler(void);
@@ -85,6 +87,7 @@ private:
 	GameState game_state;
 	BackgroundTile background;
 	EpisodeController episode;
+        key::KeyboardListener key_listener;
 
 public:
         OpeningEpisodeSceneMaster(GameData *game_data);
