@@ -3,10 +3,12 @@
 #include "move_func.hpp"
 
 enum MacroID {
-        CIRCLE = 0,
-        HART,
-        N_WAY,
-        UNKNOWN_MACRO,
+	CIRCLE = 0,
+	HART,
+	UDON_TSUJO1,
+	UDON_TSUJO2,
+	N_WAY,
+	UNKNOWN_MACRO,
 };
 
 inline MacroID str_to_macroid(const char *str)
@@ -17,9 +19,13 @@ inline MacroID str_to_macroid(const char *str)
                 return HART;
         }else if(!strcmp(str, enum_to_str(N_WAY))){
                 return N_WAY;
-        }
+	} else if (!strcmp(str, enum_to_str(UDON_TSUJO1))) {
+		return UDON_TSUJO1;
+	} else if (!strcmp(str, enum_to_str(UDON_TSUJO2))) {
+		return UDON_TSUJO2;
+	}
 
-        std::cout << "Unknown Macro ID: " << str << std::endl;
+	std::cout << "Unknown Macro ID: " << str << std::endl;
         
         return UNKNOWN_MACRO;
 }
@@ -30,11 +36,17 @@ namespace macro {
         std::vector<BulletData *> expand_dynamic_macro(picojson::object &data, DrawableCharacter running_char);
         std::vector<BulletData *> circle(sf::Vector2f origin, float r, u8 num, u64 time, float phase);
         std::vector<BulletData *> hart(sf::Vector2f origin, float r, u8 num, u64 time);
-
-        std::vector<BulletData *> odd_n_way(sf::Vector2f origin, float r,
-                                            float toward, float unit_rad, u8 num, u64 time);
-        std::vector<BulletData *> even_n_way(sf::Vector2f origin, float r,
+	std::vector<BulletData *> udon_tsujo1(sf::Vector2f origin, u64 time);
+        
+        std::vector<BulletData *> odd_n_way(sf::Vector2f origin,
+                                            float r, float toward,
+                                            float unit_rad, u8 num,
+                                            u64 time);
+	std::vector<BulletData *> even_n_way(sf::Vector2f origin, float r,
                                              float toward, float unit_rad, u8 num, u64 time);
         std::vector<BulletData *> n_way(sf::Vector2f origin, float r,
                                         float toward, float unit_rad, u8 num, u64 time);
+	std::vector<BulletData *> udon_circle2(sf::Vector2f origin, float speed,
+					       float r, u16 num, u64 time,
+					       float phase, float unit_rad);
 }

@@ -32,7 +32,7 @@ private:
 
 protected:
         util::str_hash<sf::View *> views;
-
+        util::SimpleTimerList timer_list;
 	sf::View *create_view(std::string key, sf::FloatRect area);
 	sf::View *get_view(std::string key);
         void switch_view(std::string key, sf::RenderWindow &window);
@@ -53,7 +53,6 @@ private:
 	BackgroundTile background;
 	util::SelecterImplements<std::string> selecter;
         GameState game_state;
-        util::SimpleTimerList timer_list;
         key::KeyboardListener key_listener;
 
         bool keyboard_function(void);
@@ -79,6 +78,7 @@ public:
         void back(void);
         void end(void);
         void top(void);
+        bool last_page(void);
         NovelText *get_current_page(void);
 };
 
@@ -88,6 +88,8 @@ private:
 	BackgroundTile background;
 	EpisodeController episode;
         key::KeyboardListener key_listener;
+
+        void prepare_for_next_scene(void);
 
 public:
         OpeningEpisodeSceneMaster(GameData *game_data);
@@ -102,6 +104,7 @@ private:
         std::forward_list<Tachie *> tachie_container;
         
         PlayerCharacter running_char;
+        EnemyCharacter target_udon;
         BackgroundTile backgroundTile;
         BackgroundTile game_background;
         DrawableScoreCounter score_counter;
@@ -110,15 +113,18 @@ private:
         BulletScheduler bullets_sched;
         Meter stamina;
         Meter junko_param;
+        Meter udon_hp;
         Label stamina_label;
         Label junko_param_label;
         Label rec_label;
         Label graze_label;
         DrawableScoreCounter graze_counter;
         WindowFrame window_frame;
+	DanmakuScheduler danmaku_sched;
 
         void add_new_functional_bullets_to_schedule(void);
-        void proceed_bullets_schedule(void);
+	void proceed_bullets_schedule(void);
+        void clear_all_bullets(void);
 
 public:
         RaceSceneMaster(GameData *game_data);

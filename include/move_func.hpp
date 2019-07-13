@@ -18,7 +18,8 @@
         DEF_MOVE_FUNC(sin, float bias, float dx);
         DEF_MOVE_FUNC(cos, float bias, float dx);
         DEF_MOVE_FUNC(linear, float bias, float dx, float c);
-        DEF_MOVE_FUNC(up, float c);
+	DEF_MOVE_FUNC(getting_slower, float init_speed, float angle, u64 limit);
+	DEF_MOVE_FUNC(up, float c);
         DEF_MOVE_FUNC(aim_self_linear, sf::Vector2f &target, float speed, sf::Vector2f begin_point);
 	DEF_MOVE_FUNC(tachie_move_constant, float dx, float dy);
 	DEF_MOVE_FUNC(uzumaki, sf::Vector2f origin,
@@ -34,6 +35,7 @@ enum BulletFunctionID {
         AIM_SELF_LINEAR,
         UP,
         UZUMAKI,
+        SLOWER1,
         UNKNOWN_BFID,
 };
 
@@ -49,9 +51,11 @@ inline BulletFunctionID str_to_bfid(const char *str)
                 return UP;
         }else if(!strcmp(str, enum_to_str(UZUMAKI))){
                 return UZUMAKI;
-        }
+	}else if (!strcmp(str, enum_to_str(SLOWER1))) {
+		return SLOWER1;
+	}
 
-        std::cout << "Unknown Bullet Function ID: " << str << std::endl;
+	std::cout << "Unknown Bullet Function ID: " << str << std::endl;
         
         return UNKNOWN_BFID;
 }
@@ -77,6 +81,8 @@ public:
         sf::Vector2f scale;
         float radius;
         picojson::object original_data;
+        bool conflictable;
+        bool grazable;
 
         BulletData(picojson::object &json_data);
         BulletData(picojson::object &json_data, u64 flg);
@@ -112,8 +118,11 @@ select_bullet_function(BulletFunctionID id, picojson::object &data)
                 return mf::cos(data["bias"].get<double>(), data["dx"].get<double>());
         case LINEAR:
                 return mf::linear(data["bias"].get<double>(), data["dx"].get<double>(), data["c"].get<double>());
-        case UP:
-                return mf::up(data["c"].get<double>());
+        case SLOWER1:
+		return mf::getting_slower(data["speed"].get<double>(),
+					  data["angle"].get<double>(),
+					  0);
+        case UP: return mf::up(data["c"].get<double>());
 	case UZUMAKI:
 		return mf::uzumaki(sf::Vector2f(data["origin.x"].get<double>(),
 						data["origin.y"].get<double>()),

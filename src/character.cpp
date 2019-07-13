@@ -13,7 +13,7 @@ DrawableCharacter::DrawableCharacter(CharacterAttribute attribute,
 				     sf::Vector2f scale)
 	: DrawableObject(t, p), Conflictable(true), char_info(attribute)
 {
-        set_radius(8);
+        set_radius(6);
         sprite.setScale(scale.x, scale.y);
         update_center(sf::Vector2f(
                               place.x + ((texture.getSize().x * scale.x) / 2),
@@ -59,14 +59,14 @@ PlayerCharacter::PlayerCharacter(CharacterAttribute attribute,
         this->core_texture = *core;
         core_sprite.setTexture(core_texture);
         set_core_place();
-        core_sprite.setScale(0.14, 0.14);
+        core_sprite.setScale(0.11, 0.11);
         core_sprite.setColor(sf::Color(255, 230, 230));
-        set_radius(6);
+        set_radius(5);
         core_off();
 }
 
 void PlayerCharacter::core_on()
-{
+{ 
         enable_core = true;
 }
 
@@ -86,7 +86,7 @@ void PlayerCharacter::move_diff(sf::Vector2f diff)
         if(center.y + diff.y < 32){
                 return;
         }
-        if(center.y + diff.y > 768){
+        if(center.y + diff.y > 736){
                 return;
         }
 
@@ -112,4 +112,23 @@ void PlayerCharacter::set_core_place()
         core_sprite.setPosition(
                 center.x - ((core_sprite.getTextureRect().width * scale.x) / 2),
                 center.y - ((core_sprite.getTextureRect().height * scale.y) / 2));
+}
+
+EnemyCharacter::EnemyCharacter(CharacterAttribute attribute, sf::Texture *t,
+			       sf::Vector2f p, sf::Vector2f scale, float hp_max,
+			       float hp_init)
+	: DrawableCharacter(attribute, t, p, scale)
+{
+        this->hp_actual = hp_init;
+        this->hp_max = hp_max;
+}
+
+void EnemyCharacter::set_hp(float val)
+{
+        this->hp_actual = val;
+}
+
+void EnemyCharacter::damage(float value)
+{
+        this->hp_actual -= value;
 }

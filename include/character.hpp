@@ -47,3 +47,16 @@ public:
         void move_diff(sf::Vector2f diff);
         void draw(sf::RenderWindow &window);
 };
+
+class EnemyCharacter : public DrawableCharacter {
+private:
+        float hp_actual;
+        float hp_max;
+        
+public:
+        EnemyCharacter(CharacterAttribute attribute, sf::Texture *t, sf::Vector2f p,
+                       sf::Vector2f scale, float hp_max, float hp_init);
+        float get_hp(void);
+	void set_hp(float val);
+	void damage(float value);
+};

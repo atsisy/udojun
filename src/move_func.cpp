@@ -55,7 +55,32 @@ namespace mf {
                        };
         }
 
-        std::function<sf::Vector2f(MoveObject *, u64, u64)>
+	std::function<sf::Vector2f(MoveObject *, u64, u64)>
+	getting_slower(float init_speed, float angle, u64 limit)
+	{
+                float x_speed = init_speed * std::cos(angle);
+                float y_speed = init_speed * std::sin(angle);
+
+                float x_min_speed = std::cos(angle);
+		float y_min_speed = std::sin(angle);
+
+		return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd) {
+                               const sf::Vector2f &&now = bullet->get_place();
+                               if(init_speed / (now_lmd - begin_lmd) < 1){
+				       return sf::Vector2f(
+					       now.x + x_min_speed,
+					       now.y + y_min_speed);
+			       }
+
+			       return sf::Vector2f(
+				       now.x + (x_speed /
+                                                (float)((now_lmd + 1) - begin_lmd)),
+				       now.y + (y_speed /
+                                                (float)((now_lmd + 1) - begin_lmd)));
+                       };
+	}
+
+	std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	up(float c)
 	{
                 return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd){
@@ -152,12 +177,28 @@ BulletData::BulletData(picojson::object &json_data)
                 }
         }
 
-        if(original_data.find("texture") == std::end(original_data)){
-		init_texture_data(BULLET_HART);
+	if (original_data.find("conflictable") != std::end(original_data)){
+		this->conflictable = (original_data["conflictable"].get<std::string>() == "true");
 	}else{
-		init_texture_data(str_to_txid(
-			original_data["texture"].get<std::string>().c_str()));
+		this->conflictable = true;
 	}
+
+	if (original_data.find("grazable") != std::end(original_data)) {
+		this->grazable =
+			original_data["grazable"].get<std::string>() ==
+			"true";
+	}else{
+                this->grazable = true;
+        }
+
+	if (original_data.find("texture") == std::end(original_data)) {
+                init_texture_data(BULLET_HART);
+        } else {
+                init_texture_data(
+                        str_to_txid(original_data["texture"]
+                                    .get<std::string>()
+                                    .c_str()));
+        }
 }
 
 BulletData::BulletData(picojson::object &json_data, u64 flg)
@@ -243,7 +284,8 @@ Bullet *BulletData::generate(DrawableCharacter &running_char, u64 count)
                 this->texture,
                 p,
                 func, count,
-                scale, radius);
+                scale, radius,
+                this->conflictable, this->grazable);
 }
 
 void BulletData::set_appear_time(u64 current)
@@ -278,7 +320,7 @@ std::vector<Bullet *> BulletGenerator::generate_bullet(BulletData *data, Drawabl
                 auto texture_scale = data->scale;
                 auto texture_size = data->texture->getSize();
                 
-                data->func = mf::aim_self_linear(target, 8, sf::Vector2f(
+                data->func = mf::aim_self_linear(target, 7, sf::Vector2f(
                                                          p.x + (texture_size.x * texture_scale.x / 2),
                                                          p.y + (texture_size.y * texture_scale.y / 2)));
         }
@@ -289,7 +331,8 @@ std::vector<Bullet *> BulletGenerator::generate_bullet(BulletData *data, Drawabl
                         p,
                         data->func, count,
                         data->scale,
-                        data->radius)
+                        data->radius,
+                        data->conflictable, data->grazable)
         };
 }
 

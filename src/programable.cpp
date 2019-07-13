@@ -290,3 +290,8 @@ void BulletFuncTable::add_function_dynamic(FunctionCallEssential e)
 {
 	func_sched.push_back(e);
 }
+
+void BulletFuncTable::clear_func_sched(void)
+{
+        func_sched.clear();
+}

@@ -66,4 +66,6 @@ private:
 
 	void add_function_dynamic(FunctionCallEssential e);
 	void add_function_dynamic(std::string fn, u64 t);
+
+        void clear_func_sched(void);
 };

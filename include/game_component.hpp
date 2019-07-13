@@ -215,7 +215,7 @@ private:
 public:
         Bullet(sf::Texture *t, sf::Vector2f p,
                std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
-               u64 begin_count, sf::Vector2f scale, float radius);
+               u64 begin_count, sf::Vector2f scale, float radius, bool Conflictable, bool grazable);
         bool is_finish(sf::IntRect window_rect);
         bool is_grazable(void);
         void disable_graze(void);

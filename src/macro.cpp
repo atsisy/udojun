@@ -11,14 +11,14 @@ namespace macro {
                 float rad = phase;
 
                 for(u8 i = 0;i < num;i++, rad += unit_rad){
-                        float c = (rad > (M_PI / 2) && rad < (3* M_PI / 2) ? 2 : -2);
+                        float c = (rad > (M_PI / 2) && rad < (3 * M_PI / 2) ? 2 : -2);
                         ret.push_back(new BulletData(
                                               str_to_bfid("LINEAR"),
                                               (std::abs(std::cos(rad)) < 0.000001 ?
                                                mf::up(c) : mf::linear(
                                                        -(r * std::sin(rad)) / ((r * std::cos(rad))),
                                                        2 * std::cos(rad), 0)),
-                                              time++,
+                                              time,
                                               sf::Vector2f(
                                                       origin.x + (r * std::cos(rad)),
                                                       origin.y + (r * std::sin(rad)))
@@ -28,7 +28,56 @@ namespace macro {
                 return ret;
         }
 
-        std::vector<BulletData *> hart(sf::Vector2f origin, float r, u8 num, u64 time)
+        std::vector<BulletData *> udon_circle(sf::Vector2f origin, float speed, float r, u8 num, u64 time, float phase)
+        {
+                std::vector<BulletData *> ret;
+                float unit_rad = (2 * M_PI) / (float)num;
+                float rad = phase;
+
+                for(u8 i = 0;i < num;i++, rad += unit_rad){
+                        ret.push_back(new BulletData(
+                                              str_to_bfid("SLOWER1"),
+                                              mf::getting_slower(speed, rad, 0),
+                                              time,
+                                              sf::Vector2f(
+                                                      origin.x + (r * std::cos(rad)),
+                                                      origin.y + (r * std::sin(rad)))
+                                              ));
+                }
+
+                return ret;
+        }
+
+	std::vector<BulletData *> udon_circle2(sf::Vector2f origin, float speed,
+					      float r, u16 num, u64 time,
+                                               float phase, float unit_rad)
+	{
+		std::vector<BulletData *> ret;
+		float rad1 = phase;
+                float rad2 = phase + M_PI;
+
+		for (u16 i = 0; i < num; i++, rad1 += unit_rad, rad2 += unit_rad, time += 3) {
+			ret.push_back(new BulletData(
+                                              str_to_bfid("SLOWER1"),
+                                              mf::getting_slower(speed, rad1, 0), time,
+                                              sf::Vector2f(origin.x + (r * std::cos(rad1)),
+                                                           origin.y + (r * std::sin(rad1)))));
+			ret.push_back(new BulletData(
+                                              str_to_bfid("SLOWER1"),
+                                              mf::getting_slower(speed, rad2, 0), time,
+                                              sf::Vector2f(origin.x + (r * std::cos(rad2)),
+                                                           origin.y + (r * std::sin(rad2)))));
+		}
+
+		return ret;
+	}
+
+	std::vector<BulletData *> udon_tsujo2(sf::Vector2f origin, u64 time, float phase)
+	{
+		return udon_circle2(origin, 90, 10, 1024, time, phase, 0.06);
+	}
+
+	std::vector<BulletData *> hart(sf::Vector2f origin, float r, u8 num, u64 time)
         {
                 std::vector<BulletData *> ret;
                 float unit_rad = (2 * M_PI) / (float)num;
@@ -52,9 +101,26 @@ namespace macro {
                 return ret;
         }
 
-        std::vector<BulletData *> odd_n_way(sf::Vector2f origin, float r,
-                                            float toward, float unit_rad, u8 num, u64 time)
+	std::vector<BulletData *> udon_tsujo1(sf::Vector2f origin, u64 time)
         {
+                std::vector<BulletData *> ret;
+                float rad;
+                for(int i = 0;i < 100;i++){
+			rad = ((float)(util::generate_random() % 360) /
+				 180.0) *
+				M_PI;
+			auto &&circle_data = udon_circle(origin, 120, 20, 36, time + (i * 15), rad);
+			std::copy(std::begin(circle_data), std::end(circle_data), std::back_inserter(ret));
+		}
+                
+                return ret;
+        }
+        
+        std::vector<BulletData *> odd_n_way(sf::Vector2f origin,
+                                            float r, float toward,
+                                            float unit_rad, u8 num,
+                                            u64 time)
+	{
                 std::vector<BulletData *> ret;
                 float rad = toward;
 
@@ -135,16 +201,27 @@ namespace macro {
                                 data["quantity"].get<double>(),
                                 data["time"].get<double>()
                                 );
-                case N_WAY:
-                        return n_way(
-                                sf::Vector2f(data["x"].get<double>(), data["y"].get<double>()),
-                                data["r"].get<double>(),
-                                data["angle"].get<double>(),
-                                data["width"].get<double>(),
-                                data["quantity"].get<double>(),
-                                data["time"].get<double>()
-                                );
-                default:
+                case UDON_TSUJO1:
+			return udon_tsujo1(
+				sf::Vector2f(data["x"].get<double>(),
+					     data["y"].get<double>()),
+				data["time"].get<double>());
+		case UDON_TSUJO2:
+			return udon_tsujo2(
+				sf::Vector2f(data["x"].get<double>(),
+					     data["y"].get<double>()),
+				data["time"].get<double>(),
+				TAKE_DEFAULT_ARG(data, "phase", double, 0));
+		case N_WAY
+				: return n_way(
+					  sf::Vector2f(data["x"].get<double>(),
+						       data["y"].get<double>()),
+					  data["r"].get<double>(),
+					  data["angle"].get<double>(),
+					  data["width"].get<double>(),
+					  data["quantity"].get<double>(),
+					  data["time"].get<double>());
+		default:
                         return std::vector<BulletData *>();
                 }
         }
@@ -176,7 +253,18 @@ namespace macro {
                                 data["quantity"].get<double>(),
                                 data["time"].get<double>()
                                 );
-                default:
+		case UDON_TSUJO2:
+			return udon_tsujo2(
+				sf::Vector2f(data["x"].get<double>(),
+					     data["y"].get<double>()),
+				data["time"].get<double>(),
+				TAKE_DEFAULT_ARG(data, "phase", double, 0));
+		case UDON_TSUJO1:
+			return udon_tsujo1(
+				sf::Vector2f(data["x"].get<double>(),
+					     data["y"].get<double>()),
+				data["time"].get<double>());
+		default:
                         return std::vector<BulletData *>();
                 }
         }

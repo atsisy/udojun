@@ -57,6 +57,12 @@ void EpisodeController::end(void)
         page_index = episode.size() - 1;
 }
 
+bool EpisodeController::last_page(void)
+{
+        return episode.size() - 1 == page_index;
+}
+
+
 NovelText *EpisodeController::get_current_page(void)
 {
         return episode[page_index];
@@ -79,10 +85,27 @@ OpeningEpisodeSceneMaster::OpeningEpisodeSceneMaster(GameData *game_data)
 
         key_listener.add_key_event(key::VKEY_1, [&](key::KeyStatus status){
                                                         if(status & key::KEY_FIRST_PRESSED){
-                                                                episode.next();
+                                                                if(episode.last_page()){
+                                                                        prepare_for_next_scene();
+                                                                }else{
+                                                                        episode.next();
+                                                                }
                                                         }
                                                 });
         
+}
+
+void OpeningEpisodeSceneMaster::prepare_for_next_scene(void)
+{
+        auto p = new MoveObject(GameMaster::texture_table[BLACK_ANTEN],
+				sf::Vector2f(0, 0),
+                                mf::stop,
+                                get_count());
+        add_animation_object(p);
+        p->add_effect({ effect::fade_in(100) });
+        timer_list.add_timer([this](void){
+                               this->game_state = RACE;
+                       }, 120, get_count());
 }
 
 void OpeningEpisodeSceneMaster::pre_process(sf::RenderWindow &window)
@@ -100,6 +123,7 @@ void OpeningEpisodeSceneMaster::drawing_process(sf::RenderWindow &window)
 
 GameState OpeningEpisodeSceneMaster::post_process(sf::RenderWindow &window)
 {
+        timer_list.check_and_call(get_count());
 	update_count();
         return game_state;
 }

@@ -424,8 +424,8 @@ float Conflictable::outer_distance(Conflictable *c)
 
 Bullet::Bullet(sf::Texture *t, sf::Vector2f p,
 	       std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
-	       u64 begin_count, sf::Vector2f scale, float radius)
-	: MoveObject(t, p, f, begin_count), Conflictable(true), grazable(true)
+	       u64 begin_count, sf::Vector2f scale, float radius, bool conflictable, bool grazable)
+	: MoveObject(t, p, f, begin_count), Conflictable(true), grazable(grazable)
 {
 	update_center(sf::Vector2f(
                               place.x + ((texture.getSize().x / 2) * scale.x),
