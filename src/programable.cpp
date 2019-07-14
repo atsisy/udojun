@@ -293,5 +293,6 @@ void BulletFuncTable::add_function_dynamic(FunctionCallEssential e)
 
 void BulletFuncTable::clear_func_sched(void)
 {
+        std::cout << "func sched size: " << func_sched.size() << std::endl;
         func_sched.clear();
 }

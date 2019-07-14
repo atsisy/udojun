@@ -58,5 +58,7 @@ public:
                        sf::Vector2f scale, float hp_max, float hp_init);
         float get_hp(void);
 	void set_hp(float val);
+        void set_hp_max(void);
 	void damage(float value);
+        bool dead(void);
 };

@@ -108,7 +108,8 @@ private:
         BackgroundTile backgroundTile;
         BackgroundTile game_background;
         DrawableScoreCounter score_counter;
-        std::vector<Bullet *> bullets;
+	DrawableScoreCounter timelimit_counter;
+	std::vector<Bullet *> bullets;
         BulletFuncTable func_table;
         BulletScheduler bullets_sched;
         Meter stamina;
@@ -121,10 +122,13 @@ private:
         DrawableScoreCounter graze_counter;
         WindowFrame window_frame;
 	DanmakuScheduler danmaku_sched;
+        u64 last_danmaku_timer_id;
 
         void add_new_functional_bullets_to_schedule(void);
 	void proceed_bullets_schedule(void);
         void clear_all_bullets(void);
+        void add_new_danmaku(void);
+        void next_danmaku_forced(void);
 
 public:
         RaceSceneMaster(GameData *game_data);

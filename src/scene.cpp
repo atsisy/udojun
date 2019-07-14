@@ -55,7 +55,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 		       sf::Vector2f(400, 200)),
 	  target_udon(CharacterAttribute("target udon"),
 		      GameMaster::texture_table[UDON1], sf::Vector2f(480, 50),
-		      sf::Vector2f(0.8, 0.8), 200, 200),
+		      sf::Vector2f(0.8, 0.8), 400, 400),
 	  backgroundTile(GameMaster::texture_table[MOON_CITY_TILE],
 			 sf::Vector2f(32, 32), sf::IntRect(0, 0, 960, 736),
 			 sf::Vector2f(1, 1)),
@@ -63,6 +63,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 			  sf::Vector2f(0, 0), sf::IntRect(0, 0, 1366, 768),
 			  sf::Vector2f(0.2, 0.2)),
 	  score_counter(0, game_data->get_font(JP_DEFAULT)),
+          timelimit_counter(30, game_data->get_font(JP_DEFAULT)),
 	  func_table("main.json"), bullets_sched(),
 	  stamina(sf::Vector2f(300, 20), sf::Vector2f(2, 2), 400, 400,
 		  sf::Color(10, 10, 20), sf::Color::Green,
@@ -99,6 +100,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
         udon_hp.set_place(92, 48);
 	rec_label.set_place(900, 50);
 	rec_label.set_color(sf::Color::Red);
+        timelimit_counter.set_place(870, 48);
         graze_label.set_place(0, 200);
         graze_counter.set_place(150, 200);
 
@@ -120,7 +122,32 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 	create_view("tachie", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))
 		->setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
 
-	
+        add_new_danmaku();
+        
+}
+
+void RaceSceneMaster::add_new_danmaku(void)
+{
+        /*
+         * まだ残りがある
+         */
+	if(danmaku_sched.size()){
+                // 残りをスケジュールする
+		func_table.add_function_dynamic(
+			danmaku_sched.top().func_essential.func_name, get_count() + 30);
+                // スケジュールした弾幕が切れた時に新しい弾幕をスケジュール出来るように処理
+		last_danmaku_timer_id = timer_list.add_timer(
+			[this](void) {
+                                this->next_danmaku_forced();
+			},
+			get_count(), danmaku_sched.top().time_limit);
+                // タイマの実行時間は、弾幕発生 + 弾幕タイムリミット
+                
+                timelimit_counter.counter_method().set_score(danmaku_sched.top().time_limit);
+                
+                // 先頭の弾幕を捨てる
+                danmaku_sched.drop_top();
+	}
 }
 
 void RaceSceneMaster::player_move()
@@ -208,7 +235,7 @@ void RaceSceneMaster::player_move()
 
 void RaceSceneMaster::clear_all_bullets(void)
 {
-	func_table.clear_func_sched();
+	//func_table.clear_func_sched();
 
 	for (Bullet *b : bullets) {
 		delete b;
@@ -248,6 +275,7 @@ void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
                 clear_all_bullets();
 	}
 
+        /*
         if(danmaku_sched.function_is_coming(get_count())){
                 DanmakuCallEssential &&e = danmaku_sched.drop_top();
                 func_table.add_function_dynamic(e.func_essential);
@@ -255,6 +283,7 @@ void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
                                              //this->clear_all_bullets();  
                                      }, e.time_limit, get_count());
         }
+        */
 
 	// スケジュールされる予定の弾幕がまだある場合継続
 	while (func_table.get_func_sched().size() > i) {
@@ -332,6 +361,15 @@ void RaceSceneMaster::proceed_bullets_schedule(void)
 	}
 }
 
+void RaceSceneMaster::next_danmaku_forced(void)
+{
+        this->clear_all_bullets();
+        
+        this->target_udon.set_hp_max();
+        // 次の弾幕を追加し、タイマも設定する
+        this->add_new_danmaku();
+}
+
 void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 {
         add_new_functional_bullets_to_schedule();
@@ -343,7 +381,13 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 			junko_param.add(10);
 		} else if (bullet->check_conflict(target_udon)){
 			bullet->hide();
-                        udon_hp.add(-1);
+                        target_udon.damage(1);
+                        udon_hp.set_value(target_udon.get_hp());
+                        // HPが0になると次の弾幕に移行
+                        if(target_udon.dead()){
+                                timer_list.cancel(last_danmaku_timer_id);
+                                next_danmaku_forced();
+                        }
 		}
 	}
 
@@ -355,6 +399,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 	player_move();
 
 	score_counter.counter_method().add(1);
+        timelimit_counter.counter_method().add(-1);
 
 	for (u32 i = 0; i < bullets.size(); i++) {
 		if (bullets[i]->is_finish(
@@ -423,6 +468,7 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
 
 	rec_label.draw(window);
         udon_hp.draw(window);
+        timelimit_counter.draw(window);
 
 	//window_frame.draw(window);
 

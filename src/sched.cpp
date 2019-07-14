@@ -1,6 +1,29 @@
 #include "sched.hpp"
 #include <algorithm>
 
+FunctionScheduler::FunctionScheduler()
+        : queue(func_scheduler_compare)
+{}
+
+
+void FunctionScheduler::add_function(FunctionCallEssential *e)
+{
+        queue.emplace(e);
+}
+
+void FunctionScheduler::add_function(std::string fn, u64 t)
+{
+	queue.emplace(new FunctionCallEssential(fn, t));
+}
+
+void FunctionScheduler::clear_func_sched(void)
+{
+	while (queue.size()) {
+		delete queue.top();
+		queue.pop();
+	}
+}
+        
 BulletScheduler::BulletScheduler()
         : queue(c)
 {}
@@ -77,4 +100,14 @@ void BulletScheduler::clear(void)
                 delete queue.top();
                 queue.pop();
         }
+}
+
+DanmakuCallEssential DanmakuScheduler::top(void)
+{
+        return schedule.back();
+}
+
+size_t DanmakuScheduler::size(void)
+{
+	return schedule.size();
 }

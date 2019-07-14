@@ -1,18 +1,49 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <functional>
+#include <string>
+#include <unordered_map>
+#include "picojson.h"
+#include "utility.hpp"
+#include "game_component.hpp"
 
-class ViewDrawer {
+enum SpellCardType {
+        GEKIHA = 0,
+        TAIKYU,
+        UNKNOWN_SCTYPE,
+};
+
+enum SpellCardID {
+        TEST_SCID = 0,
+        UNKNOWN_SCID,
+};
+
+inline SpellCardID str_to_scid(const char *str)
+{
+        str_to_idx_sub(str, TEST_SCID);
+        return UNKNOWN_SCID;
+}
+
+inline SpellCardType str_to_sctype(const char *str)
+{
+	str_to_idx_sub(str, GEKIHA);
+	str_to_idx_sub(str, TAIKYU);
+	return UNKNOWN_SCTYPE;
+}
+
+class SpellCardInfo {
 private:
-        sf::View *view;
-        std::function<void(sf::View *, sf::RenderWindow)> drawing_func;
+        std::string name;
+        SpellCardType type;
 
 public:
-        ViewDrawer(sf::FloatRect area,
-	       std::function<void(sf::View *, sf::RenderWindow)> fn);
+        SpellCardInfo(picojson::object &json_data);
+};
 
-        void draw(sf::RenderWindow &window);
-        sf::View *get_view(void);
+class SpellCardTable {
+private:
+        std::unordered_map<SpellCardID, SpellCardInfo *> spell_card_map;
         
+public:
+        SpellCardTable(const char *json);
+        SpellCardInfo *get(SpellCardID id);
 };

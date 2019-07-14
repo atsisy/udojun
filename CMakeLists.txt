@@ -21,6 +21,7 @@ set(udjn_src
   src/fonts.cpp
   src/scene_animation.cpp
   src/episode_scene.cpp
+  src/game_system.cpp
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

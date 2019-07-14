@@ -123,12 +123,27 @@ EnemyCharacter::EnemyCharacter(CharacterAttribute attribute, sf::Texture *t,
         this->hp_max = hp_max;
 }
 
+float EnemyCharacter::get_hp(void)
+{
+        return hp_actual;
+}
+
 void EnemyCharacter::set_hp(float val)
 {
         this->hp_actual = val;
 }
 
+void EnemyCharacter::set_hp_max(void)
+{
+        this->hp_actual = this->hp_max;
+}
+
 void EnemyCharacter::damage(float value)
 {
         this->hp_actual -= value;
+}
+
+bool EnemyCharacter::dead(void)
+{
+        return hp_actual <= 0;
 }

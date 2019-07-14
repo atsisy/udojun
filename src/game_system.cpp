@@ -1,18 +1,35 @@
 #include "game_system.hpp"
+#include <fstream>
 
-ViewDrawer::ViewDrawer(sf::FloatRect area,
-		       std::function<void(sf::View *, sf::RenderWindow)> fn)
-{
-        view = new sf::View(area);
-        drawing_func = fn;
-}
+SpellCardInfo::SpellCardInfo(picojson::object &obj)
+        : name(obj["name"].get<std::string>()),
+          type(str_to_sctype(obj["type"].get<std::string>().data()))
+{}
 
-void ViewDrawer::draw(sf::RenderWindow &window)
+SpellCardTable::SpellCardTable(const char *json)
 {
-        drawing_func(view, window);
-}
+	std::ifstream ifs(json, std::ios::in);
+	if (ifs.fail()) {
+		std::cerr << "failed to read json file: " << json << std::endl;
+		exit(1);
+	}
+	const std::string json_raw((std::istreambuf_iterator<char>(ifs)),
+			       std::istreambuf_iterator<char>());
+	ifs.close();
+	picojson::value v;
+	const std::string err = picojson::parse(v, json_raw);
+	if (err.empty() == false) {
+		std::cerr << err << std::endl;
+		exit(1);
+	}
 
-sf::View *ViewDrawer::get_view(void)
-{
-        return view;
+	auto &obj = v.get<picojson::object>();
+	picojson::array &info_array = obj["spell_info"].get<picojson::array>();
+
+	for (auto &array_element : info_array) {
+		auto &info_obj = array_element.get<picojson::object>();
+                spell_card_map.emplace(
+                        str_to_scid(info_obj["id"].get<std::string>().data()),
+                        new SpellCardInfo(info_obj));
+	}
 }

@@ -141,18 +141,21 @@ namespace util {
         private:
                 std::function<void(void)> fn;
                 u64 wakeup;
+                u64 id;
 
         public:
-                SimpleTimer(std::function<void(void)> f, u64 wakeup_abs)
+                SimpleTimer(std::function<void(void)> f, u64 wakeup_abs, u64 id)
                         : fn(f)
                 {
                         this->wakeup = wakeup_abs;
+                        this->id = id;
                 }
 
-		SimpleTimer(std::function<void(void)> f, u64 wakeup_offset, u64 now)
+		SimpleTimer(std::function<void(void)> f, u64 wakeup_offset, u64 now, u64 id)
                         : fn(f)
 		{
 			this->wakeup = now + wakeup_offset;
+			this->id = id;
 		}
 
 		bool try_call(u64 current)
@@ -164,41 +167,67 @@ namespace util {
                         
                         return false;
                 }
+
+                u64 get_id(void)
+                {
+                        return id;
+                }
                 
         };
 
         class SimpleTimerList {
         private:
                 std::vector<SimpleTimer> timers;
+                u64 seq;
 
         public:
-                void add_timer(std::function<void(void)> f,
-                               u64 wakeup_abs)
-                        {
-                                timers.emplace_back(f, wakeup_abs);
-                        }
+                SimpleTimerList(void)
+                {
+                        seq = 0;
+                }
                 
-                void add_timer(std::function<void(void)> f,
+                u64 add_timer(std::function<void(void)> f,
+                               u64 wakeup_abs)
+		{
+			timers.emplace_back(f, wakeup_abs, seq);
+                        return seq++;
+		}
+
+		u64 add_timer(std::function<void(void)> f,
                                u64 wakeup_offset, u64 now)
-			{
-				timers.emplace_back(f, wakeup_offset, now);
-			}
+		{
+			timers.emplace_back(f, wakeup_offset, now, seq);
+                        return seq++;
+		}
 
-		size_t check_and_call(u64 current)
-                        {
-                                size_t count = 0;
-                                for(SimpleTimer &t : timers){
-                                        count += t.try_call(current);
+		void check_and_call(u64 current)
+                {
+                        for(size_t i = 0;i < timers.size();i++){
+                                if(timers[i].try_call(current)){
+                                        std::swap(timers[i], timers.back());
+                                        timers.pop_back();
+                                        i--;
                                 }
-
-                                return count;
                         }
+                }
+
+                void cancel(u64 id)
+                {
+                        for (size_t i = 0; i < timers.size(); i++) {
+                                if (timers[i].get_id() == id) {
+                                        std::swap(timers[i],
+                                                  timers.back());
+                                        timers.pop_back();
+                                        break;
+                                }
+                        }
+                }
                 
         };
 }
 
 #define enum_to_str(var) #var
-#define str_to_idx_sub(str, _enum) if (!strcmp(str, enum_to_str(_enum))) { \
-        return _enum; }
+#define str_to_idx_sub(str, _enum) do { if (!strcmp(str, enum_to_str(_enum))) { \
+                        return _enum; } }while(0)
 
 #define container_entire_range(x) std::begin(x), std::end(x)
