@@ -110,10 +110,7 @@ private:
         BackgroundTile game_background;
         DrawableScoreCounter score_counter;
 	DrawableScoreCounter timelimit_counter;
-        BulletContainer bullet_container;
         BulletFuncTable func_table;
-        FunctionScheduler func_sched;
-        BulletScheduler bullets_sched;
         Meter stamina;
         Meter junko_param;
         Meter udon_hp;
@@ -125,16 +122,12 @@ private:
         WindowFrame window_frame;
 	DanmakuScheduler danmaku_sched;
         u64 last_danmaku_timer_id;
-        BulletPipeline bullet_pipeline;
+        BulletPipelineContainer bullet_pipeline;
 
-	void flush_called_function(FunctionScheduler &func_sched,
-				   BulletScheduler &bullet_sched);
 	void add_new_functional_bullets_to_schedule(void);
-        void clear_all_bullets(void);
         void add_new_danmaku(void);
         void next_danmaku_forced(void);
-	void proceed_bullets_schedule(BulletScheduler &bullet_sched,
-					std::vector<Bullet *> &bullet_buf);
+        void conflict_judge(void);
         void kill_out_of_filed_bullet(std::vector<Bullet *> &bullets);
 
     public:

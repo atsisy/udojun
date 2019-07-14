@@ -15,13 +15,18 @@ class BulletPipeline {
 	void add_function(FunctionCallEssential *e);
 	void flush_called_function(u64 now, BulletFuncTable &func_table);
 	void schedule_bullet(u64 now, PlayerCharacter &player);
+        void clear_all_bullets(void);
+        
+        void draw(sf::RenderWindow &window);
 };
 
-class BulletContainer : public DrawableComponent {
+class BulletPipelineContainer {
     public:
-	std::vector<Bullet *> enemy_bullets;
-	std::vector<Bullet *> player_bullets;
-	std::vector<Bullet *> special_bullets;
+        BulletPipeline player_pipeline;
+	BulletPipeline enemy_pipeline;
+	BulletPipeline special_pipeline;
 
-	void draw(sf::RenderWindow &window) override;
+	void all_flush_called_function(u64 now, BulletFuncTable &func_table);
+        void all_schedule_bullet(u64 now, PlayerCharacter &player);
+	void draw(sf::RenderWindow &window);
 };

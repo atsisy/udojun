@@ -84,15 +84,45 @@ void BulletPipeline::schedule_bullet(u64 now, PlayerCharacter &player)
 	}
 }
 
-void BulletContainer::draw(sf::RenderWindow &window)
+void BulletPipeline::clear_all_bullets(void)
 {
-	for (Bullet *b : enemy_bullets) {
-		b->draw(window);
+        //func_table.clear_func_sched();
+
+	for (Bullet *b : actual_bullets) {
+		delete b;
 	}
-	for (Bullet *b : player_bullets) {
-		b->draw(window);
-	}
-	for (Bullet *b : special_bullets) {
-		b->draw(window);
-	}
+        actual_bullets.clear();
+	bullet_sched.clear();
+}
+
+void BulletPipeline::draw(sf::RenderWindow &window)
+{
+        for(Bullet *b : actual_bullets){
+                b->draw(window);
+        }
+}
+
+void BulletPipelineContainer::draw(sf::RenderWindow &window)
+{
+        player_pipeline.draw(window);
+        enemy_pipeline.draw(window);
+        special_pipeline.draw(window);
+}
+
+void BulletPipelineContainer::all_flush_called_function(
+        u64 now,
+        BulletFuncTable &func_table)
+{
+        player_pipeline.flush_called_function(now, func_table);
+        enemy_pipeline.flush_called_function(now, func_table);
+        special_pipeline.flush_called_function(now, func_table);
+}
+
+void BulletPipelineContainer::all_schedule_bullet(
+        u64 now,
+        PlayerCharacter &player)
+{
+        player_pipeline.schedule_bullet(now, player);
+        enemy_pipeline.schedule_bullet(now, player);
+        special_pipeline.schedule_bullet(now, player);
 }

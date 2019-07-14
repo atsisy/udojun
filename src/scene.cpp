@@ -64,7 +64,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 			  sf::Vector2f(0.2, 0.2)),
 	  score_counter(0, game_data->get_font(JP_DEFAULT)),
           timelimit_counter(30, game_data->get_font(JP_DEFAULT)),
-	  func_table("main.json"), bullets_sched(),
+	  func_table("main.json"),
 	  stamina(sf::Vector2f(300, 20), sf::Vector2f(2, 2), 400, 400,
 		  sf::Color(10, 10, 20), sf::Color::Green,
 		  sf::Color(20, 100, 20)),
@@ -133,15 +133,15 @@ void RaceSceneMaster::add_new_danmaku(void)
          */
 	if(danmaku_sched.size()){
                 // 残りをスケジュールする
-		func_sched.add_function(
-			danmaku_sched.top().func_essential.func_name, get_count() + 30);
-                // スケジュールした弾幕が切れた時に新しい弾幕をスケジュール出来るように処理
-		last_danmaku_timer_id = timer_list.add_timer(
-			[this](void) {
-                                this->next_danmaku_forced();
-			},
+		bullet_pipeline.enemy_pipeline.add_function(new FunctionCallEssential(
+			danmaku_sched.top().func_essential.func_name,
+			get_count() + 30));
+                
+			// スケジュールした弾幕が切れた時に新しい弾幕をスケジュール出来るように処理
+                last_danmaku_timer_id = timer_list.add_timer(
+			[this](void) { this->next_danmaku_forced(); },
 			get_count(), danmaku_sched.top().time_limit);
-                // タイマの実行時間は、弾幕発生 + 弾幕タイムリミット
+		// タイマの実行時間は、弾幕発生 + 弾幕タイムリミット
                 
                 timelimit_counter.counter_method().set_score(danmaku_sched.top().time_limit);
                 
@@ -192,7 +192,7 @@ void RaceSceneMaster::player_move()
                                                 effect::kill_at(150) });
                                 {
                                         int n = 0;
-                                        std::vector<Bullet *> &bullets = bullet_container.enemy_bullets;
+                                        std::vector<Bullet *> &bullets = bullet_pipeline.enemy_pipeline.actual_bullets;
                                         for (u32 i = 0; i < bullets.size();
                                              i++) {
                                                 if (running_char.distance(
@@ -234,17 +234,6 @@ void RaceSceneMaster::player_move()
 */
 }
 
-void RaceSceneMaster::clear_all_bullets(void)
-{
-	//func_table.clear_func_sched();
-
-	for (Bullet *b : bullet_container.enemy_bullets) {
-		delete b;
-	}
-	bullet_container.enemy_bullets.clear();
-	bullets_sched.clear();
-}
-
 void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
 {
 /*
@@ -268,11 +257,11 @@ void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) {
                 sf::Vector2f &&p = running_char.get_place();
-		func_sched.add_function(
+		bullet_pipeline.player_pipeline.add_function(
 			new FunctionCallEssential("shot", get_count(),
                                               sf::Vector2f(p.x + 10, p.y - 5)));
 	}else if(sf::Keyboard::isKeyPressed(sf::Keyboard::K)) {
-                clear_all_bullets();
+                bullet_pipeline.enemy_pipeline.clear_all_bullets();
 	}
 
         /*
@@ -284,96 +273,13 @@ void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
                                      }, e.time_limit, get_count());
         }
         */
-        
-        flush_called_function(func_sched, bullets_sched);
-}
 
-void RaceSceneMaster::flush_called_function(
-        FunctionScheduler &func_sched,
-        BulletScheduler &bullet_sched)
-{
-        // スケジュールされる予定の弾幕がまだある場合継続
-        while (func_sched.size()) {
-		/*
-                 * スケジュールされる予定のカウントに達した
-                 */
-		if (func_sched.head()->time <= get_count()) {
-                        // 関数生成のためのデータを取り出す
-			FunctionCallEssential *f_essential =
-                                func_sched.pop();
-			// 生成
-			std::vector<BulletData *> &&v =
-				func_table.call_function(*f_essential);
-			// 生成されたそれぞれの弾丸データに出現時刻をセットする
-                        // 基本的には即時出現
-			std::for_each(std::begin(v), std::end(v),
-				      [this, &bullet_sched](BulletData *d) {
-					      d->set_appear_time(get_count());
-                                              // スケジュールに追加
-                                              bullet_sched.add(d);
-                                      });
-                        delete f_essential;
-                } else {
-                        /*
-                         * この待ち行列（のようなもの）は既にスケジュール時刻でソートされているため、
-                         * 先頭が達していない場合は、それ以降すべて達していないことになり、breakする
-                         */
-                        break;
-                }
-        }
-}
-
-void RaceSceneMaster::proceed_bullets_schedule(
-        BulletScheduler &bullet_sched,
-        std::vector<Bullet *> &bullet_buf)
-{
-        /*
-         * 弾幕データがスケジュールされているか？
-         */
-	while (bullet_sched.size()) {
-                // 出現時間を迎えているか？
-		if (bullets_sched.next()->appear_time <= get_count()) {
-                        // ターゲットの弾幕データを取り出し
-			BulletData *target = bullets_sched.next();
-
-                        // 取り出したので、削除
-			bullets_sched.drop();
-
-                        /*
-                         * 動的なマクロか？
-                         */
-			if (target->flags & DYNAMIC_MACRO) {
-                                // 動的なマクロを展開
-                                // これにより、BulletDataのvectorが得られる
-				auto &&gen = macro::expand_dynamic_macro(
-					target->original_data, running_char);
-
-                                // 実体化し、表示する弾丸のグループに加える
-				for (auto &elem : gen) {
-					util::concat_container<
-						std::vector<Bullet *> >(
-						bullet_buf,
-						BulletGenerator::generate(
-							elem, running_char,
-							get_count()));
-				}
-			} else {
-                                // 実体化し、表示する弾丸のグループに加える
-				util::concat_container<std::vector<Bullet *> >(
-					bullet_buf, BulletGenerator::generate(
-							 target, running_char,
-							 get_count()));
-			}
-		} else {
-                        // スケジュールは出現時間でソートされているため、先頭が達していない場合はbreak
-			break;
-		}
-	}
+        bullet_pipeline.all_flush_called_function(get_count(), func_table);
 }
 
 void RaceSceneMaster::next_danmaku_forced(void)
 {
-        this->clear_all_bullets();
+        bullet_pipeline.enemy_pipeline.clear_all_bullets();
         
         this->target_udon.set_hp_max();
         // 次の弾幕を追加し、タイマも設定する
@@ -402,16 +308,10 @@ void RaceSceneMaster::kill_out_of_filed_bullet(std::vector<Bullet *> &bullets)
 	}
 }
 
-void RaceSceneMaster::pre_process(sf::RenderWindow &window)
+void RaceSceneMaster::conflict_judge(void)
 {
-        add_new_functional_bullets_to_schedule();
-        proceed_bullets_schedule(bullets_sched, bullet_container.enemy_bullets);
-
-	for (auto &&bullet : bullet_container.enemy_bullets) {
-		if (bullet->check_conflict(running_char)) {
-			bullet->hide();
-			junko_param.add(10);
-		} else if (bullet->check_conflict(target_udon)){
+	for (auto &&bullet : bullet_pipeline.player_pipeline.actual_bullets) {
+                if (bullet->check_conflict(target_udon)){
 			bullet->hide();
                         target_udon.damage(1);
                         udon_hp.set_value(target_udon.get_hp());
@@ -423,17 +323,35 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 		}
 	}
 
+        for (auto &&bullet : bullet_pipeline.enemy_pipeline.actual_bullets) {
+		if (bullet->check_conflict(running_char)) {
+			bullet->hide();
+			junko_param.add(10);
+		}
+	}
+
 	if (test_bullet->check_conflict(running_char)) {
 		puts("CONFLICT");
 		test_bullet->hide();
 	}
+}
 
+void RaceSceneMaster::pre_process(sf::RenderWindow &window)
+{
+        add_new_functional_bullets_to_schedule();
+        bullet_pipeline.all_schedule_bullet(get_count(), running_char);
+
+        conflict_judge();
+        
 	player_move();
 
 	score_counter.counter_method().add(1);
         timelimit_counter.counter_method().add(-1);
 
-        kill_out_of_filed_bullet(bullet_container.enemy_bullets);
+        kill_out_of_filed_bullet(bullet_pipeline.player_pipeline.actual_bullets);
+        kill_out_of_filed_bullet(bullet_pipeline.enemy_pipeline.actual_bullets);
+        kill_out_of_filed_bullet(bullet_pipeline.special_pipeline.actual_bullets);
+        
 	tachie_container.remove_if([](Tachie *p) { return !p->visible(); });
         // 立ち絵の移動
         for(auto &&p : tachie_container){
@@ -474,8 +392,7 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
 
         switch_view("bullets", window);
 
-        bullet_container.draw(window);
-
+        bullet_pipeline.draw(window);
 	test_bullet->draw(window);
 
 	rec_label.draw(window);
