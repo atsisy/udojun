@@ -108,6 +108,7 @@ public:
         static std::vector<Bullet *> generate(BulletData *data, DrawableCharacter &running_char, u64 count);
 };
 
+
 inline std::function<sf::Vector2f(MoveObject *, u64, u64)>
 select_bullet_function(BulletFunctionID id, picojson::object &data)
 {

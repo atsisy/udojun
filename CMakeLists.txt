@@ -22,6 +22,7 @@ set(udjn_src
   src/scene_animation.cpp
   src/episode_scene.cpp
   src/game_system.cpp
+  src/bullet_management.cpp
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

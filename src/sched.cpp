@@ -23,7 +23,24 @@ void FunctionScheduler::clear_func_sched(void)
 		queue.pop();
 	}
 }
-        
+
+size_t FunctionScheduler::size(void)
+{
+	return queue.size();
+}
+
+FunctionCallEssential *FunctionScheduler::head(void)
+{
+        return queue.top();
+}
+
+FunctionCallEssential *FunctionScheduler::pop(void)
+{
+        FunctionCallEssential *ret = head();
+        queue.pop();
+        return ret;
+}
+
 BulletScheduler::BulletScheduler()
         : queue(c)
 {}

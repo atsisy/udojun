@@ -462,4 +462,3 @@ void Bullet::enable_graze(void)
 {
 	grazable = true;
 }
-

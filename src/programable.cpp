@@ -100,13 +100,8 @@ BulletFuncTable::BulletFuncTable(std::string main_file)
         for(auto &array_element : sched_array){
                 picojson::object &data = array_element.get<picojson::object>();
                 auto &&parsed = highlevel_controll_statement(data);
-                util::concat_container<std::vector<FunctionCallEssential>>(func_sched, parsed);
+                //util::concat_container<std::vector<FunctionCallEssential>>(func_sched, parsed);
         }
-
-	std::sort(std::begin(func_sched), std::end(func_sched),
-                  [](const FunctionCallEssential &fce1, const FunctionCallEssential &fce2){
-                          return fce1.time < fce2.time;
-                  });
 }
 
 std::vector<FunctionCallEssential>
@@ -262,11 +257,6 @@ void BulletFuncTable::parse_builtin_function_multiple_calling(std::string func_n
 	}
 }
 
-std::vector<FunctionCallEssential> BulletFuncTable::get_func_sched()
-{
-        return func_sched;
-}
-
 std::vector<BulletData *> BulletFuncTable::call_function(FunctionCallEssential e)
 {
         std::vector<BulletData *> ret;
@@ -279,20 +269,4 @@ std::vector<BulletData *> BulletFuncTable::call_function(FunctionCallEssential e
 	}
 
 	return ret;
-}
-
-void BulletFuncTable::add_function_dynamic(std::string fn, u64 t)
-{
-        func_sched.emplace_back(fn, t);
-}
-
-void BulletFuncTable::add_function_dynamic(FunctionCallEssential e)
-{
-	func_sched.push_back(e);
-}
-
-void BulletFuncTable::clear_func_sched(void)
-{
-        std::cout << "func sched size: " << func_sched.size() << std::endl;
-        func_sched.clear();
 }

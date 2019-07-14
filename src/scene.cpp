@@ -133,7 +133,7 @@ void RaceSceneMaster::add_new_danmaku(void)
          */
 	if(danmaku_sched.size()){
                 // 残りをスケジュールする
-		func_table.add_function_dynamic(
+		func_sched.add_function(
 			danmaku_sched.top().func_essential.func_name, get_count() + 30);
                 // スケジュールした弾幕が切れた時に新しい弾幕をスケジュール出来るように処理
 		last_danmaku_timer_id = timer_list.add_timer(
@@ -192,6 +192,7 @@ void RaceSceneMaster::player_move()
                                                 effect::kill_at(150) });
                                 {
                                         int n = 0;
+                                        std::vector<Bullet *> &bullets = bullet_container.enemy_bullets;
                                         for (u32 i = 0; i < bullets.size();
                                              i++) {
                                                 if (running_char.distance(
@@ -237,16 +238,15 @@ void RaceSceneMaster::clear_all_bullets(void)
 {
 	//func_table.clear_func_sched();
 
-	for (Bullet *b : bullets) {
+	for (Bullet *b : bullet_container.enemy_bullets) {
 		delete b;
 	}
-	bullets.clear();
+	bullet_container.enemy_bullets.clear();
 	bullets_sched.clear();
 }
 
 void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
 {
-	static u32 i;
 /*
         if(!(util::generate_random() % 60)){
 		func_table.add_function_dynamic(FunctionCallEssential(
@@ -268,8 +268,8 @@ void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) {
                 sf::Vector2f &&p = running_char.get_place();
-		func_table.add_function_dynamic(
-			FunctionCallEssential("shot", get_count(),
+		func_sched.add_function(
+			new FunctionCallEssential("shot", get_count(),
                                               sf::Vector2f(p.x + 10, p.y - 5)));
 	}else if(sf::Keyboard::isKeyPressed(sf::Keyboard::K)) {
                 clear_all_bullets();
@@ -284,27 +284,35 @@ void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
                                      }, e.time_limit, get_count());
         }
         */
+        
+        flush_called_function(func_sched, bullets_sched);
+}
 
-	// スケジュールされる予定の弾幕がまだある場合継続
-	while (func_table.get_func_sched().size() > i) {
+void RaceSceneMaster::flush_called_function(
+        FunctionScheduler &func_sched,
+        BulletScheduler &bullet_sched)
+{
+        // スケジュールされる予定の弾幕がまだある場合継続
+        while (func_sched.size()) {
 		/*
                  * スケジュールされる予定のカウントに達した
                  */
-		if (func_table.get_func_sched().at(i).time <= get_count()) {
+		if (func_sched.head()->time <= get_count()) {
                         // 関数生成のためのデータを取り出す
-			FunctionCallEssential f_essential =
-				func_table.get_func_sched().at(i++);
+			FunctionCallEssential *f_essential =
+                                func_sched.pop();
 			// 生成
 			std::vector<BulletData *> &&v =
-				func_table.call_function(f_essential);
+				func_table.call_function(*f_essential);
 			// 生成されたそれぞれの弾丸データに出現時刻をセットする
                         // 基本的には即時出現
 			std::for_each(std::begin(v), std::end(v),
-				      [this](BulletData *d) {
+				      [this, &bullet_sched](BulletData *d) {
 					      d->set_appear_time(get_count());
                                               // スケジュールに追加
-                                              bullets_sched.add(d);
+                                              bullet_sched.add(d);
                                       });
+                        delete f_essential;
                 } else {
                         /*
                          * この待ち行列（のようなもの）は既にスケジュール時刻でソートされているため、
@@ -315,12 +323,14 @@ void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
         }
 }
 
-void RaceSceneMaster::proceed_bullets_schedule(void)
+void RaceSceneMaster::proceed_bullets_schedule(
+        BulletScheduler &bullet_sched,
+        std::vector<Bullet *> &bullet_buf)
 {
         /*
          * 弾幕データがスケジュールされているか？
          */
-	while (bullets_sched.size()) {
+	while (bullet_sched.size()) {
                 // 出現時間を迎えているか？
 		if (bullets_sched.next()->appear_time <= get_count()) {
                         // ターゲットの弾幕データを取り出し
@@ -342,7 +352,7 @@ void RaceSceneMaster::proceed_bullets_schedule(void)
 				for (auto &elem : gen) {
 					util::concat_container<
 						std::vector<Bullet *> >(
-						bullets,
+						bullet_buf,
 						BulletGenerator::generate(
 							elem, running_char,
 							get_count()));
@@ -350,7 +360,7 @@ void RaceSceneMaster::proceed_bullets_schedule(void)
 			} else {
                                 // 実体化し、表示する弾丸のグループに加える
 				util::concat_container<std::vector<Bullet *> >(
-					bullets, BulletGenerator::generate(
+					bullet_buf, BulletGenerator::generate(
 							 target, running_char,
 							 get_count()));
 			}
@@ -370,12 +380,34 @@ void RaceSceneMaster::next_danmaku_forced(void)
         this->add_new_danmaku();
 }
 
+void RaceSceneMaster::kill_out_of_filed_bullet(std::vector<Bullet *> &bullets)
+{
+	for (u32 i = 0; i < bullets.size(); i++) {
+		if (bullets[i]->is_finish(
+			    sf::IntRect(-1368, -768, 1368 * 3, 768 * 3)) ||
+		    !bullets[i]->visible()) {
+			delete bullets[i];
+			bullets[i] = bullets.back();
+			bullets.pop_back();
+			if (!bullets.size()) {
+				break;
+			}
+		}else if(running_char.outer_distance(bullets[i]) < 15){
+			if (bullets[i]->is_grazable()){
+				graze_counter.counter_method().add(5);
+                                bullets[i]->disable_graze();
+                        }
+                }
+		bullets[i]->move(get_count());
+	}
+}
+
 void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 {
         add_new_functional_bullets_to_schedule();
-        proceed_bullets_schedule();
+        proceed_bullets_schedule(bullets_sched, bullet_container.enemy_bullets);
 
-	for (auto &&bullet : bullets) {
+	for (auto &&bullet : bullet_container.enemy_bullets) {
 		if (bullet->check_conflict(running_char)) {
 			bullet->hide();
 			junko_param.add(10);
@@ -401,25 +433,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 	score_counter.counter_method().add(1);
         timelimit_counter.counter_method().add(-1);
 
-	for (u32 i = 0; i < bullets.size(); i++) {
-		if (bullets[i]->is_finish(
-			    sf::IntRect(-1368, -768, 1368 * 3, 768 * 3)) ||
-		    !bullets[i]->visible()) {
-			delete bullets[i];
-			bullets[i] = bullets.back();
-			bullets.pop_back();
-			if (!bullets.size()) {
-				break;
-			}
-		}else if(running_char.outer_distance(bullets[i]) < 15){
-			if (bullets[i]->is_grazable()){
-				graze_counter.counter_method().add(5);
-                                bullets[i]->disable_graze();
-                        }
-                }
-		bullets[i]->move(get_count());
-	}
-
+        kill_out_of_filed_bullet(bullet_container.enemy_bullets);
 	tachie_container.remove_if([](Tachie *p) { return !p->visible(); });
         // 立ち絵の移動
         for(auto &&p : tachie_container){
@@ -460,9 +474,7 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
 
         switch_view("bullets", window);
 
-	for (u32 i = 0; i < bullets.size(); i++) {
-		bullets[i]->draw(window);
-	}
+        bullet_container.draw(window);
 
 	test_bullet->draw(window);
 

@@ -41,7 +41,6 @@ public:
 class BulletFuncTable {
 private:
         std::unordered_map<std::string, std::vector<BulletData *> *> table;
-        std::vector<FunctionCallEssential> func_sched;
 
         std::pair<std::string, std::vector<BulletData *> *> parse(std::string sub_file);
         std::vector<FunctionCallEssential> highlevel_controll_statement(picojson::object &obj);
@@ -62,10 +61,4 @@ private:
         BulletFuncTable(std::string main_file);
 
 	std::vector<BulletData *> call_function(FunctionCallEssential e);
-        std::vector<FunctionCallEssential> get_func_sched();
-
-	void add_function_dynamic(FunctionCallEssential e);
-	void add_function_dynamic(std::string fn, u64 t);
-
-        void clear_func_sched(void);
 };

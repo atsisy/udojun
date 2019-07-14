@@ -25,6 +25,9 @@ public:
         void add_function(FunctionCallEssential *e);
 	void add_function(std::string fn, u64 t);
         void clear_func_sched(void);
+        size_t size(void);
+        FunctionCallEssential *head(void);
+	FunctionCallEssential *pop(void);
 };
 
 class BulletScheduler {
