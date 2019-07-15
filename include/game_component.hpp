@@ -183,6 +183,7 @@ public:
 class Conflictable {
 protected:
         sf::Vector2f center;
+        sf::Vector2f offset;
         float r;
         bool enable;
         
@@ -197,28 +198,37 @@ public:
         void move_center(sf::Vector2f d);
         void set_radius(float r);
 
+        sf::Vector2f *get_homing_point(void);
+
         float distance(Conflictable *c);
 	float outer_distance(Conflictable *c);
+        void set_conflict_offset(sf::Vector2f offset);
 };
 
 class Rotatable {
 protected:
+        float angle;
         
 public:
-        
+        Rotatable(void);
+        virtual void rotate(float a) = 0;
+        float get_angle(void);
 };
 
-class Bullet : public MoveObject, public Conflictable {
+class Bullet : public MoveObject, public Conflictable, public Rotatable {
 private:
         bool grazable;
         
 public:
         Bullet(sf::Texture *t, sf::Vector2f p,
                std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
-               u64 begin_count, sf::Vector2f scale, float radius, bool Conflictable, bool grazable);
+               u64 begin_count, sf::Vector2f scale, float radius,
+               bool Conflictable, bool grazable, float init_rotate = 0);
         bool is_finish(sf::IntRect window_rect);
         bool is_grazable(void);
         void disable_graze(void);
         void enable_graze(void);
         void move(u64 count);
+        void rotate(float a);
+        void draw(sf::RenderWindow &window);
 };

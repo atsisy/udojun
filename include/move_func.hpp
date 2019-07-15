@@ -12,7 +12,7 @@
 #define DEF_MOVE_FUNC(name, ...) std::function<sf::Vector2f(MoveObject *, u64, u64)> \
         name(__VA_ARGS__);
 
-	namespace mf {
+namespace mf {
         
         sf::Vector2f stop(MoveObject *, u64 now, u64 begin);
         DEF_MOVE_FUNC(sin, float bias, float dx);
@@ -25,6 +25,7 @@
 	DEF_MOVE_FUNC(uzumaki, sf::Vector2f origin,
 		      sf::Vector2f begin, float speed, float angle,
 		      float r_bias);
+	DEF_MOVE_FUNC(active_homing, sf::Vector2f origin, float speed, sf::Vector2f *target);
 }
 
 
@@ -36,6 +37,7 @@ enum BulletFunctionID {
         UP,
         UZUMAKI,
         SLOWER1,
+        ACTIVE_HOMING,
         UNKNOWN_BFID,
 };
 
@@ -83,12 +85,14 @@ public:
         picojson::object original_data;
         bool conflictable;
         bool grazable;
+        float init_rotation;
 
         BulletData(picojson::object &json_data);
         BulletData(picojson::object &json_data, u64 flg);
         
-        BulletData(BulletFunctionID id, std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
-                   u64 time, sf::Vector2f appear_point);
+        BulletData(BulletFunctionID id, TextureID tid,
+                   std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
+                   u64 time, sf::Vector2f appear_point, float init_rotate = 0);
 
         BulletData()
         {}
@@ -123,7 +127,8 @@ select_bullet_function(BulletFunctionID id, picojson::object &data)
 		return mf::getting_slower(data["speed"].get<double>(),
 					  data["angle"].get<double>(),
 					  0);
-        case UP: return mf::up(data["c"].get<double>());
+        case UP:
+                return mf::up(data["c"].get<double>());
 	case UZUMAKI:
 		return mf::uzumaki(sf::Vector2f(data["origin.x"].get<double>(),
 						data["origin.y"].get<double>()),

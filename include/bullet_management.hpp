@@ -18,6 +18,7 @@ class BulletPipeline {
         void clear_all_bullets(void);
         
         void draw(sf::RenderWindow &window);
+        void direct_insert_bullet(Bullet *bullet);
 };
 
 class BulletPipelineContainer {

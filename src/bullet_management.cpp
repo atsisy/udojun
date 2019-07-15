@@ -102,6 +102,11 @@ void BulletPipeline::draw(sf::RenderWindow &window)
         }
 }
 
+void BulletPipeline::direct_insert_bullet(Bullet *bullet)
+{
+        actual_bullets.push_back(bullet);
+}
+
 void BulletPipelineContainer::draw(sf::RenderWindow &window)
 {
         player_pipeline.draw(window);

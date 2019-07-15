@@ -231,3 +231,4 @@ namespace util {
                         return _enum; } }while(0)
 
 #define container_entire_range(x) std::begin(x), std::end(x)
+#define DEBUG_PRINT_HERE() printf("%s:%d", __FILE__, __LINE__)

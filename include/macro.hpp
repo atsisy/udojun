@@ -8,6 +8,7 @@ enum MacroID {
 	UDON_TSUJO1,
 	UDON_TSUJO2,
 	N_WAY,
+        RANDOM_CIRCLES,
 	UNKNOWN_MACRO,
 };
 
@@ -24,6 +25,8 @@ inline MacroID str_to_macroid(const char *str)
 	} else if (!strcmp(str, enum_to_str(UDON_TSUJO2))) {
 		return UDON_TSUJO2;
 	}
+
+        str_to_idx_sub(str, RANDOM_CIRCLES);
 
 	std::cout << "Unknown Macro ID: " << str << std::endl;
         
@@ -49,4 +52,6 @@ namespace macro {
 	std::vector<BulletData *> udon_circle2(sf::Vector2f origin, float speed,
 					       float r, u16 num, u64 time,
 					       float phase, float unit_rad);
+        std::vector<BulletData *> random_circles(u16 circle_num, u16 num,
+                                                 float speed, u64 time, u16 distance);
 }

@@ -146,6 +146,29 @@ namespace mf {
                                return sf::Vector2f(now.x + dx, now.y + dy);
                        };
 	}
+
+	std::function<sf::Vector2f(MoveObject *, u64, u64)>
+	active_homing(sf::Vector2f origin, float speed, sf::Vector2f *target)
+	{
+		return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd) {
+			const sf::Vector2f &&now = bullet->get_place();
+ 			float x_diff = target->x - bullet->get_place().x;
+			float y_diff = target->y - bullet->get_place().y;
+			float angle = std::atan((y_diff / x_diff));
+
+                        if(x_diff < 0){
+                                if(y_diff >= 0){
+                                        angle -= (M_PI_2 - angle);
+                                }else{
+					angle += M_PI_2;
+				}
+                        }
+                        
+			float x = speed * std::cos(angle);
+			float y = speed * std::sin(angle);
+			return sf::Vector2f(now.x + x, now.y + y);
+		};
+	}
 }
 
 BulletData::BulletData(picojson::object &json_data)
@@ -199,6 +222,13 @@ BulletData::BulletData(picojson::object &json_data)
                                     .get<std::string>()
                                     .c_str()));
         }
+
+        if (original_data.find("rotate") == std::end(original_data)) {
+                init_rotation = 0;
+        } else {
+                init_rotation = original_data["rotate"].get<double>();
+        }
+
 }
 
 BulletData::BulletData(picojson::object &json_data, u64 flg)
@@ -230,6 +260,12 @@ BulletData::BulletData(picojson::object &json_data, u64 flg)
 		init_texture_data(BULLET_HART);
 		init_texture_data(str_to_txid(original_data["texture"].get<std::string>().c_str()));
 	}
+
+        if (original_data.find("rotate") == std::end(original_data)) {
+                init_rotation = 0;
+        } else {
+                init_rotation = original_data["rotate"].get<double>();
+        }
 }
 
 
@@ -245,8 +281,13 @@ void BulletData::init_texture_data(TextureID id)
 		scale = sf::Vector2f(0.05, 0.05);
                 radius = BulletSize::BIG_CIRCLE_RED;
 		break;
+        case BULLET1:
+		scale = sf::Vector2f(0.12, 0.12);
+                radius = BulletSize::BULLET1;
+		break;
         default:
-                std::cerr << "Invalid Texture ID" << std::endl;
+                DEBUG_PRINT_HERE();
+                std::cerr << "Invalid Texture ID: " << std::endl;
 		scale = sf::Vector2f(1.0, 1.0);
 		radius = BulletSize::HART_NORMAL_BULLET;
 		break;
@@ -255,15 +296,17 @@ void BulletData::init_texture_data(TextureID id)
 
 BulletData::BulletData(
 	BulletFunctionID id,
+        TextureID tid,
 	std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
-	u64 time, sf::Vector2f appear_point)
+	u64 time, sf::Vector2f appear_point, float init_rotate)
 {
 	this->id = id;
 	this->func = f;
 	this->offset = time;
 	this->appear_point = appear_point;
 	this->flags = 0;
-        init_texture_data(BULLET_HART);
+        init_texture_data(tid);
+        this->init_rotation = init_rotate;
 }
 
 Bullet *BulletData::generate(DrawableCharacter &running_char, u64 count)
@@ -285,7 +328,7 @@ Bullet *BulletData::generate(DrawableCharacter &running_char, u64 count)
                 p,
                 func, count,
                 scale, radius,
-                this->conflictable, this->grazable);
+                this->conflictable, this->grazable, init_rotation);
 }
 
 void BulletData::set_appear_time(u64 current)
@@ -332,7 +375,7 @@ std::vector<Bullet *> BulletGenerator::generate_bullet(BulletData *data, Drawabl
                         data->func, count,
                         data->scale,
                         data->radius,
-                        data->conflictable, data->grazable)
+                        data->conflictable, data->grazable, data->init_rotation)
         };
 }
 

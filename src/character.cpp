@@ -61,7 +61,7 @@ PlayerCharacter::PlayerCharacter(CharacterAttribute attribute,
         set_core_place();
         core_sprite.setScale(0.11, 0.11);
         core_sprite.setColor(sf::Color(255, 230, 230));
-        set_radius(5);
+        set_radius(6);
         core_off();
 }
 
@@ -121,6 +121,7 @@ EnemyCharacter::EnemyCharacter(CharacterAttribute attribute, sf::Texture *t,
 {
         this->hp_actual = hp_init;
         this->hp_max = hp_max;
+        set_radius(10);
 }
 
 float EnemyCharacter::get_hp(void)

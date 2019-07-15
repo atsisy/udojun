@@ -103,6 +103,7 @@ public:
 class RaceSceneMaster : public SceneMaster {
 private:
         std::forward_list<Tachie *> tachie_container;
+        std::forward_list<MoveObject *> move_object_container;
         
         PlayerCharacter running_char;
         EnemyCharacter target_udon;
@@ -129,6 +130,8 @@ private:
         void next_danmaku_forced(void);
         void conflict_judge(void);
         void kill_out_of_filed_bullet(std::vector<Bullet *> &bullets);
+        void player_spellcard(void);
+        void random_mist(void);
 
     public:
         RaceSceneMaster(GameData *game_data);

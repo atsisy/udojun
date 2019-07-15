@@ -1,11 +1,15 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <cmath>
 
 namespace geometry {
-        sf::Vector2f rotate_point(float angle, sf::Vector2f p, sf::Vector2f center = sf::Vector2f(0, 0))
+        inline sf::Vector2f rotate_point(float angle, sf::Vector2f p, sf::Vector2f center = sf::Vector2f(0, 0))
         {
-		sf::Transform t;
-                return t.rotate(angle).translate(center).transformPoint(p);
+                p -= center;
+                return sf::Vector2f(
+                        (p.x * std::cos(angle)) - (p.y * std::sin(angle)),
+                        ((p.x * std::sin(angle)) + (p.y * std::cos(angle)))
+                        );
 	}
 }

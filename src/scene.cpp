@@ -47,6 +47,7 @@ void SceneMaster::update_count()
 }
 
 Bullet *test_bullet;
+Bullet *test_bullet2;
 
 RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 	: running_char(CharacterAttribute("stick man"),
@@ -82,17 +83,26 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 	  window_frame(sf::IntRect(0, 0, 1366, 768),
 		       sf::IntRect(32, 32, 960, 704)),
 	  danmaku_sched({ DanmakuCallEssential(
-				  FunctionCallEssential("udon-tsujo1", 0,
+				  FunctionCallEssential("udon-tsujo1", 3600,
 							sf::Vector2f(0, 0)),
-				  1200),
+				  1800),
 			  DanmakuCallEssential(
-				  FunctionCallEssential("udon-tsujo2", 1201,
+				  FunctionCallEssential("udon-tsujo2", 5400,
 							sf::Vector2f(0, 0)),
-				  1200) })
+				  1800) })
 {
-	test_bullet = new Bullet(GameMaster::texture_table[BULLET_BIG_RED],
-				 sf::Vector2f(400, 400), mf::stop, 0, sf::Vector2f(0.05, 0.05), BulletSize::BIG_CIRCLE_RED,
-                                 true, true);
+	test_bullet = new Bullet(GameMaster::texture_table[BULLET1],
+				 sf::Vector2f(400, 400),
+                                 mf::stop,
+                                 0, sf::Vector2f(0.12, 0.12), BulletSize::BULLET1,
+                                 true, true, M_PI_4);
+
+        test_bullet2 = new Bullet(GameMaster::texture_table[BULLET1],
+				 sf::Vector2f(400, 400),
+                                 mf::stop,
+                                 0, sf::Vector2f(0.12, 0.12), BulletSize::BULLET1,
+                                 true, true, 0);
+        
 	stamina_label.set_place(0, 50);
 	stamina.set_place(0, 80);
 	junko_param_label.set_place(0, 110);
@@ -122,8 +132,60 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 	create_view("tachie", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))
 		->setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
 
-        add_new_danmaku();
-        
+        timer_list.add_timer([this](void){
+                                     add_new_danmaku();
+                             }, danmaku_sched.top().func_essential.time);
+        bullet_pipeline.enemy_pipeline.add_function(
+                new FunctionCallEssential("field1", 30,
+                                          sf::Vector2f(0, 0)));
+}
+
+void RaceSceneMaster::player_spellcard(void)
+{
+        if (std::find_if(
+                    container_entire_range(tachie_container),
+                    [](Tachie *p) {
+                            return p->are_you("udon");
+                    }) == std::end(tachie_container)){
+                auto p = new Tachie(
+                        GameMaster::texture_table[UDON_TACHIE],
+                        sf::Vector2f(500, 100),
+                        mf::tachie_move_constant(4, 0),
+                        get_count(), "udon");
+                tachie_container.emplace_front(p);
+                p->add_effect({ effect::fade_out(150),
+                                effect::kill_at(150) });
+                {
+                        int n = 0;
+                        std::vector<Bullet *> &bullets = bullet_pipeline.enemy_pipeline.actual_bullets;
+                        for (u32 i = 0; i < bullets.size();
+                             i++) {
+                                if (running_char.distance(
+                                            bullets[i]) < 240) {
+                                        bullet_pipeline.special_pipeline.direct_insert_bullet(
+                                                new Bullet(
+                                                        GameMaster::texture_table[SMALL_CRYSTAL2],
+                                                        bullets[i]->get_place(),
+                                                        mf::active_homing(sf::Vector2f(300, 300), 10, running_char.get_homing_point()),
+                                                        get_count(),
+                                                        sf::Vector2f(0.7, 0.7), 7,
+                                                        true, true
+                                                        ));
+                                        delete bullets[i];
+                                        bullets[i] =
+                                                bullets.back();
+                                        bullets.pop_back();
+                                        n++;
+                                        if (!bullets.size()) {
+                                                break;
+                                        }
+                                }
+                        }
+                        graze_counter.counter_method().add(
+                                -200);
+                        junko_param.add(-n);
+                }
+        }
 }
 
 void RaceSceneMaster::add_new_danmaku(void)
@@ -135,7 +197,7 @@ void RaceSceneMaster::add_new_danmaku(void)
                 // 残りをスケジュールする
 		bullet_pipeline.enemy_pipeline.add_function(new FunctionCallEssential(
 			danmaku_sched.top().func_essential.func_name,
-			get_count() + 30));
+                        get_count()));
                 
 			// スケジュールした弾幕が切れた時に新しい弾幕をスケジュール出来るように処理
                 last_danmaku_timer_id = timer_list.add_timer(
@@ -148,6 +210,18 @@ void RaceSceneMaster::add_new_danmaku(void)
                 // 先頭の弾幕を捨てる
                 danmaku_sched.drop_top();
 	}
+}
+
+void RaceSceneMaster::random_mist(void)
+{
+        if(!(util::generate_random() % 200)){
+                auto p = new MoveObject(
+                        GameMaster::texture_table[MIST1],
+                        sf::Vector2f(util::generate_random() % 800, -500),
+                        mf::up(-4),
+                        get_count());
+                move_object_container.emplace_front(p);
+        }
 }
 
 void RaceSceneMaster::player_move()
@@ -177,41 +251,7 @@ void RaceSceneMaster::player_move()
 	
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::X)){
                 if(graze_counter.counter_method().get_score() >= 200){
-                        if (std::find_if(
-                                    container_entire_range(tachie_container),
-                                    [](Tachie *p) {
-                                            return p->are_you("udon");
-                                    }) == std::end(tachie_container)){
-                                auto p = new Tachie(
-                                        GameMaster::texture_table[UDON_TACHIE],
-                                        sf::Vector2f(500, 100),
-                                        mf::tachie_move_constant(4, 0),
-                                        get_count(), "udon");
-                                tachie_container.emplace_front(p);
-                                p->add_effect({ effect::fade_out(150),
-                                                effect::kill_at(150) });
-                                {
-                                        int n = 0;
-                                        std::vector<Bullet *> &bullets = bullet_pipeline.enemy_pipeline.actual_bullets;
-                                        for (u32 i = 0; i < bullets.size();
-                                             i++) {
-                                                if (running_char.distance(
-                                                            bullets[i]) < 240) {
-                                                        delete bullets[i];
-                                                        bullets[i] =
-                                                                bullets.back();
-                                                        bullets.pop_back();
-                                                        n++;
-                                                        if (!bullets.size()) {
-                                                                break;
-                                                        }
-                                                }
-                                        }
-                                        graze_counter.counter_method().add(
-                                                -200);
-                                        junko_param.add(-n);
-                                }
-                        }
+                        player_spellcard();
                 }
         }
 
@@ -279,6 +319,20 @@ void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
 
 void RaceSceneMaster::next_danmaku_forced(void)
 {
+        for (auto &&bullet : bullet_pipeline.enemy_pipeline.actual_bullets) {
+                if(bullet->visible() && !bullet->is_finish(sf::IntRect(-512, -512, 1366 + 1024, 768 + 1024))){
+                bullet_pipeline.special_pipeline.direct_insert_bullet(
+                        new Bullet(
+                                GameMaster::texture_table[SMALL_CRYSTAL2],
+                                bullet->get_place(),
+                                mf::active_homing(sf::Vector2f(300, 300), 10, running_char.get_homing_point()),
+                                get_count(),
+                                sf::Vector2f(0.7, 0.7), 7,
+                                true, true
+                                ));
+                }
+	}
+        
         bullet_pipeline.enemy_pipeline.clear_all_bullets();
         
         this->target_udon.set_hp_max();
@@ -290,7 +344,7 @@ void RaceSceneMaster::kill_out_of_filed_bullet(std::vector<Bullet *> &bullets)
 {
 	for (u32 i = 0; i < bullets.size(); i++) {
 		if (bullets[i]->is_finish(
-			    sf::IntRect(-1368, -768, 1368 * 3, 768 * 3)) ||
+			    sf::IntRect(-1368, -768, 1368 * 2, 768 * 2)) ||
 		    !bullets[i]->visible()) {
 			delete bullets[i];
 			bullets[i] = bullets.back();
@@ -330,6 +384,13 @@ void RaceSceneMaster::conflict_judge(void)
 		}
 	}
 
+        for (auto &&bullet : bullet_pipeline.special_pipeline.actual_bullets) {
+		if (bullet->check_conflict(running_char)) {
+			bullet->hide();
+			junko_param.add(-10);
+		}
+	}
+        
 	if (test_bullet->check_conflict(running_char)) {
 		puts("CONFLICT");
 		test_bullet->hide();
@@ -341,9 +402,12 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
         add_new_functional_bullets_to_schedule();
         bullet_pipeline.all_schedule_bullet(get_count(), running_char);
 
+        random_mist();
+        
         conflict_judge();
         
 	player_move();
+        test_bullet->move(get_count());
 
 	score_counter.counter_method().add(1);
         timelimit_counter.counter_method().add(-1);
@@ -358,8 +422,12 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
                 p->move(get_count());
 		p->effect(get_count());
 	}
+
+        for(auto p : move_object_container){
+                p->move(get_count());
+        }
         
-	backgroundTile.scroll(-8);
+	backgroundTile.scroll(5);
 
 	timer_list.check_and_call(get_count());
 	update_count();
@@ -392,8 +460,13 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
 
         switch_view("bullets", window);
 
+        for(auto p : move_object_container){
+                p->draw(window);
+        }
+
         bullet_pipeline.draw(window);
 	test_bullet->draw(window);
+        test_bullet2->draw(window);
 
 	rec_label.draw(window);
         udon_hp.draw(window);

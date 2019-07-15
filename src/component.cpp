@@ -2,6 +2,7 @@
 #include "utility.hpp"
 #include <iostream>
 #include <cmath>
+#include "geometry.hpp"
 
 DrawableComponent::DrawableComponent()
 {
@@ -365,12 +366,14 @@ sf::Vector2f MoveObject::get_inital_position(void)
         return this->init_pos;
 }
 
-Conflictable::Conflictable(sf::Vector2f &p, bool default_on) : center(p)
+Conflictable::Conflictable(sf::Vector2f &p, bool default_on)
+        : center(p), offset(0, 0)
 {
 	enable = default_on;
 }
 
 Conflictable::Conflictable(bool default_on)
+        : offset(0, 0)
 {
 	enable = default_on;
 }
@@ -397,7 +400,7 @@ bool Conflictable::check_conflict(Conflictable &obj)
 
 void Conflictable::update_center(sf::Vector2f p)
 {
-	this->center = p;
+	this->center = p + offset;
 }
 
 void Conflictable::set_radius(float r)
@@ -422,30 +425,46 @@ float Conflictable::outer_distance(Conflictable *c)
 	return distance(c) - (this->r + c->r);
 }
 
+sf::Vector2f *Conflictable::get_homing_point(void)
+{
+        return &center;
+}
+
+void Conflictable::set_conflict_offset(sf::Vector2f offset)
+{
+        this->offset = offset;
+}
+
+Rotatable::Rotatable(void)
+{
+        this->angle = 0;
+}
+
+float Rotatable::get_angle(void)
+{
+        return angle;
+}
+
 Bullet::Bullet(sf::Texture *t, sf::Vector2f p,
 	       std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
-	       u64 begin_count, sf::Vector2f scale, float radius, bool conflictable, bool grazable)
+	       u64 begin_count, sf::Vector2f scale, float radius,
+               bool conflictable, bool grazable, float init_rotate)
 	: MoveObject(t, p, f, begin_count), Conflictable(true), grazable(grazable)
 {
-	update_center(sf::Vector2f(
-                              place.x + ((texture.getSize().x / 2) * scale.x),
-                              place.y + ((texture.getSize().y / 2) * scale.y)
-                              )
-                );
         set_scale(scale);
+        rotate(init_rotate);
 	set_radius(radius);
 }
 
 bool Bullet::is_finish(sf::IntRect window_rect)
 {
-	return !window_rect.contains(center.x, center.y);
+ 	return !window_rect.contains(center.x, center.y);
 }
 
 void Bullet::move(u64 count)
 {
 	MoveObject::move(count);
-	update_center(sf::Vector2f(place.x + ((texture.getSize().x / 2) * this->get_scale().x),
-				   place.y + ((texture.getSize().y / 2) * this->get_scale().y)));
+	update_center(get_place());
 }
 
 bool Bullet::is_grazable(void)
@@ -461,4 +480,33 @@ void Bullet::disable_graze(void)
 void Bullet::enable_graze(void)
 {
 	grazable = true;
+}
+
+void Bullet::rotate(float a)
+{
+        this->angle += a;
+        
+        sprite.rotate(this->angle * 180 / M_PI);
+        
+        sf::Vector2f relative_center = sf::Vector2f(
+                ((texture.getSize().x / 2) * get_scale().x),
+                ((texture.getSize().y / 2) * get_scale().y)
+                );
+
+        relative_center = geometry::rotate_point(get_angle(), relative_center);
+        
+        set_conflict_offset(relative_center);
+        update_center(get_place());
+}
+
+
+void Bullet::draw(sf::RenderWindow &window)
+{
+        MoveObject::draw(window);
+        /*
+        sf::CircleShape shape(r);
+        shape.setPosition(sf::Vector2f(center.x - r, center.y - r));
+        shape.setFillColor(sf::Color(255, 0, 0));
+        window.draw(shape);
+        */
 }
