@@ -16,12 +16,14 @@ public:
         
 };
 
-class DrawableCharacter : public DrawableObject, public Conflictable {
+class DrawableCharacter : public MoveObject, public Conflictable {
 protected:
         CharacterAttribute char_info;
 
 public:
-        DrawableCharacter(CharacterAttribute attribute, sf::Texture *t, sf::Vector2f p, sf::Vector2f scale);
+        DrawableCharacter(CharacterAttribute attribute, sf::Texture *t,
+                          sf::Vector2f p, sf::Vector2f scale,
+                          std::function<sf::Vector2f(MoveObject *, u64, u64)> f, u64 begin_count);
 
         void draw(sf::RenderWindow &window);
         
@@ -46,19 +48,4 @@ public:
         void core_off();
         void move_diff(sf::Vector2f diff);
         void draw(sf::RenderWindow &window);
-};
-
-class EnemyCharacter : public DrawableCharacter {
-private:
-        float hp_actual;
-        float hp_max;
-        
-public:
-        EnemyCharacter(CharacterAttribute attribute, sf::Texture *t, sf::Vector2f p,
-                       sf::Vector2f scale, float hp_max, float hp_init);
-        float get_hp(void);
-	void set_hp(float val);
-        void set_hp_max(void);
-	void damage(float value);
-        bool dead(void);
 };

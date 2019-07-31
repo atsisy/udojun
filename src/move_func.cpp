@@ -147,6 +147,31 @@ namespace mf {
                        };
 	}
 
+                
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
+	move_point_constant(sf::Vector2f dest, sf::Vector2f now, u64 start_time, u64 end_time)
+	{
+                float rad = std::atan((float)(dest.x - now.x) / (float)(dest.y - now.y));
+                double distance = util::distance<double>(dest.x, dest.y, now.x, now.y);
+                u64 took_time = end_time - start_time;
+                float speed = distance / (double)took_time;
+                
+                if(dest.y < now.y){
+                        rad -= (M_PI);
+                }
+
+		return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd) {
+                               if (now_lmd < end_time) {
+                                       const sf::Vector2f &&nowp = bullet->get_place();
+                                       return sf::Vector2f(
+                                               nowp.x + (std::sin(rad) * speed),
+                                               nowp.y + (std::cos(rad) * speed));
+                               }else{
+                                       return bullet->get_place();
+                               }
+                       };
+	}
+        
 	std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	active_homing(sf::Vector2f origin, float speed, sf::Vector2f *target)
 	{

@@ -112,7 +112,7 @@ namespace macro {
         {
                 std::vector<BulletData *> ret;
                 float rad;
-                for(int i = 0;i < 100;i++){
+                for(int i = 0;i < 120;i++){
 			rad = ((float)(util::generate_random() % 360) /
 				 180.0) *
 				M_PI;

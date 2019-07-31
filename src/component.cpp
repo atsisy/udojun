@@ -307,11 +307,17 @@ BackgroundTile::BackgroundTile(sf::Texture *t, sf::Vector2f p,
                         sprite_rect.left, sprite_rect.top,
                         sprite_rect.width / texture_scale.x,
                         sprite_rect.height / texture_scale.y));
+        scroll_speed = 0;
 }
 
 void BackgroundTile::draw(sf::RenderWindow &window)
 {
 	window.draw(sprite);
+}
+
+void BackgroundTile::set_scroll_speed(i32 speed)
+{
+        this->scroll_speed = speed;
 }
 
 void BackgroundTile::scroll(i32 speed)
@@ -322,6 +328,11 @@ void BackgroundTile::scroll(i32 speed)
         set_place(sf::Vector2f(init_position.x, init_position.y + mod - init_position.y));
 
         remain = mod;
+}
+
+void BackgroundTile::scroll(void)
+{
+        scroll(scroll_speed);
 }
 
 void BackgroundTile::scroll(
@@ -359,6 +370,11 @@ void MoveObject::draw(sf::RenderWindow &window)
 void MoveObject::effect(u64 count)
 {
         for(auto &&fn : effects) fn(this, count, begin_count);
+}
+
+void MoveObject::override_move_func(std::function<sf::Vector2f(MoveObject *, u64, u64)> fn)
+{
+        this->move_func = fn;
 }
 
 sf::Vector2f MoveObject::get_inital_position(void)

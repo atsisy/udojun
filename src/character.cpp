@@ -2,6 +2,12 @@
 #include "gm.hpp"
 #include "value.hpp"
 #include <iostream>
+#include "enemy_character.hpp"
+
+#include "move_func.hpp"
+
+DanmakuScheduler danmaku_empty_sched =
+        DanmakuScheduler({});
 
 CharacterAttribute::CharacterAttribute(std::string name)
 {
@@ -10,14 +16,19 @@ CharacterAttribute::CharacterAttribute(std::string name)
 
 DrawableCharacter::DrawableCharacter(CharacterAttribute attribute,
 				     sf::Texture *t, sf::Vector2f p,
-				     sf::Vector2f scale)
-	: DrawableObject(t, p), Conflictable(true), char_info(attribute)
+				     sf::Vector2f scale,
+                                     std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
+                                     u64 begin_count)
+	: MoveObject(t, p, f, begin_count), Conflictable(true), char_info(attribute)
 {
         set_radius(6);
         sprite.setScale(scale.x, scale.y);
         update_center(sf::Vector2f(
                               place.x + ((texture.getSize().x * scale.x) / 2),
                               place.y + ((texture.getSize().y * scale.y) / 2)));
+        set_conflict_offset(sf::Vector2f(
+                                    ((texture.getSize().x * scale.x) / 2),
+                                    ((texture.getSize().y * scale.y) / 2)));
 }
 
 void DrawableCharacter::move_diff(sf::Vector2f diff)
@@ -39,6 +50,10 @@ void DrawableCharacter::jump_to(sf::Vector2f diff)
 
 void DrawableCharacter::draw(sf::RenderWindow &window)
 {
+        sf::CircleShape shape(r);
+        shape.setPosition(sf::Vector2f(center.x - r, center.y - r));
+        shape.setFillColor(sf::Color(255, 0, 0));
+        window.draw(shape);
         window.draw(sprite);
 }
 
@@ -54,7 +69,8 @@ PlayerCharacter::PlayerCharacter(CharacterAttribute attribute,
         : DrawableCharacter(attribute, character, p,
                             sf::Vector2f(
                                     TextureSize::PLAYER_CHARACTER_SIZE_X / character->getSize().x,
-                                    TextureSize::PLAYER_CHARACTER_SIZE_Y / character->getSize().y))
+                                    TextureSize::PLAYER_CHARACTER_SIZE_Y / character->getSize().y),
+                            mf::stop, 0)
 {
         this->core_texture = *core;
         core_sprite.setTexture(core_texture);
@@ -115,13 +131,14 @@ void PlayerCharacter::set_core_place()
 }
 
 EnemyCharacter::EnemyCharacter(CharacterAttribute attribute, sf::Texture *t,
-			       sf::Vector2f p, sf::Vector2f scale, float hp_max,
-			       float hp_init)
-	: DrawableCharacter(attribute, t, p, scale)
+			       sf::Vector2f p, sf::Vector2f scale, u64 begin_count,
+                               std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
+                               float hp_max, float hp_init, DanmakuScheduler d_sched)
+	: DrawableCharacter(attribute, t, p, scale, f, begin_count), danmaku_sched(d_sched)
 {
         this->hp_actual = hp_init;
         this->hp_max = hp_max;
-        set_radius(10);
+        set_radius(12);
 }
 
 float EnemyCharacter::get_hp(void)
@@ -147,4 +164,10 @@ void EnemyCharacter::damage(float value)
 bool EnemyCharacter::dead(void)
 {
         return hp_actual <= 0;
+}
+
+void EnemyCharacter::move(u64 count)
+{
+	MoveObject::move(count);
+	update_center(get_place());
 }

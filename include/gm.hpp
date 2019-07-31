@@ -17,6 +17,7 @@
 #include "animation.hpp"
 #include "key_input.hpp"
 #include "bullet_management.hpp"
+#include "enemy_character.hpp"
 
 class GameData;
 
@@ -104,11 +105,13 @@ class RaceSceneMaster : public SceneMaster {
 private:
         std::forward_list<Tachie *> tachie_container;
         std::forward_list<MoveObject *> move_object_container;
+        std::vector<EnemyCharacter *> enemy_container;
         
         PlayerCharacter running_char;
         EnemyCharacter target_udon;
         BackgroundTile backgroundTile;
         BackgroundTile game_background;
+        DrawableScoreCounter game_score_counter;
         DrawableScoreCounter score_counter;
 	DrawableScoreCounter timelimit_counter;
         BulletFuncTable func_table;
@@ -119,11 +122,13 @@ private:
         Label junko_param_label;
         Label rec_label;
         Label graze_label;
+        Label game_score_label;
         DrawableScoreCounter graze_counter;
         WindowFrame window_frame;
 	DanmakuScheduler danmaku_sched;
         u64 last_danmaku_timer_id;
         BulletPipelineContainer bullet_pipeline;
+        u64 danmaku_timer_id;
 
 	void add_new_functional_bullets_to_schedule(void);
         void add_new_danmaku(void);

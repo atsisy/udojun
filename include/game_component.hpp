@@ -152,14 +152,17 @@ public:
 class BackgroundTile : public DrawableObject {
 private:
         sf::Vector2f init_position;
+        i32 scroll_speed;
         
 public:
         BackgroundTile(sf::Texture *t, sf::Vector2f p, sf::IntRect sprite_rect, sf::Vector2f texture_scale);
         void draw(sf::RenderWindow &window) override;
         void scroll(i32 speed);
+        void scroll(void);
 	void scroll(std::function<
 		    sf::Vector2f(sf::Vector2f init, sf::Vector2f current)>
 			    f);
+        void set_scroll_speed(i32 speed);
 };
 
 class MoveObject : public DrawableObject {
@@ -176,6 +179,7 @@ public:
 	void move(u64 count);
         void draw(sf::RenderWindow &window) override;
 	void effect(u64 count);
+        void override_move_func(std::function<sf::Vector2f(MoveObject *, u64, u64)> fn);
 
         sf::Vector2f get_inital_position(void);
 };

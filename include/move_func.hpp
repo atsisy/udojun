@@ -22,6 +22,7 @@ namespace mf {
 	DEF_MOVE_FUNC(up, float c);
         DEF_MOVE_FUNC(aim_self_linear, sf::Vector2f &target, float speed, sf::Vector2f begin_point);
 	DEF_MOVE_FUNC(tachie_move_constant, float dx, float dy);
+        DEF_MOVE_FUNC(move_point_constant, sf::Vector2f dest, sf::Vector2f now, u64 start_time, u64 end_time);
 	DEF_MOVE_FUNC(uzumaki, sf::Vector2f origin,
 		      sf::Vector2f begin, float speed, float angle,
 		      float r_bias);

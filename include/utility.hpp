@@ -222,8 +222,13 @@ namespace util {
                                 }
                         }
                 }
-                
         };
+
+        template<typename T>
+        double distance(T x1, T y1, T x2, T y2)
+        {
+                return std::sqrt(std::pow(x1 - x2, 2) + std::pow(y1 - y2, 2));
+        }
 }
 
 #define enum_to_str(var) #var

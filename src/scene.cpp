@@ -55,14 +55,15 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 		       GameMaster::texture_table[PLAYER_CORE],
 		       sf::Vector2f(400, 200)),
 	  target_udon(CharacterAttribute("target udon"),
-		      GameMaster::texture_table[UDON1], sf::Vector2f(480, 50),
-		      sf::Vector2f(0.8, 0.8), 400, 400),
+		      GameMaster::texture_table[UDON1], sf::Vector2f(480, -80),
+		      sf::Vector2f(0.8, 0.8), 0, mf::stop, 400, 400, danmaku_empty_sched),
 	  backgroundTile(GameMaster::texture_table[MOON_CITY_TILE],
 			 sf::Vector2f(32, 32), sf::IntRect(0, 0, 960, 736),
 			 sf::Vector2f(1, 1)),
 	  game_background(GameMaster::texture_table[ICHIMATSU1],
 			  sf::Vector2f(0, 0), sf::IntRect(0, 0, 1366, 768),
 			  sf::Vector2f(0.2, 0.2)),
+          game_score_counter(0, game_data->get_font(JP_DEFAULT)),
 	  score_counter(0, game_data->get_font(JP_DEFAULT)),
           timelimit_counter(30, game_data->get_font(JP_DEFAULT)),
 	  func_table("main.json"),
@@ -79,15 +80,16 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 	  junko_param_label(L"純化度", game_data->get_font(JP_DEFAULT)),
 	  rec_label(L"●REC", game_data->get_font(JP_DEFAULT)),
 	  graze_label(L"グレイズ", game_data->get_font(JP_DEFAULT)),
+          game_score_label(L"スコア", game_data->get_font(JP_DEFAULT)),
 	  graze_counter(0, game_data->get_font(JP_DEFAULT)),
 	  window_frame(sf::IntRect(0, 0, 1366, 768),
 		       sf::IntRect(32, 32, 960, 704)),
 	  danmaku_sched({ DanmakuCallEssential(
-				  FunctionCallEssential("udon-tsujo1", 3600,
+				  FunctionCallEssential("udon-tsujo1", 2000,
 							sf::Vector2f(0, 0)),
 				  1800),
 			  DanmakuCallEssential(
-				  FunctionCallEssential("udon-tsujo2", 5400,
+				  FunctionCallEssential("udon-tsujo2", 3800,
 							sf::Vector2f(0, 0)),
 				  1800) })
 {
@@ -111,10 +113,12 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 	rec_label.set_place(900, 50);
 	rec_label.set_color(sf::Color::Red);
         timelimit_counter.set_place(870, 48);
-        graze_label.set_place(0, 200);
-        graze_counter.set_place(150, 200);
+        graze_label.set_place(0, 250);
+        graze_counter.set_place(150, 250);
+        game_score_counter.set_place(150, 200);
+        game_score_label.set_place(0, 200);
 
-        create_view("background", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))->
+                create_view("background", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))->
                 setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
 
 	create_view("field",
@@ -132,12 +136,14 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 	create_view("tachie", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))
 		->setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
 
-        timer_list.add_timer([this](void){
+        danmaku_timer_id = timer_list.add_timer([this](void){
                                      add_new_danmaku();
                              }, danmaku_sched.top().func_essential.time);
         bullet_pipeline.enemy_pipeline.add_function(
                 new FunctionCallEssential("field1", 30,
                                           sf::Vector2f(0, 0)));
+
+        backgroundTile.set_scroll_speed(5);
 }
 
 void RaceSceneMaster::player_spellcard(void)
@@ -169,7 +175,7 @@ void RaceSceneMaster::player_spellcard(void)
                                                         mf::active_homing(sf::Vector2f(300, 300), 10, running_char.get_homing_point()),
                                                         get_count(),
                                                         sf::Vector2f(0.7, 0.7), 7,
-                                                        true, true
+                                                        true, false
                                                         ));
                                         delete bullets[i];
                                         bullets[i] =
@@ -200,7 +206,7 @@ void RaceSceneMaster::add_new_danmaku(void)
                         get_count()));
                 
 			// スケジュールした弾幕が切れた時に新しい弾幕をスケジュール出来るように処理
-                last_danmaku_timer_id = timer_list.add_timer(
+                danmaku_timer_id = last_danmaku_timer_id = timer_list.add_timer(
 			[this](void) { this->next_danmaku_forced(); },
 			get_count(), danmaku_sched.top().time_limit);
 		// タイマの実行時間は、弾幕発生 + 弾幕タイムリミット
@@ -259,6 +265,7 @@ void RaceSceneMaster::player_move()
 	stamina.add(1);
 
         target_udon.move_diff(sf::Vector2f(((float)(util::generate_random() % 10) / 10.0) * std::sin((float)((float)get_count() / (float)60)), 0));
+        target_udon.move(get_count());
 /*
   if (get_count() % 20 == 16) {
   running_char.change_textures(GameMaster::texture_table[UDON5]);
@@ -321,14 +328,14 @@ void RaceSceneMaster::next_danmaku_forced(void)
 {
         for (auto &&bullet : bullet_pipeline.enemy_pipeline.actual_bullets) {
                 if(bullet->visible() && !bullet->is_finish(sf::IntRect(-512, -512, 1366 + 1024, 768 + 1024))){
-                bullet_pipeline.special_pipeline.direct_insert_bullet(
+                        bullet_pipeline.special_pipeline.direct_insert_bullet(
                         new Bullet(
                                 GameMaster::texture_table[SMALL_CRYSTAL2],
                                 bullet->get_place(),
                                 mf::active_homing(sf::Vector2f(300, 300), 10, running_char.get_homing_point()),
                                 get_count(),
                                 sf::Vector2f(0.7, 0.7), 7,
-                                true, true
+                                true, false
                                 ));
                 }
 	}
@@ -365,29 +372,47 @@ void RaceSceneMaster::kill_out_of_filed_bullet(std::vector<Bullet *> &bullets)
 void RaceSceneMaster::conflict_judge(void)
 {
 	for (auto &&bullet : bullet_pipeline.player_pipeline.actual_bullets) {
-                if (bullet->check_conflict(target_udon)){
-			bullet->hide();
-                        target_udon.damage(1);
-                        udon_hp.set_value(target_udon.get_hp());
-                        // HPが0になると次の弾幕に移行
-                        if(target_udon.dead()){
-                                timer_list.cancel(last_danmaku_timer_id);
-                                next_danmaku_forced();
+                if (bullet->visible() && !bullet->is_finish(
+			    sf::IntRect(0, 0, 1368, 768))) {
+                        if (bullet->check_conflict(target_udon)){
+                                bullet->hide();
+                                target_udon.damage(1);
+                                game_score_counter.counter_method().add(3);
+                                udon_hp.set_value(target_udon.get_hp());
+                                // HPが0になると次の弾幕に移行
+                                if(target_udon.dead()){
+                                        timer_list.cancel(last_danmaku_timer_id);
+                                        next_danmaku_forced();
+                                }
+                                continue;
                         }
-		}
-	}
+                }
 
+                for(size_t i = 0;i < enemy_container.size();i++){
+                        auto p = enemy_container[i];
+                        if(p->check_conflict(*bullet)){
+                                p->damage(1);
+                                bullet->hide();
+                                if(p->dead()){
+                                        std::swap(enemy_container[i], enemy_container.back());
+                                        enemy_container.pop_back();
+                                }
+                                break;
+                        }
+                }
+	}
+        
         for (auto &&bullet : bullet_pipeline.enemy_pipeline.actual_bullets) {
-		if (bullet->check_conflict(running_char)) {
-			bullet->hide();
-			junko_param.add(10);
-		}
+                if (bullet->check_conflict(running_char)) {
+                        bullet->hide();
+                        junko_param.add(10);
+                }
 	}
-
+        
         for (auto &&bullet : bullet_pipeline.special_pipeline.actual_bullets) {
 		if (bullet->check_conflict(running_char)) {
 			bullet->hide();
-			junko_param.add(-10);
+                        game_score_counter.counter_method().add(5);
 		}
 	}
         
@@ -415,6 +440,19 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
         kill_out_of_filed_bullet(bullet_pipeline.player_pipeline.actual_bullets);
         kill_out_of_filed_bullet(bullet_pipeline.enemy_pipeline.actual_bullets);
         kill_out_of_filed_bullet(bullet_pipeline.special_pipeline.actual_bullets);
+
+        if(get_count() == 300){
+                enemy_container.emplace_back(new EnemyCharacter(CharacterAttribute("test"),
+                                                                 GameMaster::texture_table[UDON1], sf::Vector2f(0, 200),
+                                                                 sf::Vector2f(0.8, 0.8), get_count(),
+                                                                 mf::tachie_move_constant(2, 0), 15, 15, danmaku_empty_sched));
+        }else if(get_count() == 2000){
+                timer_list.cancel(danmaku_timer_id);
+                next_danmaku_forced();
+                target_udon.override_move_func(mf::move_point_constant(sf::Vector2f(480, 50),
+                                                                       target_udon.get_place(), 2000, 2128));
+                backgroundTile.set_scroll_speed(-1);
+        }
         
 	tachie_container.remove_if([](Tachie *p) { return !p->visible(); });
         // 立ち絵の移動
@@ -423,11 +461,15 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 		p->effect(get_count());
 	}
 
+        for(auto &&p : enemy_container){
+                p->move(get_count());
+	}
+
         for(auto p : move_object_container){
                 p->move(get_count());
         }
         
-	backgroundTile.scroll(5);
+	backgroundTile.scroll();
 
 	timer_list.check_and_call(get_count());
 	update_count();
@@ -463,6 +505,9 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
         for(auto p : move_object_container){
                 p->draw(window);
         }
+        for(auto p : enemy_container){
+                p->draw(window);
+        }
 
         bullet_pipeline.draw(window);
 	test_bullet->draw(window);
@@ -476,6 +521,10 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
 
         switch_view("params", window);
 	score_counter.draw(window);
+
+        game_score_counter.draw(window);
+        game_score_label.draw(window);
+        
 	stamina.draw(window);
 	junko_param.draw(window);
 	stamina_label.draw(window);
