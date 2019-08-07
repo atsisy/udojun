@@ -1,5 +1,7 @@
 #include "sched.hpp"
 #include <algorithm>
+#include "picojson.h"
+#include <fstream>
 
 FunctionScheduler::FunctionScheduler()
         : queue(func_scheduler_compare)
@@ -95,6 +97,75 @@ DanmakuScheduler::DanmakuScheduler(std::vector<DanmakuCallEssential> s)
         std::reverse(std::begin(schedule), std::end(schedule));
 }
 
+AbstractDanmakuData::AbstractDanmakuData(std::string f_name,
+                                 std::wstring d_name, u64 time_limit)
+        : func_name(f_name), danmaku_name(d_name)
+{
+        this->time_limit = time_limit;
+}
+
+AbstractDanmakuSchedule::AbstractDanmakuSchedule(std::vector<const char *> json_path_set)
+{
+        for(const char *json_path : json_path_set){
+                std::ifstream ifs(json_path, std::ios::in);
+                std::vector<AbstractDanmakuData> *tmp_buf = new std::vector<AbstractDanmakuData>;
+                
+                std::cout << "Loading Danmaku Schedule listed in " << json_path << "..." << std::endl;
+
+                if (ifs.fail()) {
+                        DEBUG_PRINT_HERE();
+                        std::cerr << "failed to read json file" << std::endl;
+                        exit(1);
+                }
+
+                const std::string json((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+                ifs.close();
+
+                picojson::value v;
+                const std::string err = picojson::parse(v, json);
+                if (err.empty() == false) {
+                        DEBUG_PRINT_HERE();
+                        std::cerr << err << std::endl;
+                        exit(1);
+                }
+        
+                picojson::object &obj = v.get<picojson::object>();
+                picojson::array &array = obj["danmaku_list"].get<picojson::array>();
+
+                for(auto &array_element : array){
+                        picojson::object &elem = array_element.get<picojson::object>();
+                        tmp_buf->emplace_back(
+                                elem["function"].get<std::string>(),
+                                *util::utf8_str_to_widechar_str(elem["danmaku_name"].get<std::string>()),
+                                elem["time_limit"].get<double>());
+                }
+
+                data_list.push_back(tmp_buf);
+        }
+        
+        std::cout << "Danmaku Schedule have been loaded." << std::endl;
+}
+
+std::vector<AbstractDanmakuData> *AbstractDanmakuSchedule::get_front(void)
+{
+        return data_list.front();
+}
+
+std::vector<AbstractDanmakuData> *AbstractDanmakuSchedule::at(int index)
+{
+        return data_list[index];
+}
+
+size_t AbstractDanmakuSchedule::size(void)
+{
+        return data_list.size();
+}
+
+void AbstractDanmakuSchedule::pop_front(void)
+{
+        data_list.erase(std::begin(data_list));
+}
+
 bool DanmakuScheduler::function_is_coming(u64 count)
 {
 	if (schedule.size()) {
@@ -128,3 +199,9 @@ size_t DanmakuScheduler::size(void)
 {
 	return schedule.size();
 }
+
+void DanmakuScheduler::push_back(DanmakuCallEssential e)
+{
+        schedule.push_back(e);
+}
+

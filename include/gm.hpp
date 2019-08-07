@@ -14,6 +14,7 @@
 #include "fonts.hpp"
 #include <unordered_map>
 #include <forward_list>
+#include <list>
 #include "animation.hpp"
 #include "key_input.hpp"
 #include "bullet_management.hpp"
@@ -26,6 +27,8 @@ enum GameState {
         OPENING_EPISODE,
         RACE,
         END,
+        SUBEVE_CONTINUE,
+        SUBEVE_FINISH,
 };
 
 class SceneMaster {
@@ -48,6 +51,22 @@ public:
         u64 get_count();
         void update_count();
 };
+
+class SceneSubEvent : public SceneMaster, public SceneAnimation {
+private:
+        sf::Vector2f position;
+        GameState current_status;
+
+public:
+        SceneSubEvent(sf::Vector2f pos);
+        void set_status(GameState status);
+        GameState get_status(void);
+
+        void pre_process(sf::RenderWindow &window) override;
+        void drawing_process(sf::RenderWindow &window) override;
+        GameState post_process(sf::RenderWindow &window) override;
+};
+
 
 class TitleSceneMaster : public SceneMaster, public SceneAnimation {
 private:
@@ -102,11 +121,30 @@ public:
 };
 
 class RaceSceneMaster : public SceneMaster {
+
+        class ConversationEvent : public SceneSubEvent {
+        private:
+                std::forward_list<Tachie *> tachie_container;
+                EpisodeController episode;
+                key::KeyboardListener key_listener;
+                MoveObject background;
+                
+        public:
+                ConversationEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *data);
+
+                void pre_process(sf::RenderWindow &window) override;
+                void drawing_process(sf::RenderWindow &window) override;
+                GameState post_process(sf::RenderWindow &window) override;
+        };
+        
 private:
         std::forward_list<Tachie *> tachie_container;
         std::forward_list<MoveObject *> move_object_container;
         std::vector<EnemyCharacter *> enemy_container;
+        util::GPContainer<SceneSubEvent *, std::list> sub_event_list;
+        std::forward_list<Tachie *> _container;
         
+        GameData *game_data;
         PlayerCharacter running_char;
         EnemyCharacter target_udon;
         BackgroundTile backgroundTile;
@@ -129,6 +167,8 @@ private:
         u64 last_danmaku_timer_id;
         BulletPipelineContainer bullet_pipeline;
         u64 danmaku_timer_id;
+        ConversationEvent *kaiwa_event;
+        AbstractDanmakuSchedule abs_danmaku_sched;
 
 	void add_new_functional_bullets_to_schedule(void);
         void add_new_danmaku(void);
@@ -137,6 +177,7 @@ private:
         void kill_out_of_filed_bullet(std::vector<Bullet *> &bullets);
         void player_spellcard(void);
         void random_mist(void);
+        void insert_enemy_spellcard(int index);
 
     public:
         RaceSceneMaster(GameData *game_data);

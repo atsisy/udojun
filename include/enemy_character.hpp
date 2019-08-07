@@ -7,6 +7,7 @@ class EnemyCharacter : public DrawableCharacter {
 private:
         float hp_actual;
         float hp_max;
+        bool damage_enable;
 
         DanmakuScheduler danmaku_sched;
         
@@ -21,6 +22,9 @@ public:
 	void damage(float value);
         bool dead(void);
         void move(u64 count);
+
+        void damage_on(void);
+        void damage_off(void);
 
         DanmakuCallEssential shot(u64 now);
 };

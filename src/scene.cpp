@@ -84,26 +84,21 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 	  graze_counter(0, game_data->get_font(JP_DEFAULT)),
 	  window_frame(sf::IntRect(0, 0, 1366, 768),
 		       sf::IntRect(32, 32, 960, 704)),
-	  danmaku_sched({ DanmakuCallEssential(
-				  FunctionCallEssential("udon-tsujo1", 2000,
-							sf::Vector2f(0, 0)),
-				  1800),
-			  DanmakuCallEssential(
-				  FunctionCallEssential("udon-tsujo2", 3800,
-							sf::Vector2f(0, 0)),
-				  1800) })
+	  danmaku_sched({}),
+          abs_danmaku_sched({ "stage1_danmaku.json" })
 {
+        this->game_data = game_data;
 	test_bullet = new Bullet(GameMaster::texture_table[BULLET1],
 				 sf::Vector2f(400, 400),
                                  mf::stop,
                                  0, sf::Vector2f(0.12, 0.12), BulletSize::BULLET1,
                                  true, true, M_PI_4);
-
+        
         test_bullet2 = new Bullet(GameMaster::texture_table[BULLET1],
-				 sf::Vector2f(400, 400),
-                                 mf::stop,
-                                 0, sf::Vector2f(0.12, 0.12), BulletSize::BULLET1,
-                                 true, true, 0);
+                                  sf::Vector2f(400, 400),
+                                  mf::stop,
+                                  0, sf::Vector2f(0.12, 0.12), BulletSize::BULLET1,
+                                  true, true, 0);
         
 	stamina_label.set_place(0, 50);
 	stamina.set_place(0, 80);
@@ -118,7 +113,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
         game_score_counter.set_place(150, 200);
         game_score_label.set_place(0, 200);
 
-                create_view("background", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))->
+        create_view("background", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))->
                 setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
 
 	create_view("field",
@@ -136,14 +131,12 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 	create_view("tachie", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))
 		->setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
 
-        danmaku_timer_id = timer_list.add_timer([this](void){
-                                     add_new_danmaku();
-                             }, danmaku_sched.top().func_essential.time);
         bullet_pipeline.enemy_pipeline.add_function(
                 new FunctionCallEssential("field1", 30,
                                           sf::Vector2f(0, 0)));
 
         backgroundTile.set_scroll_speed(5);
+
 }
 
 void RaceSceneMaster::player_spellcard(void)
@@ -369,6 +362,19 @@ void RaceSceneMaster::kill_out_of_filed_bullet(std::vector<Bullet *> &bullets)
 	}
 }
 
+void RaceSceneMaster::insert_enemy_spellcard(int index)
+{
+        u64 begin_time = get_count();
+        std::vector<AbstractDanmakuData> *buf = abs_danmaku_sched.at(index++);
+        for(AbstractDanmakuData &data : *buf){
+                danmaku_sched.push_back(
+                        DanmakuCallEssential(
+                                FunctionCallEssential(data.func_name,
+                                                      begin_time, sf::Vector2f(0, 0)), data.time_limit));
+                begin_time += data.time_limit;
+        }
+}
+
 void RaceSceneMaster::conflict_judge(void)
 {
 	for (auto &&bullet : bullet_pipeline.player_pipeline.actual_bullets) {
@@ -452,6 +458,11 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
                 target_udon.override_move_func(mf::move_point_constant(sf::Vector2f(480, 50),
                                                                        target_udon.get_place(), 2000, 2128));
                 backgroundTile.set_scroll_speed(-1);
+                timer_list.add_timer(
+                        [&](void){
+                                sub_event_list.add(new ConversationEvent(this, sf::Vector2f(0, 0), game_data));
+                        }, 240, get_count());
+                        
         }
         
 	tachie_container.remove_if([](Tachie *p) { return !p->visible(); });
@@ -472,6 +483,11 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 	backgroundTile.scroll();
 
 	timer_list.check_and_call(get_count());
+        
+        for(SceneSubEvent *sse : sub_event_list){
+                sse->pre_process(window);
+        }
+        
 	update_count();
 }
 
@@ -539,10 +555,91 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
                 if(p->visible())
                         p->draw(window);
 	}
+
+        for(SceneSubEvent *sse : sub_event_list){
+                sse->drawing_process(window);
+        }
         
 }
 
 GameState RaceSceneMaster::post_process(sf::RenderWindow &window)
 {
+        sub_event_list
+                .native_method()
+                .remove_if([&](SceneSubEvent *sse)
+                                   { return sse->post_process(window) == SUBEVE_FINISH; });
+
 	return RACE;
 }
+
+RaceSceneMaster::ConversationEvent::ConversationEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *data)
+        : SceneSubEvent(pos), episode("stage1_spell.txt", data->get_font(JP_DEFAULT)),
+          background(GameMaster::texture_table[SAMPLE_BACKGROUND1], sf::Vector2f(0, 450), mf::stop, 0)
+{
+        set_status(SUBEVE_CONTINUE);
+        
+        auto udon = new Tachie(
+                GameMaster::texture_table[UDON_TACHIE],
+                sf::Vector2f(100, 70),
+                mf::stop,
+                get_count(), "udon");
+        udon->set_scale(0.55, 0.55);
+        udon->add_effect({ effect::fade_in(30) });
+        
+        auto junko = new Tachie(
+                GameMaster::texture_table[JUNKO_TACHIE1],
+                sf::Vector2f(600, 70),
+                mf::stop,
+                get_count(), "junko");
+        junko->set_scale(0.5, 0.5);
+        junko->add_effect({ effect::fade_in(30) });
+        
+        tachie_container.emplace_front(udon);
+        tachie_container.emplace_front(junko);
+
+        key_listener
+                .add_key_event(key::VKEY_1,
+                               [=](key::KeyStatus status){
+                                       if(status & key::KEY_FIRST_PRESSED){
+                                               if(episode.last_page()){
+                                                       rsm->insert_enemy_spellcard(0);
+                                                       rsm->target_udon.damage_on();
+                                                       set_status(SUBEVE_FINISH);
+                                                       rsm->add_new_danmaku();
+                                               }else{
+                                                       episode.next();
+                                               }
+                                       }
+                               });
+        background.set_alpha(200);
+}
+
+void RaceSceneMaster::ConversationEvent::pre_process(sf::RenderWindow &window)
+{
+        key_listener.key_update();
+        
+        for(auto &&p : tachie_container){
+                p->move(get_count());
+		p->effect(get_count());
+	}
+
+        update_count();
+}
+
+void RaceSceneMaster::ConversationEvent::drawing_process(sf::RenderWindow &window)
+{
+        background.draw(window);
+        
+        for(auto &&p : tachie_container){
+                if(p->visible())
+                        p->draw(window);
+	}
+
+        episode.get_current_page()->draw(window);
+}
+
+GameState RaceSceneMaster::ConversationEvent::post_process(sf::RenderWindow &window)
+{
+        return SceneSubEvent::post_process(window);
+}
+

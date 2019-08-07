@@ -3,6 +3,7 @@
 #include <queue>
 #include <vector>
 #include <functional>
+#include <list>
 #include "move_func.hpp"
 #include "programable.hpp"
 
@@ -48,13 +49,34 @@ public:
         void clear(void);
 };
 
+class AbstractDanmakuData {
+public:
+        std::string func_name;
+        std::wstring danmaku_name;
+        u64 time_limit;
+
+        AbstractDanmakuData(std::string f_name, std::wstring d_name, u64 time_limit);
+};
+
+class AbstractDanmakuSchedule {
+private:
+        std::vector<std::vector<AbstractDanmakuData> *> data_list;
+
+public:
+        AbstractDanmakuSchedule(std::vector<const char *> json_path_set);
+
+        std::vector<AbstractDanmakuData> *get_front(void);
+        void pop_front(void);
+        size_t size(void);
+        std::vector<AbstractDanmakuData> *at(int index);
+};
+
 class DanmakuCallEssential {
 public:
         FunctionCallEssential func_essential;
         u64 time_limit;
         
         DanmakuCallEssential(FunctionCallEssential fe, u64 sec);
-        
 };
 
 class DanmakuScheduler {
@@ -67,4 +89,5 @@ public:
         DanmakuCallEssential drop_top(void);
 	DanmakuCallEssential top(void);
         size_t size(void);
+        void push_back(DanmakuCallEssential e);
 };

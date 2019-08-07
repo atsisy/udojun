@@ -139,6 +139,7 @@ EnemyCharacter::EnemyCharacter(CharacterAttribute attribute, sf::Texture *t,
         this->hp_actual = hp_init;
         this->hp_max = hp_max;
         set_radius(12);
+        damage_off();
 }
 
 float EnemyCharacter::get_hp(void)
@@ -158,7 +159,8 @@ void EnemyCharacter::set_hp_max(void)
 
 void EnemyCharacter::damage(float value)
 {
-        this->hp_actual -= value;
+        if(damage_enable)
+                this->hp_actual -= value;
 }
 
 bool EnemyCharacter::dead(void)
@@ -170,4 +172,14 @@ void EnemyCharacter::move(u64 count)
 {
 	MoveObject::move(count);
 	update_center(get_place());
+}
+
+void EnemyCharacter::damage_on(void)
+{
+        this->damage_enable = true;
+}
+
+void EnemyCharacter::damage_off(void)
+{
+        this->damage_enable = false;
 }

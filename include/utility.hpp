@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <cstring>
 #include <functional>
+#include <forward_list>
 #include "types.hpp"
 
 namespace util {
@@ -229,6 +230,48 @@ namespace util {
         {
                 return std::sqrt(std::pow(x1 - x2, 2) + std::pow(y1 - y2, 2));
         }
+
+        std::wstring *utf8_str_to_widechar_str(std::string str);
+
+        template<typename type, template<typename T> class container>
+        class GPContainer {
+        private:
+                container<type> buffer;
+                
+        public:
+                GPContainer(void)
+                {}
+                
+                typename container<type>::iterator begin(void)
+                {
+                        return std::begin(buffer);
+                }
+                
+                typename container<type>::iterator end(void)
+                {
+                        return std::end(buffer);
+                }
+
+                void add(type t)
+                {
+                        buffer.push_back(t);
+                }
+
+                void add(type &t)
+                {
+                        buffer.push_back(t);
+                }
+
+                void erase(typename container<type>::iterator it)
+                {
+                        buffer.erase(it);
+                }
+
+                container<type> &native_method(void)
+                {
+                        return buffer;
+                }
+        };
 }
 
 #define enum_to_str(var) #var
@@ -237,3 +280,4 @@ namespace util {
 
 #define container_entire_range(x) std::begin(x), std::end(x)
 #define DEBUG_PRINT_HERE() printf("%s:%d", __FILE__, __LINE__)
+

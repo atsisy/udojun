@@ -23,10 +23,12 @@ set(udjn_src
   src/episode_scene.cpp
   src/game_system.cpp
   src/bullet_management.cpp
+  src/sub_scene.cpp
+  src/dependent_util_function.cpp
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_definitions("-Wall -std=c++17 -O2 -march=native -I/home/takai/Dropbox/programs/sfml_test/include")
+add_definitions("-Wall -std=c++17 -Ofast -march=native -I/home/takai/Dropbox/programs/sfml_test/include")
 link_libraries("-lsfml-graphics -lsfml-window -lsfml-system")
 add_executable(udjn_race ${udjn_src})

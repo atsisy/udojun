@@ -84,6 +84,8 @@ SceneMaster *GameMaster::create_new_scene(GameState req)
 		return new OpeningEpisodeSceneMaster(this->game_data);
 	case END:
                 return nullptr;
+        default:
+                return nullptr;
 	}
 
         return nullptr;

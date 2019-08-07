@@ -27,12 +27,7 @@ EpisodeController::EpisodeController(const char *path, sf::Font *font)
                                                   sf::Vector2f(100, 500), 20, 20));
                         buf.clear();
                 }else{
-                        str.push_back('\0');
-                        std::cout << str << std::endl;
-                        std::wstring *wstr = new std::wstring;
-                        wstr->reserve(str.size());
-                        sf::Utf<8>::toWide(std::begin(str), std::end(str), std::begin(*wstr), 0);
-                        buf.push_back(wstr->data());
+                        buf.push_back(util::utf8_str_to_widechar_str(str)->data());
                 }
         }
 }
@@ -75,7 +70,7 @@ OpeningEpisodeSceneMaster::OpeningEpisodeSceneMaster(GameData *game_data)
           episode("opening_episode.txt", game_data->get_font(JP_DEFAULT))
 {
         game_state = OPENING_EPISODE;
-
+        
         auto p = new MoveObject(GameMaster::texture_table[BLACK_ANTEN],
                                 sf::Vector2f(0, 0),
                                 mf::stop,
@@ -92,7 +87,6 @@ OpeningEpisodeSceneMaster::OpeningEpisodeSceneMaster(GameData *game_data)
                                                                 }
                                                         }
                                                 });
-        
 }
 
 void OpeningEpisodeSceneMaster::prepare_for_next_scene(void)
@@ -104,8 +98,8 @@ void OpeningEpisodeSceneMaster::prepare_for_next_scene(void)
         add_animation_object(p);
         p->add_effect({ effect::fade_in(100) });
         timer_list.add_timer([this](void){
-                               this->game_state = RACE;
-                       }, 120, get_count());
+                                     this->game_state = RACE;
+                             }, 120, get_count());
 }
 
 void OpeningEpisodeSceneMaster::pre_process(sf::RenderWindow &window)
