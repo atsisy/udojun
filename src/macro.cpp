@@ -1,6 +1,7 @@
 #include <cmath>
 #include "gm.hpp"
 #include "macro.hpp"
+#include "geometry.hpp"
 
 namespace macro {
         
@@ -25,10 +26,87 @@ namespace macro {
                                                       origin.y + (r * std::sin(rad)))
                                               ));
                 }
+                
+                return ret;
+        }
+        
+        std::vector<BulletData *> ellipse(sf::Vector2f origin, float r, float a, float b,
+                                          u8 num, u64 time, float phase)
+        {
+                std::vector<BulletData *> ret;
+                float unit_rad = (2 * M_PI) / (float)num;
+                float rad = phase;
+
+                std::cout << a << ":" << b << std::endl;
+
+                for(u8 i = 0;i < num;i++, rad += unit_rad){
+                        float c = (rad > (M_PI / 2) && rad < (3 * M_PI / 2) ? 2 : -2);
+                        ret.push_back(new BulletData(
+                                              str_to_bfid("LINEAR"),
+                                              BULLET_HART,
+                                              (std::abs(std::cos(rad)) < 0.000001 ?
+                                               mf::up(c) : mf::linear(
+                                                       -(r * std::sin(rad)) / ((r * std::cos(rad))),
+                                                       2 * std::cos(rad), 0)),
+                                              time,
+                                              sf::Vector2f(
+                                                      origin.x + (a * r * std::cos(rad)),
+                                                      origin.y + (b * r * std::sin(rad)))
+                                              ));
+                }
 
                 return ret;
         }
 
+        std::vector<BulletData *> udon_ellipse(sf::Vector2f origin, sf::Vector2f target,
+                                               sf::Vector2f init_speed, u64 change_time,
+                                               float r, float a, float b,
+                                               u8 num, u64 time)
+        {
+                std::vector<BulletData *> ret;
+                float unit_rad = (2 * M_PI) / (float)num;
+                float rad = 0;
+
+                float target_angle = std::atan((float)(target.x - origin.x) / (float)(target.y - origin.y));
+
+                if(target.y < origin.y){
+                        target_angle -= (M_PI);
+                }
+
+                for(u8 i = 0;i < num;i++, rad += unit_rad){
+                        sf::Vector2f point = sf::Vector2f(
+                                origin.x + (a * r * std::cos(rad)),
+                                origin.y + (b * r * std::sin(rad)));
+                        ret.push_back(new BulletData(
+                                              str_to_bfid("LINEAR"),
+                                              BULLET_HART,
+                                              mf::vector_linear(sf::Vector2f(
+                                                                        init_speed.x * std::sin(target_angle),
+                                                                        -(init_speed.y * std::cos(target_angle)))),
+                                              time,
+                                              geometry::rotate_point2(target_angle, point, origin)));
+                }
+
+
+                sf::Vector2f small_origin = origin + sf::Vector2f(0, 200);
+
+                for(u8 i = 0;i < num;i++, rad += unit_rad){
+                        sf::Vector2f point = sf::Vector2f(
+                                small_origin.x + (r * 0.3 * std::cos(rad)),
+                                small_origin.y + (r * 0.3 * std::sin(rad)));
+                        ret.push_back(new BulletData(
+                                              str_to_bfid("LINEAR"),
+                                              BULLET_HART,
+                                              mf::vector_linear(sf::Vector2f(
+                                                                        init_speed.x * std::sin(target_angle),
+                                                                        -(init_speed.y * std::cos(target_angle)))),
+                                              time,
+                                              geometry::rotate_point2(target_angle, point, origin)));
+                }
+
+                return ret;
+        }
+        
         std::vector<BulletData *> udon_circle(sf::Vector2f origin, float speed, float r, u8 num, u64 time, float phase)
         {
                 std::vector<BulletData *> ret;
@@ -83,6 +161,24 @@ namespace macro {
 		return udon_circle2(origin, 90, 10, 1024, time, phase, 0.06);
 	}
 
+        std::vector<BulletData *> udon_spellcard1(sf::Vector2f origin, sf::Vector2f target,
+                                                  sf::Vector2f speed, u64 change_time, u64 time,
+                                                  float r)
+	{
+                std::vector<BulletData *> ret;
+                std::vector<BulletData *> &&root_part =
+                        udon_ellipse(origin, target, speed, change_time, r, 0.5, 1.0, 24, time);
+                //util::concat_container<std::vector<BulletData *>>(ret, root_part);
+                /*
+                std::vector<BulletData *> &&leaf_part =
+                        udon_ellipse(origin - sf::Vector2f(0, 200), target, speed, change_time, r * 0.3, 0.7, 0.7, 24, time);
+                util::concat_container<std::vector<BulletData *>>(ret, leaf_part);
+
+                return ret;
+                */
+                return root_part;
+	}
+
 	std::vector<BulletData *> hart(sf::Vector2f origin, float r, u8 num, u64 time)
         {
                 std::vector<BulletData *> ret;
@@ -104,7 +200,6 @@ namespace macro {
                                                       origin.y - (r * ((13 * std::cos(rad)) - (5 * std::cos(2 * rad)) - (2 * std::cos(3 * rad)) - std::cos(4 * rad)))
                                                       )));
                                       }
-
                 return ret;
         }
 
@@ -217,6 +312,17 @@ namespace macro {
                                 data["time"].get<double>(),
                                 TAKE_DEFAULT_ARG(data, "phase", double, 0)
                                 );
+                case ELLIPSE:
+                        return macro::ellipse(
+                                sf::Vector2f(data["x"].get<double>(), data["y"].get<double>()),
+                                data["r"].get<double>(),
+                                data["a"].get<double>(),
+                                data["b"].get<double>(),
+                                data["quantity"].get<double>(),
+                                data["time"].get<double>(),
+                                TAKE_DEFAULT_ARG(data, "phase", double, 0)
+                                );
+                        break;
                 case HART:
                         return hart(
                                 sf::Vector2f(data["x"].get<double>(), data["y"].get<double>()),
@@ -267,6 +373,26 @@ namespace macro {
                                 data["time"].get<double>(),
                                 TAKE_DEFAULT_ARG(data, "phase", double, 0)
                                 );
+                case ELLIPSE:
+                        return macro::ellipse(
+                                running_char.get_origin(),
+                                data["r"].get<double>(),
+                                data["a"].get<double>(),
+                                data["b"].get<double>(),
+                                data["quantity"].get<double>(),
+                                data["time"].get<double>(),
+                                TAKE_DEFAULT_ARG(data, "phase", double, 0)
+                                );
+                        break;
+                case UDON_SPELL1:
+                        return macro::udon_spellcard1(sf::Vector2f(data["x"].get<double>(),
+                                                                   data["y"].get<double>()),
+                                                      running_char.get_origin(),
+                                                      sf::Vector2f(data["speed_x"].get<double>(),
+                                                                   data["speed_y"].get<double>()),
+                                                      data["switch_time"].get<double>(),
+                                                      data["time"].get<double>(),
+                                                      data["r"].get<double>());
                 case HART:
                         return hart(
                                 running_char.get_origin(),

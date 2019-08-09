@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include "geometry.hpp"
+#include "rotate_func.hpp"
 
 DrawableComponent::DrawableComponent()
 {
@@ -454,6 +455,13 @@ void Conflictable::set_conflict_offset(sf::Vector2f offset)
 Rotatable::Rotatable(void)
 {
         this->angle = 0;
+        rotate_func = rotate::stop;
+}
+
+Rotatable::Rotatable(std::function<float(Rotatable *, u64, u64)> fn)
+{
+        this->angle = 0;
+        rotate_func = fn;
 }
 
 float Rotatable::get_angle(void)
@@ -513,6 +521,28 @@ void Bullet::rotate(float a)
         
         set_conflict_offset(relative_center);
         update_center(get_place());
+}
+
+void Bullet::call_rotate_func(u64 now, u64 begin)
+{
+        this->angle = rotate_func(this, now, begin);
+        
+        sprite.rotate(this->angle * 180 / M_PI);
+        
+        sf::Vector2f relative_center = sf::Vector2f(
+                ((texture.getSize().x / 2) * get_scale().x),
+                ((texture.getSize().y / 2) * get_scale().y)
+                );
+
+        relative_center = geometry::rotate_point(get_angle(), relative_center);
+        
+        set_conflict_offset(relative_center);
+        update_center(get_place());
+}
+
+void Bullet::rotate_with_func(u64 now)
+{
+        this->call_rotate_func(now, this->begin_count);
 }
 
 

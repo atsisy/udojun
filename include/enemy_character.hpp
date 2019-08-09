@@ -15,7 +15,9 @@ public:
         EnemyCharacter(CharacterAttribute attribute, sf::Texture *t, sf::Vector2f p,
                        sf::Vector2f scale, u64 begin_count,
                        std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
-                       float hp_max, float hp_init, DanmakuScheduler d_sched);
+                       std::function<float(Rotatable *, u64, u64)> r_fn,
+                       float hp_max, float hp_init, DanmakuScheduler d_sched,
+                bool damage_flag);
         float get_hp(void);
 	void set_hp(float val);
         void set_hp_max(void);

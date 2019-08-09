@@ -11,5 +11,4 @@ public:
                u64 begin_count, std::string name);
         void move(u64 count);
         bool are_you(std::string name);
-        
 };

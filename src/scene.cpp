@@ -10,6 +10,7 @@
 #include <random>
 #include "value.hpp"
 #include "effect.hpp"
+#include "rotate_func.hpp"
 
 SceneMaster::SceneMaster()
 {
@@ -56,7 +57,8 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 		       sf::Vector2f(400, 200)),
 	  target_udon(CharacterAttribute("target udon"),
 		      GameMaster::texture_table[UDON1], sf::Vector2f(480, -80),
-		      sf::Vector2f(0.8, 0.8), 0, mf::stop, 400, 400, danmaku_empty_sched),
+		      sf::Vector2f(0.8, 0.8), 0, mf::stop, rotate::stop,
+                      400, 400, danmaku_empty_sched, false),
 	  backgroundTile(GameMaster::texture_table[MOON_CITY_TILE],
 			 sf::Vector2f(32, 32), sf::IntRect(0, 0, 960, 736),
 			 sf::Vector2f(1, 1)),
@@ -400,6 +402,7 @@ void RaceSceneMaster::conflict_judge(void)
                                 p->damage(1);
                                 bullet->hide();
                                 if(p->dead()){
+                                        puts("dead");
                                         std::swap(enemy_container[i], enemy_container.back());
                                         enemy_container.pop_back();
                                 }
@@ -440,6 +443,12 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 	player_move();
         test_bullet->move(get_count());
 
+        if(get_count() == 20){
+                bullet_pipeline.enemy_pipeline.add_function(
+			new FunctionCallEssential("ellipse", get_count(),
+                                                  sf::Vector2f(0, 0)));
+        }
+
 	score_counter.counter_method().add(1);
         timelimit_counter.counter_method().add(-1);
 
@@ -449,9 +458,16 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 
         if(get_count() == 300){
                 enemy_container.emplace_back(new EnemyCharacter(CharacterAttribute("test"),
-                                                                 GameMaster::texture_table[UDON1], sf::Vector2f(0, 200),
-                                                                 sf::Vector2f(0.8, 0.8), get_count(),
-                                                                 mf::tachie_move_constant(2, 0), 15, 15, danmaku_empty_sched));
+                                                                GameMaster::texture_table[UDON1], sf::Vector2f(0, 200),
+                                                                sf::Vector2f(0.8, 0.8), get_count(),
+                                                                mf::tachie_move_constant(2, 0),
+                                                                rotate::stop, 15, 15, danmaku_empty_sched, true));
+                enemy_container.emplace_back(new EnemyCharacter(CharacterAttribute("test"),
+                                                                GameMaster::texture_table[FLOWER1], sf::Vector2f(100, 10),
+                                                                sf::Vector2f(0.75, 0.75), get_count(),
+                                                                mf::up(-1),
+                                                                rotate::pendulum(M_PI / 3, 60, 0.2),
+                                                                15, 15, danmaku_empty_sched, true));
         }else if(get_count() == 2000){
                 timer_list.cancel(danmaku_timer_id);
                 next_danmaku_forced();
@@ -474,6 +490,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 
         for(auto &&p : enemy_container){
                 p->move(get_count());
+                p->rotate_with_func(get_count());
 	}
 
         for(auto p : move_object_container){

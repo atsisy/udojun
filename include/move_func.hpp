@@ -27,6 +27,7 @@ namespace mf {
 		      sf::Vector2f begin, float speed, float angle,
 		      float r_bias);
 	DEF_MOVE_FUNC(active_homing, sf::Vector2f origin, float speed, sf::Vector2f *target);
+        DEF_MOVE_FUNC(vector_linear, sf::Vector2f speed);
 }
 
 
@@ -34,6 +35,7 @@ enum BulletFunctionID {
         SIN_1 = 0,
         COS_1,
         LINEAR,
+        VECTOR_LINER,
         AIM_SELF_LINEAR,
         UP,
         UZUMAKI,
@@ -56,6 +58,8 @@ inline BulletFunctionID str_to_bfid(const char *str)
                 return UZUMAKI;
 	}else if (!strcmp(str, enum_to_str(SLOWER1))) {
 		return SLOWER1;
+	}else if (!strcmp(str, enum_to_str(VECTOR_LINER))) {
+		return VECTOR_LINER;
 	}
 
 	std::cout << "Unknown Bullet Function ID: " << str << std::endl;
@@ -124,6 +128,8 @@ select_bullet_function(BulletFunctionID id, picojson::object &data)
                 return mf::cos(data["bias"].get<double>(), data["dx"].get<double>());
         case LINEAR:
                 return mf::linear(data["bias"].get<double>(), data["dx"].get<double>(), data["c"].get<double>());
+        case VECTOR_LINER:
+                return mf::vector_linear(sf::Vector2f(data["speed_y"].get<double>(), data["speed_y"].get<double>()));
         case SLOWER1:
 		return mf::getting_slower(data["speed"].get<double>(),
 					  data["angle"].get<double>(),

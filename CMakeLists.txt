@@ -25,6 +25,7 @@ set(udjn_src
   src/bullet_management.cpp
   src/sub_scene.cpp
   src/dependent_util_function.cpp
+  src/rotate.cpp
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

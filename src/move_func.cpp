@@ -55,6 +55,17 @@ namespace mf {
                        };
         }
 
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
+	vector_linear(sf::Vector2f speed)
+	{
+                return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd){
+                               const sf::Vector2f &&now = bullet->get_place();
+                               return sf::Vector2f(
+                                       now.x + speed.x,
+                                       now.y - speed.y);
+                       };
+        }
+
 	std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	getting_slower(float init_speed, float angle, u64 limit)
 	{

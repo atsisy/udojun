@@ -212,12 +212,17 @@ public:
 class Rotatable {
 protected:
         float angle;
+        std::function<float(Rotatable *, u64, u64)> rotate_func;
         
 public:
         Rotatable(void);
+        Rotatable(std::function<float(Rotatable *, u64, u64)> fn);
         virtual void rotate(float a) = 0;
+        virtual void call_rotate_func(u64 now, u64 begin) = 0;
+        virtual void rotate_with_func(u64 now) = 0;
         float get_angle(void);
 };
+
 
 class Bullet : public MoveObject, public Conflictable, public Rotatable {
 private:
@@ -234,5 +239,7 @@ public:
         void enable_graze(void);
         void move(u64 count);
         void rotate(float a);
+        void call_rotate_func(u64 now, u64 begin);
+        void rotate_with_func(u64 now);
         void draw(sf::RenderWindow &window);
 };

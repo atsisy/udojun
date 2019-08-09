@@ -50,6 +50,7 @@ enum TextureID {
         MIST1,
         BULLET1,
         JUNKO_TACHIE1,
+        FLOWER1
 };
 
 enum LaserTextureID {
@@ -107,6 +108,7 @@ inline TextureID str_to_txid(const char *str)
         str_to_idx_sub(str, MIST1);
         str_to_idx_sub(str, BULLET1);
         str_to_idx_sub(str, JUNKO_TACHIE1);
+        str_to_idx_sub(str, FLOWER1);
 
 	std::cout << "Unknown texture: " << str << std::endl;
 

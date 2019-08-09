@@ -5,6 +5,8 @@
 #include "enemy_character.hpp"
 
 #include "move_func.hpp"
+#include "rotate_func.hpp"
+#include "geometry.hpp"
 
 DanmakuScheduler danmaku_empty_sched =
         DanmakuScheduler({});
@@ -18,8 +20,9 @@ DrawableCharacter::DrawableCharacter(CharacterAttribute attribute,
 				     sf::Texture *t, sf::Vector2f p,
 				     sf::Vector2f scale,
                                      std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
+                                     std::function<float(Rotatable *, u64, u64)> r_fn,
                                      u64 begin_count)
-	: MoveObject(t, p, f, begin_count), Conflictable(true), char_info(attribute)
+	: MoveObject(t, p, f, begin_count), Conflictable(true), Rotatable(r_fn), char_info(attribute)
 {
         set_radius(6);
         sprite.setScale(scale.x, scale.y);
@@ -57,6 +60,34 @@ void DrawableCharacter::draw(sf::RenderWindow &window)
         window.draw(sprite);
 }
 
+void DrawableCharacter::rotate(float a)
+{
+        this->angle = a;
+}
+
+void DrawableCharacter::call_rotate_func(u64 now, u64 begin)
+{
+        sprite.rotate(-this->angle * 180 / M_PI);
+        
+        this->angle = rotate_func(this, now, begin);
+        sprite.rotate(this->angle * 180 / M_PI);
+        
+        sf::Vector2f relative_center = sf::Vector2f(
+                ((texture.getSize().x / 2) * get_scale().x),
+                ((texture.getSize().y / 2) * get_scale().y)
+                );
+
+        relative_center = geometry::rotate_point(get_angle(), relative_center);
+        
+        set_conflict_offset(relative_center);
+        update_center(get_place());
+}
+
+void DrawableCharacter::rotate_with_func(u64 now)
+{
+        this->call_rotate_func(now, this->begin_count);
+}
+
 void DrawableCharacter::change_textures(sf::Texture *t)
 {
         this->texture = *t;
@@ -70,7 +101,7 @@ PlayerCharacter::PlayerCharacter(CharacterAttribute attribute,
                             sf::Vector2f(
                                     TextureSize::PLAYER_CHARACTER_SIZE_X / character->getSize().x,
                                     TextureSize::PLAYER_CHARACTER_SIZE_Y / character->getSize().y),
-                            mf::stop, 0)
+                            mf::stop, rotate::stop, 0)
 {
         this->core_texture = *core;
         core_sprite.setTexture(core_texture);
@@ -133,13 +164,17 @@ void PlayerCharacter::set_core_place()
 EnemyCharacter::EnemyCharacter(CharacterAttribute attribute, sf::Texture *t,
 			       sf::Vector2f p, sf::Vector2f scale, u64 begin_count,
                                std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
-                               float hp_max, float hp_init, DanmakuScheduler d_sched)
-	: DrawableCharacter(attribute, t, p, scale, f, begin_count), danmaku_sched(d_sched)
+                               std::function<float(Rotatable *, u64, u64)> r_fn,
+                               float hp_max, float hp_init, DanmakuScheduler d_sched, bool damage_flag)
+	: DrawableCharacter(attribute, t, p, scale, f, r_fn, begin_count), danmaku_sched(d_sched)
 {
         this->hp_actual = hp_init;
         this->hp_max = hp_max;
         set_radius(12);
-        damage_off();
+        if(damage_flag)
+                damage_on();
+        else
+                damage_off();
 }
 
 float EnemyCharacter::get_hp(void)

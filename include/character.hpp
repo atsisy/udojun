@@ -16,14 +16,16 @@ public:
         
 };
 
-class DrawableCharacter : public MoveObject, public Conflictable {
+class DrawableCharacter : public MoveObject, public Conflictable, public Rotatable {
 protected:
         CharacterAttribute char_info;
 
 public:
         DrawableCharacter(CharacterAttribute attribute, sf::Texture *t,
                           sf::Vector2f p, sf::Vector2f scale,
-                          std::function<sf::Vector2f(MoveObject *, u64, u64)> f, u64 begin_count);
+                          std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
+                          std::function<float(Rotatable *, u64, u64)> r_fn,
+                          u64 begin_count);
 
         void draw(sf::RenderWindow &window);
         
@@ -31,6 +33,10 @@ public:
         void jump_to(sf::Vector2f p);
 
         void change_textures(sf::Texture *t);
+
+        void rotate(float a) override;
+        void call_rotate_func(u64 now, u64 begin) override;
+        void rotate_with_func(u64 now) override;
 };
 
 class PlayerCharacter : public DrawableCharacter {
@@ -42,7 +48,8 @@ private:
         void set_core_place();
 
 public:
-        PlayerCharacter(CharacterAttribute attribute, sf::Texture *character, sf::Texture *core, sf::Vector2f p);
+        PlayerCharacter(CharacterAttribute attribute, sf::Texture *character,
+                        sf::Texture *core, sf::Vector2f p);
 
         void core_on();
         void core_off();
