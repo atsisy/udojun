@@ -118,7 +118,23 @@ namespace mf {
                                return sf::Vector2f(now.x + (std::sin(rad) * speed),
                                                    now.y + (std::cos(rad) * speed));
                        };
-	}
+        }
+        
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
+        curve(sf::Vector2f begin, sf::Vector2f middle,
+              sf::Vector2f end, u64 time)
+        {
+                return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd) {
+                               sf::Vector2f p1_mid, p2_mid, p3_mid;
+                               u64 t = now_lmd - begin_lmd;
+                               float frac = (float)t / (float)time;
+                               p1_mid = ((1 - frac) * begin) + (frac * middle);
+                               p2_mid = ((1 - frac) * middle) + (frac * end);
+                               p3_mid = ((1 - frac) * p1_mid) + (frac * p2_mid);
+                               std::cout << p3_mid.x << ":" << p3_mid.y << std::endl;
+                               return p3_mid;
+                       };
+        }
         
         std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	uzumaki(sf::Vector2f origin, sf::Vector2f begin, float speed,

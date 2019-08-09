@@ -463,9 +463,13 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
                                                                 mf::tachie_move_constant(2, 0),
                                                                 rotate::stop, 15, 15, danmaku_empty_sched, true));
                 enemy_container.emplace_back(new EnemyCharacter(CharacterAttribute("test"),
-                                                                GameMaster::texture_table[FLOWER1], sf::Vector2f(100, 10),
+                                                                GameMaster::texture_table[FLOWER1], sf::Vector2f(0, 0),
                                                                 sf::Vector2f(0.75, 0.75), get_count(),
-                                                                mf::up(-1),
+                                                                mf::curve(sf::Vector2f(0, 0),
+                                                                          sf::Vector2f(50, 500),
+                                                                          sf::Vector2f(700, 50),
+                                                                          1000),
+
                                                                 rotate::pendulum(M_PI / 3, 60, 0.2),
                                                                 15, 15, danmaku_empty_sched, true));
         }else if(get_count() == 2000){
