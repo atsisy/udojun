@@ -49,13 +49,33 @@ public:
         void clear(void);
 };
 
+enum DanmakuType {
+        NORMAL_DANMAKU = 0,
+        SPELL_CARD_DANMAKU,
+        UNKNOWN_DANMAKU_TYPE,
+};
+
+inline DanmakuType str_to_dnmaku_type(const char *str)
+{
+        if (!strcmp(str, "normal")) {
+		return NORMAL_DANMAKU;
+	} else if (!strcmp(str, "spell")) {
+		return SPELL_CARD_DANMAKU;
+	}
+        
+	std::cout << "Unknown Danmaku Type: " << str << std::endl;
+
+	return UNKNOWN_DANMAKU_TYPE;
+}
+
 class AbstractDanmakuData {
 public:
         std::string func_name;
         std::wstring danmaku_name;
         u64 time_limit;
+        DanmakuType type;
 
-        AbstractDanmakuData(std::string f_name, std::wstring d_name, u64 time_limit);
+        AbstractDanmakuData(std::string f_name, std::wstring d_name, u64 time_limit, DanmakuType type);
 };
 
 class AbstractDanmakuSchedule {
@@ -75,8 +95,9 @@ class DanmakuCallEssential {
 public:
         FunctionCallEssential func_essential;
         u64 time_limit;
+        DanmakuType type;
         
-        DanmakuCallEssential(FunctionCallEssential fe, u64 sec);
+        DanmakuCallEssential(FunctionCallEssential fe, u64 sec, DanmakuType type);
 };
 
 class DanmakuScheduler {

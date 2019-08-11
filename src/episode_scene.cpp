@@ -5,6 +5,7 @@
 #include <locale> 
 #include <codecvt>
 #include <SFML/System/Utf.hpp>
+#include "rotate_func.hpp"
 
 EpisodeController::EpisodeController(const char *path, sf::Font *font)
         : page_index(0)
@@ -74,6 +75,7 @@ OpeningEpisodeSceneMaster::OpeningEpisodeSceneMaster(GameData *game_data)
         auto p = new MoveObject(GameMaster::texture_table[BLACK_ANTEN],
                                 sf::Vector2f(0, 0),
                                 mf::stop,
+                                rotate::stop,
                                 get_count());
         add_animation_object(p);
         p->add_effect({ effect::fade_out(100) });
@@ -94,6 +96,7 @@ void OpeningEpisodeSceneMaster::prepare_for_next_scene(void)
         auto p = new MoveObject(GameMaster::texture_table[BLACK_ANTEN],
 				sf::Vector2f(0, 0),
                                 mf::stop,
+                                rotate::stop,
                                 get_count());
         add_animation_object(p);
         p->add_effect({ effect::fade_in(100) });

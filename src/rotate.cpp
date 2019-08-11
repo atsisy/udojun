@@ -8,6 +8,15 @@ namespace rotate {
         }
 
         std::function<float(Rotatable *, u64, u64)>
+        constant(float speed)
+        {
+                return [=](Rotatable *r, u64 now_lmd, u64 begin_lmd){
+                               return r->get_angle() + speed;
+                       };
+        }
+
+
+        std::function<float(Rotatable *, u64, u64)>
 	pendulum(float max, u64 period, float offset)
 	{
                 return [=](Rotatable *bullet, u64 now_lmd, u64 begin_lmd){

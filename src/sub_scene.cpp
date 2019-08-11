@@ -2,7 +2,9 @@
 
 SceneSubEvent::SceneSubEvent(sf::Vector2f pos)
         : position(pos)
-{}
+{
+        
+}
 
 void SceneSubEvent::set_status(GameState status)
 {

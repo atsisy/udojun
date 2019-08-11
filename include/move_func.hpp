@@ -29,6 +29,9 @@ namespace mf {
 	DEF_MOVE_FUNC(active_homing, sf::Vector2f origin, float speed, sf::Vector2f *target);
         DEF_MOVE_FUNC(vector_linear, sf::Vector2f speed);
         DEF_MOVE_FUNC(curve, sf::Vector2f begin, sf::Vector2f middle, sf::Vector2f end, u64 time);
+        DEF_MOVE_FUNC(curve2, sf::Vector2f begin, sf::Vector2f end,
+                      sf::Vector2f begin_velocity, sf::Vector2f end_velocity, u64 time); 
+        DEF_MOVE_FUNC(same_position, MoveObject *p);
 }
 
 

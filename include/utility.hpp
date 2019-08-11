@@ -231,6 +231,12 @@ namespace util {
                 return std::sqrt(std::pow(x1 - x2, 2) + std::pow(y1 - y2, 2));
         }
 
+        template<typename T>
+        double abs_value(T x1, T y1)
+        {
+                return std::sqrt(std::pow(x1, 2) + std::pow(y1, 2));
+        }
+
         std::wstring *utf8_str_to_widechar_str(std::string str);
 
         template<typename type, template<typename T> class container>

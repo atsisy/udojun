@@ -39,6 +39,7 @@ enum TextureID {
 	ICHIMATSU3,
 	LASER_HEAD1,
 	LASER_BODY1,
+        LASER_BODY2,
 	LASER_TAIL1,
 	UNKNOWN_TXID,
 	UDON_TACHIE,
@@ -50,7 +51,13 @@ enum TextureID {
         MIST1,
         BULLET1,
         JUNKO_TACHIE1,
-        FLOWER1
+        FLOWER1,
+        SPELL_CARD_ATTACK,
+        BACKGROUND1,
+        HEXAGRAM,
+        LASER_HEAD3,
+	LASER_BODY3,
+	LASER_TAIL3
 };
 
 enum LaserTextureID {
@@ -93,6 +100,8 @@ inline TextureID str_to_txid(const char *str)
 		return LASER_HEAD1;
 	} else if (!strcmp(str, enum_to_str(LASER_BODY1))) {
 		return LASER_BODY1;
+	} else if (!strcmp(str, enum_to_str(LASER_BODY2))) {
+		return LASER_BODY2;
 	} else if (!strcmp(str, enum_to_str(LASER_TAIL1))) {
 		return LASER_TAIL1;
 	} else if (!strcmp(str, enum_to_str(DOT_JUNKO))) {
@@ -109,6 +118,13 @@ inline TextureID str_to_txid(const char *str)
         str_to_idx_sub(str, BULLET1);
         str_to_idx_sub(str, JUNKO_TACHIE1);
         str_to_idx_sub(str, FLOWER1);
+        str_to_idx_sub(str, SPELL_CARD_ATTACK);
+        str_to_idx_sub(str, BACKGROUND1);
+        str_to_idx_sub(str, HEXAGRAM);
+        
+        str_to_idx_sub(str, LASER_BODY3);
+        str_to_idx_sub(str, LASER_HEAD3);
+        str_to_idx_sub(str, LASER_TAIL3);
 
 	std::cout << "Unknown texture: " << str << std::endl;
 

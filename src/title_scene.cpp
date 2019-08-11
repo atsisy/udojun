@@ -8,6 +8,7 @@
 #include <fstream>
 #include "value.hpp"
 #include "effect.hpp"
+#include "rotate_func.hpp"
 
 TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 	: background(GameMaster::texture_table[ICHIMATSU3], sf::Vector2f(-128, -128),
@@ -74,6 +75,7 @@ void TitleSceneMaster::start_handler(void)
 	auto p = new MoveObject(GameMaster::texture_table[BLACK_ANTEN],
 				sf::Vector2f(0, 0),
                                 mf::stop,
+                                rotate::stop,
                                 get_count());
         add_animation_object(p);
         p->add_effect({ effect::fade_in(100) });

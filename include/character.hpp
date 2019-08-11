@@ -16,7 +16,7 @@ public:
         
 };
 
-class DrawableCharacter : public MoveObject, public Conflictable, public Rotatable {
+class DrawableCharacter : public MoveObject, public Conflictable {
 protected:
         CharacterAttribute char_info;
 

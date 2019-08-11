@@ -147,6 +147,8 @@ public:
         void set_alpha(u8 alpha);
         sf::Vector2f displaying_size();
         void rotate(float rad);
+        void set_default_origin(void);
+        void set_repeat_flag(bool flag);
 };
 
 class BackgroundTile : public DrawableObject {
@@ -165,7 +167,30 @@ public:
         void set_scroll_speed(i32 speed);
 };
 
-class MoveObject : public DrawableObject {
+class ManualBackground : public DrawableComponent {
+private:
+        sf::Vector2f init_position;
+        
+public:
+        ManualBackground(sf::Vector2f pos);
+        void draw(sf::RenderWindow &window) override;
+};
+
+class Rotatable {
+protected:
+        float angle;
+        std::function<float(Rotatable *, u64, u64)> rotate_func;
+        
+public:
+        Rotatable(void);
+        Rotatable(std::function<float(Rotatable *, u64, u64)> fn);
+        virtual void rotate(float a) = 0;
+        virtual void call_rotate_func(u64 now, u64 begin) = 0;
+        virtual void rotate_with_func(u64 now) = 0;
+        float get_angle(void);
+};
+
+class MoveObject : public DrawableObject, public Rotatable {
 protected:
         u64 begin_count;
         sf::Vector2f init_pos;
@@ -174,12 +199,20 @@ protected:
         
 public:
         MoveObject(sf::Texture *t, sf::Vector2f p,
-                   std::function<sf::Vector2f(MoveObject *, u64, u64)> f, u64 begin_count);
+                   std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
+                   std::function<float(Rotatable *, u64, u64)> r_fn,
+                   u64 begin_count);
 	void add_effect(std::vector<std::function<void(MoveObject *, u64, u64)>> fn);
 	void move(u64 count);
         void draw(sf::RenderWindow &window) override;
 	void effect(u64 count);
         void override_move_func(std::function<sf::Vector2f(MoveObject *, u64, u64)> fn);
+
+        void rotate(float a) override;
+        void call_rotate_func(u64 now, u64 begin) override;
+        void rotate_with_func(u64 now) override;
+
+        void move_diff(sf::Vector2f diff);
 
         sf::Vector2f get_inital_position(void);
 };
@@ -209,22 +242,7 @@ public:
         void set_conflict_offset(sf::Vector2f offset);
 };
 
-class Rotatable {
-protected:
-        float angle;
-        std::function<float(Rotatable *, u64, u64)> rotate_func;
-        
-public:
-        Rotatable(void);
-        Rotatable(std::function<float(Rotatable *, u64, u64)> fn);
-        virtual void rotate(float a) = 0;
-        virtual void call_rotate_func(u64 now, u64 begin) = 0;
-        virtual void rotate_with_func(u64 now) = 0;
-        float get_angle(void);
-};
-
-
-class Bullet : public MoveObject, public Conflictable, public Rotatable {
+class Bullet : public MoveObject, public Conflictable {
 private:
         bool grazable;
         

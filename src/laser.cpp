@@ -1,91 +1,63 @@
 #include "laser.hpp"
 #include "gm.hpp"
 
-Laser::Laser(sf::Vector2f begin, float length, float rad, float speed, u64 count)
+Laser::Laser(sf::Texture *head_tx, sf::Texture *body_tx, sf::Texture *tail_tx,
+             sf::Vector2f begin, std::function<sf::Vector2f(MoveObject *, u64, u64)> fn,
+             u64 begin_count, sf::Vector2f scale, float radius, u64 length)
 {
-        float angle_rad = rad;
-        float angle_kodo = -(angle_rad * 180 / M_PI) - 90;
-
-        auto fn = mf::linear(std::tan(angle_rad), speed, 0);
+        this->head_texture = head_tx;
+        this->body_texture = body_tx;
+        this->tail_texture = tail_tx;
         
-        head = new Bullet(GameMaster::texture_table[LASER_HEAD1], begin,
-                          fn, count, sf::Vector2f(0.15, 1.0), 12, true, true);
-        head->set_color(sf::Color(0xa2, 0x93, 0xbd));
-        head->rotate(angle_kodo);
+        body.push_back(new Bullet(head_texture, begin, fn, begin_count, sf::Vector2f(0.3, 0.3), radius,
+                                  true, true));
 
-        u32 body_count = (length - (GameMaster::texture_table[LASER_HEAD1]->getSize().y * 2)) / (float)GameMaster::texture_table[LASER_BODY1]->getSize().y;
-        float dx = (float)GameMaster::texture_table[LASER_BODY1]->getSize().y * std::cos(angle_rad);
-        float x_pp = dx * (body_count);
-
-        do{
-		body.push_back(new Bullet(
-			GameMaster::texture_table[LASER_BODY1],
-			sf::Vector2f(begin.x + x_pp +
-					     (head->displaying_size().y *
-					      std::cos(angle_rad)),
-				     (begin.y) -
-					     (head->displaying_size().y *
-					      std::sin(angle_rad)) -
-					     ((body_count) *
-					      ((float)GameMaster::texture_table
-						       [LASER_BODY1]
-							       ->getSize()
-							       .y *
-					       std::sin(angle_rad)))),
-			fn, count, sf::Vector2f(0.15, 1.0), 12, true, true));
-		x_pp -= dx;
-                body.back()->set_color(sf::Color(0xa2, 0x93, 0xbd));
-                body.back()->rotate(angle_kodo);
-        }while(body_count--);
-
-	tail = new Bullet(
-		GameMaster::texture_table[LASER_TAIL1],
-		sf::Vector2f((begin.x) + (length * std::cos(angle_rad)) -
-				     (GameMaster::texture_table[LASER_TAIL1]
-					      ->getSize()
-					      .y *
-				      std::cos(angle_rad)),
-			     (begin.y) - (length * std::sin(angle_rad)) +
-				     (GameMaster::texture_table[LASER_TAIL1]
-					      ->getSize()
-					      .y *
-				      std::sin(angle_rad))),
-		fn, count, sf::Vector2f(0.15, 1.0), 12, true, true);
-        tail->set_color(sf::Color(0xa2, 0x93, 0xbd));
-        tail->rotate(angle_kodo);
+        this->move_func = fn;
+        this->begin = begin;
+        this->length = length;
+        this->scale = scale;
 }
 
 Laser::~Laser()
 {
-        delete head;
         for(Bullet *b : body){
                 delete b;
         }
-        delete tail;
 }
 
 void Laser::draw(sf::RenderWindow &window)
 {
-        head->draw(window);
         for(Bullet *b : body){
-                b->draw(window);
+                if(b->visible())
+                        b->draw(window);
         }
-        tail->draw(window);
+
+        if(body.front()->visible())
+                body.front()->draw(window);
+        if(body.back()->visible())
+                body.back()->draw(window);
 }
 
 void Laser::move(u64 count)
-{       head->move(count);
-        for(Bullet *b : body){
+{
+        for(auto it = std::begin(body);it != std::end(body);it++){
+                Bullet *b = *it;
+                sf::Vector2f &&before = b->get_place();
                 b->move(count);
+                sf::Vector2f diff = b->get_place() - before;
+                b->rotate(std::atan(-diff.x / diff.y));
         }
-        tail->move(count);
+
+        if(length > body.size()){
+                body.push_back(new Bullet(body_texture, begin, move_func, count,
+                                          sf::Vector2f(0.3, 0.3), 7, true, true));
+        }else if(length == body.size()){
+                body.push_back(new Bullet(tail_texture, begin, move_func, count,
+                                          sf::Vector2f(0.3, 0.3), 7, true, true));
+        }
 }
 
-std::vector<Bullet *> Laser::get_bullet_stream()
+std::list<Bullet *> Laser::get_bullet_stream()
 {
-        std::vector<Bullet *> ret;
-        ret.push_back(head);
-        std::copy(std::begin(body), std::end(body), std::back_inserter(ret));
-        ret.push_back(tail);
-        return ret;
+        return body;
 }

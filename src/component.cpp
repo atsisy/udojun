@@ -273,6 +273,12 @@ void DrawableObject::set_scale(float x, float y)
 	sprite.setScale(x, y);
 }
 
+void DrawableObject::set_default_origin(void)
+{
+        sprite.setOrigin(texture.getSize().x / 2,
+                         texture.getSize().y / 2);
+}
+
 sf::Vector2f DrawableObject::get_origin(void)
 {
 	return sf::Vector2f(
@@ -295,6 +301,11 @@ sf::Vector2f DrawableObject::displaying_size()
 	sf::Vector2f scale = sprite.getScale();
 	sf::Vector2u size = texture.getSize();
 	return sf::Vector2f((float)size.x * scale.x, (float)size.y * scale.y);
+}
+
+void DrawableObject::set_repeat_flag(bool flag)
+{
+        texture.setRepeated(flag);
 }
 
 BackgroundTile::BackgroundTile(sf::Texture *t, sf::Vector2f p,
@@ -345,8 +356,9 @@ void BackgroundTile::scroll(
 
 MoveObject::MoveObject(sf::Texture *t, sf::Vector2f p,
 		       std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
+                       std::function<float(Rotatable *, u64, u64)> r_fn,
 		       u64 begin_count)
-	: DrawableObject(t, p)
+	: DrawableObject(t, p), Rotatable(r_fn)
 {
         this->init_pos = p;
 	this->move_func = f;
@@ -378,9 +390,36 @@ void MoveObject::override_move_func(std::function<sf::Vector2f(MoveObject *, u64
         this->move_func = fn;
 }
 
+void MoveObject::rotate(float a)
+{
+        sprite.rotate(-this->angle * 180 / M_PI);
+        this->angle = a;
+        
+        sprite.rotate(this->angle * 180 / M_PI);
+}
+
+void MoveObject::call_rotate_func(u64 now, u64 begin)
+{
+        sprite.rotate(-this->angle * 180 / M_PI);
+
+        this->angle = rotate_func(this, now, begin);
+        
+        sprite.rotate(this->angle * 180 / M_PI);
+}
+
+void MoveObject::rotate_with_func(u64 now)
+{
+        this->call_rotate_func(now, this->begin_count);
+}
+
 sf::Vector2f MoveObject::get_inital_position(void)
 {
         return this->init_pos;
+}
+
+void MoveObject::move_diff(sf::Vector2f diff)
+{
+        this->place += diff;
 }
 
 Conflictable::Conflictable(sf::Vector2f &p, bool default_on)
@@ -473,7 +512,7 @@ Bullet::Bullet(sf::Texture *t, sf::Vector2f p,
 	       std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
 	       u64 begin_count, sf::Vector2f scale, float radius,
                bool conflictable, bool grazable, float init_rotate)
-	: MoveObject(t, p, f, begin_count), Conflictable(true), grazable(grazable)
+	: MoveObject(t, p, f, rotate::stop, begin_count), Conflictable(true), grazable(grazable)
 {
         set_scale(scale);
         rotate(init_rotate);
@@ -508,9 +547,7 @@ void Bullet::enable_graze(void)
 
 void Bullet::rotate(float a)
 {
-        this->angle += a;
-        
-        sprite.rotate(this->angle * 180 / M_PI);
+        MoveObject::rotate(a);
         
         sf::Vector2f relative_center = sf::Vector2f(
                 ((texture.getSize().x / 2) * get_scale().x),
@@ -525,9 +562,7 @@ void Bullet::rotate(float a)
 
 void Bullet::call_rotate_func(u64 now, u64 begin)
 {
-        this->angle = rotate_func(this, now, begin);
-        
-        sprite.rotate(this->angle * 180 / M_PI);
+        MoveObject::call_rotate_func(now, begin);
         
         sf::Vector2f relative_center = sf::Vector2f(
                 ((texture.getSize().x / 2) * get_scale().x),
@@ -542,7 +577,7 @@ void Bullet::call_rotate_func(u64 now, u64 begin)
 
 void Bullet::rotate_with_func(u64 now)
 {
-        this->call_rotate_func(now, this->begin_count);
+        MoveObject::rotate_with_func(now);
 }
 
 

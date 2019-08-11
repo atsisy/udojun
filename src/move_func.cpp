@@ -131,8 +131,20 @@ namespace mf {
                                p1_mid = ((1 - frac) * begin) + (frac * middle);
                                p2_mid = ((1 - frac) * middle) + (frac * end);
                                p3_mid = ((1 - frac) * p1_mid) + (frac * p2_mid);
-                               std::cout << p3_mid.x << ":" << p3_mid.y << std::endl;
                                return p3_mid;
+                       };
+        }
+
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
+        curve2(sf::Vector2f begin, sf::Vector2f end,
+               sf::Vector2f begin_velocity, sf::Vector2f end_velocity, u64 time)
+        {
+                return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd) {
+                               u64 t = now_lmd - begin_lmd;
+                               float frac = (float)t / (float)time;
+                               sf::Vector2f p = geometry::spline_curve(begin, end, begin_velocity, end_velocity, frac);
+                               std::cout << p.x << ":" << p.y << std::endl;
+                               return p;
                        };
         }
         
@@ -221,6 +233,14 @@ namespace mf {
 			return sf::Vector2f(now.x + x, now.y + y);
 		};
 	}
+
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
+        same_position(MoveObject *p)
+        {
+                return [=](MoveObject *me, u64 now_lmd, u64 begin_lmd){
+                               return p->get_origin();
+                       };
+        }
 }
 
 BulletData::BulletData(picojson::object &json_data)
@@ -390,6 +410,7 @@ void BulletData::set_appear_time(u64 current)
 
 std::vector<Bullet *> BulletGenerator::generate_laser(BulletData *data, DrawableCharacter &running_char, u64 count)
 {
+        /*
         Laser *l = new Laser(
                 data->appear_point,
                 data->original_data["length"].get<double>(),
@@ -398,6 +419,9 @@ std::vector<Bullet *> BulletGenerator::generate_laser(BulletData *data, Drawable
                 data->appear_time
                 );
         return l->get_bullet_stream();
+        */
+
+        return {};
 }
 
 std::vector<Bullet *> BulletGenerator::generate_bullet(BulletData *data, DrawableCharacter &running_char, u64 count)

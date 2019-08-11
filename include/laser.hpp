@@ -1,20 +1,27 @@
 #pragma once
 
+#include <list>
 #include "move_func.hpp"
 
 class Laser : public DrawableComponent {
 private:
-        Bullet *head;
-        std::vector<Bullet *> body;
-        Bullet *tail;
+        std::list<Bullet *> body;
+        std::function<sf::Vector2f(MoveObject *, u64, u64)> move_func;
+        sf::Texture *head_texture;
+        sf::Texture *body_texture;
+        sf::Texture *tail_texture;
+        sf::Vector2f begin;
+        sf::Vector2f scale;
+        u64 length;
         
 public:
-        Laser(sf::Vector2f begin, float length, float rad, float speed, u64 count);
+        Laser(sf::Texture *head_tx, sf::Texture *body_tx, sf::Texture *tail_tx,
+              sf::Vector2f begin, std::function<sf::Vector2f(MoveObject *, u64, u64)> fn,
+              u64 begin_count, sf::Vector2f scale, float radius, u64 length);
         ~Laser();
 
-        std::vector<Bullet *> get_bullet_stream();
+        std::list<Bullet *> get_bullet_stream();
         
         void draw(sf::RenderWindow &window) override;
         void move(u64 count);
 };
-

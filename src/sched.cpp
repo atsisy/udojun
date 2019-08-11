@@ -87,9 +87,11 @@ void BulletScheduler::add(std::vector<BulletData *> *data)
 }
 
 DanmakuCallEssential::DanmakuCallEssential(FunctionCallEssential fe,
-					    u64 sec)
+                                           u64 sec, DanmakuType type)
         : func_essential(fe), time_limit(sec)
-{}
+{
+        this->type = type;
+}
 
 DanmakuScheduler::DanmakuScheduler(std::vector<DanmakuCallEssential> s)
 	: schedule(s)
@@ -98,10 +100,12 @@ DanmakuScheduler::DanmakuScheduler(std::vector<DanmakuCallEssential> s)
 }
 
 AbstractDanmakuData::AbstractDanmakuData(std::string f_name,
-                                 std::wstring d_name, u64 time_limit)
+                                         std::wstring d_name, u64 time_limit,
+                                         DanmakuType type)
         : func_name(f_name), danmaku_name(d_name)
 {
         this->time_limit = time_limit;
+        this->type = type;
 }
 
 AbstractDanmakuSchedule::AbstractDanmakuSchedule(std::vector<const char *> json_path_set)
@@ -137,7 +141,8 @@ AbstractDanmakuSchedule::AbstractDanmakuSchedule(std::vector<const char *> json_
                         tmp_buf->emplace_back(
                                 elem["function"].get<std::string>(),
                                 *util::utf8_str_to_widechar_str(elem["danmaku_name"].get<std::string>()),
-                                elem["time_limit"].get<double>());
+                                elem["time_limit"].get<double>(),
+                                str_to_dnmaku_type(elem["type"].get<std::string>().data()));
                 }
 
                 data_list.push_back(tmp_buf);

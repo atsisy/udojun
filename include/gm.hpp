@@ -41,6 +41,8 @@ protected:
 	sf::View *create_view(std::string key, sf::FloatRect area);
 	sf::View *get_view(std::string key);
         void switch_view(std::string key, sf::RenderWindow &window);
+
+        void set_count_for_debug(u64 count);
         
 public:
         SceneMaster();
@@ -136,13 +138,25 @@ class RaceSceneMaster : public SceneMaster {
                 void drawing_process(sf::RenderWindow &window) override;
                 GameState post_process(sf::RenderWindow &window) override;
         };
+
+        class SpellCardEvent : public SceneSubEvent {
+        private:
+                std::forward_list<Tachie *> tachie_container;
+                std::forward_list<MoveObject *> objects;
+                
+        public:
+                SpellCardEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *data);
+
+                void pre_process(sf::RenderWindow &window) override;
+                void drawing_process(sf::RenderWindow &window) override;
+                GameState post_process(sf::RenderWindow &window) override;
+        };
         
 private:
         std::forward_list<Tachie *> tachie_container;
         std::forward_list<MoveObject *> move_object_container;
         std::vector<EnemyCharacter *> enemy_container;
         util::GPContainer<SceneSubEvent *, std::list> sub_event_list;
-        std::forward_list<Tachie *> _container;
         
         GameData *game_data;
         PlayerCharacter running_char;

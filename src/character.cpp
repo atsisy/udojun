@@ -22,7 +22,7 @@ DrawableCharacter::DrawableCharacter(CharacterAttribute attribute,
                                      std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
                                      std::function<float(Rotatable *, u64, u64)> r_fn,
                                      u64 begin_count)
-	: MoveObject(t, p, f, begin_count), Conflictable(true), Rotatable(r_fn), char_info(attribute)
+	: MoveObject(t, p, f, r_fn, begin_count), Conflictable(true), char_info(attribute)
 {
         set_radius(6);
         sprite.setScale(scale.x, scale.y);
@@ -62,15 +62,22 @@ void DrawableCharacter::draw(sf::RenderWindow &window)
 
 void DrawableCharacter::rotate(float a)
 {
-        this->angle = a;
+        MoveObject::rotate(a);
+        
+        sf::Vector2f relative_center = sf::Vector2f(
+                ((texture.getSize().x / 2) * get_scale().x),
+                ((texture.getSize().y / 2) * get_scale().y)
+                );
+
+        relative_center = geometry::rotate_point(get_angle(), relative_center);
+        
+        set_conflict_offset(relative_center);
+        update_center(get_place());
 }
 
 void DrawableCharacter::call_rotate_func(u64 now, u64 begin)
 {
-        sprite.rotate(-this->angle * 180 / M_PI);
-        
-        this->angle = rotate_func(this, now, begin);
-        sprite.rotate(this->angle * 180 / M_PI);
+        MoveObject::call_rotate_func(now, begin);
         
         sf::Vector2f relative_center = sf::Vector2f(
                 ((texture.getSize().x / 2) * get_scale().x),
@@ -85,7 +92,7 @@ void DrawableCharacter::call_rotate_func(u64 now, u64 begin)
 
 void DrawableCharacter::rotate_with_func(u64 now)
 {
-        this->call_rotate_func(now, this->begin_count);
+        MoveObject::rotate_with_func(now);
 }
 
 void DrawableCharacter::change_textures(sf::Texture *t)
