@@ -3,16 +3,8 @@
 #include "macro.hpp"
 #include <vector>
 #include <unordered_map>
-
-class FunctionCallEssential {
-public:
-        std::string func_name;
-        u64 time;
-
-        sf::Vector2f origin;
-
-	FunctionCallEssential(std::string fn, u64 t, sf::Vector2f origin_p = sf::Vector2f(0, 0));
-};
+#include "rotate_func.hpp"
+#include "enemy_character.hpp"
 
 class GeneralJSONFunctionArgs {
 private:
@@ -61,4 +53,20 @@ private:
         BulletFuncTable(std::string main_file);
 
 	std::vector<BulletData *> call_function(FunctionCallEssential e);
+};
+
+class EnemyCharacterTable {
+private:
+        std::unordered_map<std::string, EnemyCharacterMaterial *> table;
+
+        bool check_magic(std::string magic);
+        void parse_file(std::string json_path);
+        std::pair<std::string, EnemyCharacterMaterial *> parse_object(picojson::object &obj);
+        FunctionCallEssential parse_shot_field(picojson::object &obj);
+
+
+public:
+        EnemyCharacterTable(std::vector<std::string> files);
+        
+        EnemyCharacterMaterial *get(std::string name);
 };

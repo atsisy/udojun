@@ -32,19 +32,24 @@ namespace mf {
         DEF_MOVE_FUNC(curve2, sf::Vector2f begin, sf::Vector2f end,
                       sf::Vector2f begin_velocity, sf::Vector2f end_velocity, u64 time); 
         DEF_MOVE_FUNC(same_position, MoveObject *p);
+        DEF_MOVE_FUNC(step, sf::Vector2f begin, sf::Vector2f first_speed, u64 limit,
+                      u64 stop, sf::Vector2f second_speed);
 }
 
 
 enum BulletFunctionID {
         SIN_1 = 0,
+        STOP,
         COS_1,
         LINEAR,
-        VECTOR_LINER,
+        VECTOR_LINEAR,
         AIM_SELF_LINEAR,
         UP,
         UZUMAKI,
         SLOWER1,
+        BEZIER_CURVE,
         ACTIVE_HOMING,
+        STEP,
         UNKNOWN_BFID,
 };
 
@@ -62,9 +67,13 @@ inline BulletFunctionID str_to_bfid(const char *str)
                 return UZUMAKI;
 	}else if (!strcmp(str, enum_to_str(SLOWER1))) {
 		return SLOWER1;
-	}else if (!strcmp(str, enum_to_str(VECTOR_LINER))) {
-		return VECTOR_LINER;
+	}else if (!strcmp(str, enum_to_str(VECTOR_LINEAR))) {
+		return VECTOR_LINEAR;
 	}
+
+        str_to_idx_sub(str, BEZIER_CURVE);
+        str_to_idx_sub(str, STOP);
+        str_to_idx_sub(str, STEP);
 
 	std::cout << "Unknown Bullet Function ID: " << str << std::endl;
         
@@ -121,19 +130,31 @@ public:
         static std::vector<Bullet *> generate(BulletData *data, DrawableCharacter &running_char, u64 count);
 };
 
+class FunctionCallEssential {
+public:
+        std::string func_name;
+        u64 time;
+
+        sf::Vector2f origin;
+
+	FunctionCallEssential(std::string fn, u64 t, sf::Vector2f origin_p = sf::Vector2f(0, 0));
+};
+
 
 inline std::function<sf::Vector2f(MoveObject *, u64, u64)>
 select_bullet_function(BulletFunctionID id, picojson::object &data)
 {
         switch(id){
+        case STOP:
+                return mf::stop;
         case SIN_1:
                 return mf::sin(data["bias"].get<double>(), data["dx"].get<double>());
         case COS_1:
                 return mf::cos(data["bias"].get<double>(), data["dx"].get<double>());
         case LINEAR:
                 return mf::linear(data["bias"].get<double>(), data["dx"].get<double>(), data["c"].get<double>());
-        case VECTOR_LINER:
-                return mf::vector_linear(sf::Vector2f(data["speed_y"].get<double>(), data["speed_y"].get<double>()));
+        case VECTOR_LINEAR:
+                return mf::vector_linear(sf::Vector2f(data["speed_x"].get<double>(), data["speed_y"].get<double>()));
         case SLOWER1:
 		return mf::getting_slower(data["speed"].get<double>(),
 					  data["angle"].get<double>(),
@@ -148,6 +169,31 @@ select_bullet_function(BulletFunctionID id, picojson::object &data)
 				   data["speed"].get<double>(),
 				   data["angle"].get<double>(),
 				   data["r-bias"].get<double>());
+        case BEZIER_CURVE:
+        {
+                auto &begin_object = data["begin"].get<picojson::object>();
+                sf::Vector2f begin(begin_object["x"].get<double>(), begin_object["y"].get<double>());
+                auto &middle_object = data["middle"].get<picojson::object>();
+                sf::Vector2f middle(middle_object["x"].get<double>(), middle_object["y"].get<double>());
+                auto &end_object = data["end"].get<picojson::object>();
+                sf::Vector2f end(end_object["x"].get<double>(), end_object["y"].get<double>());
+                return mf::curve(begin, middle, end, data["time"].get<double>());
+        }
+        case STEP:
+        {
+                auto &begin_object = data["begin"].get<picojson::object>();
+                sf::Vector2f begin(begin_object["x"].get<double>(), begin_object["y"].get<double>());
+                auto &first_speed_object = data["first_speed"].get<picojson::object>();
+                sf::Vector2f first_speed(first_speed_object["x"].get<double>(), first_speed_object["y"].get<double>());
+                auto &second_speed_object = data["second_speed"].get<picojson::object>();
+                sf::Vector2f second_speed(second_speed_object["x"].get<double>(), second_speed_object["y"].get<double>());
+                return mf::step(
+                        begin,
+                        first_speed,
+                        data["first_limit"].get<double>(),
+                        data["stop"].get<double>(),
+                        second_speed);
+        }
 	default:
                 return mf::stop;
         }

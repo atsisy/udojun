@@ -31,6 +31,6 @@ set(udjn_src
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_definitions("-Wall -std=c++17 -Ofast -march=native -I/home/takai/Dropbox/programs/sfml_test/include")
+add_definitions("-Wall -std=c++17 -O2 -g3 -march=native -I/home/takai/Dropbox/programs/sfml_test/include")
 link_libraries("-lsfml-graphics -lsfml-window -lsfml-system")
 add_executable(udjn_race ${udjn_src})

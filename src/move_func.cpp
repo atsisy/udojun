@@ -241,6 +241,27 @@ namespace mf {
                                return p->get_origin();
                        };
         }
+
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
+	step(sf::Vector2f begin, sf::Vector2f first_speed, u64 limit,
+             u64 stop, sf::Vector2f second_speed)
+	{
+		return [=](MoveObject *p, u64 now_lmd, u64 begin_lmd) {
+                               u64 past = now_lmd - begin_lmd;
+                               sf::Vector2f now = p->get_place();
+                               if(limit > past){
+                                       return sf::Vector2f(
+                                               now.x + first_speed.x,
+                                               now.y + first_speed.y);
+                               }else if((limit + stop) > past){
+                                       return p->get_place();
+                               }else{
+                                       return sf::Vector2f(
+                                               now.x + second_speed.x,
+                                               now.y + second_speed.y);
+                               }
+                       };
+	}
 }
 
 BulletData::BulletData(picojson::object &json_data)
@@ -407,6 +428,11 @@ void BulletData::set_appear_time(u64 current)
 {
         this->appear_time = current + this->offset;
 }
+
+FunctionCallEssential::FunctionCallEssential(std::string fn, u64 t,
+					     sf::Vector2f origin_p)
+	: func_name(fn), time(t), origin(origin_p)
+{}
 
 std::vector<Bullet *> BulletGenerator::generate_laser(BulletData *data, DrawableCharacter &running_char, u64 count)
 {

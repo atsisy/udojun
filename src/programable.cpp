@@ -2,10 +2,6 @@
 #include <fstream>
 #include <regex>
 
-FunctionCallEssential::FunctionCallEssential(std::string fn, u64 t,
-					     sf::Vector2f origin_p)
-	: func_name(fn), time(t), origin(origin_p)
-{}
 
 GeneralJSONFunctionArgs::GeneralJSONFunctionArgs(void)
         : position(0, 0), time(0)
@@ -269,4 +265,109 @@ std::vector<BulletData *> BulletFuncTable::call_function(FunctionCallEssential e
 	}
 
 	return ret;
+}
+
+
+EnemyCharacterTable::EnemyCharacterTable(std::vector<std::string> files)
+{
+        for(std::string &file : files){
+                parse_file(file);
+	}
+}
+
+void EnemyCharacterTable::parse_file(std::string json_path)
+{
+        std::ifstream ifs(json_path, std::ios::in);
+
+        if (ifs.fail()) {
+                std::cerr << "failed to read json file" << std::endl;
+                exit(1);
+        }
+
+        const std::string json((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+        ifs.close();
+        
+        picojson::value v;
+        const std::string err = picojson::parse(v, json);
+        if (err.empty() == false) {
+                std::cerr << err << std::endl;
+                exit(1);
+        }
+
+        auto &obj = v.get<picojson::object>();
+
+        if(!check_magic(obj["magic"].get<std::string>())){
+                std::cerr << "magic error" << obj["magic"].get<std::string>() << std::endl;
+                DEBUG_PRINT_HERE();
+        }
+        
+        picojson::array &obj_array = obj["enemy"].get<picojson::array>();
+
+        for (auto &array_element : obj_array) {
+                picojson::object &elem = array_element.get<picojson::object>();
+                table.emplace(parse_object(elem));
+        }
+}
+
+std::pair<std::string, EnemyCharacterMaterial *> EnemyCharacterTable::parse_object(picojson::object &obj)
+{
+        EnemyCharacterMaterial *material = new EnemyCharacterMaterial;
+        material->name = obj["name"].get<std::string>();
+        material->txid = str_to_txid(obj["TextureID"].get<std::string>().data());
+
+        picojson::object &point_data = obj["point"].get<picojson::object>();
+        material->point = sf::Vector2f(point_data["x"].get<double>(), point_data["y"].get<double>());
+        
+        picojson::object &scale_data = obj["scale"].get<picojson::object>();
+        material->scale = sf::Vector2f(scale_data["x"].get<double>(), scale_data["y"].get<double>());
+
+        picojson::object &mf_data = obj["move_func_description"].get<picojson::object>();
+        material->move_func = select_bullet_function(str_to_bfid(mf_data["ID"].get<std::string>().data()), mf_data);
+
+        picojson::object &rotf_data = obj["rot_func_description"].get<picojson::object>();
+        material->rot_func = rotate::select_rotation_function(
+                rotate::str_to_rotf_id(rotf_data["ID"].get<std::string>().data()), rotf_data);
+
+        material->max_hp = obj["max_hp"].get<double>();
+        material->init_hp = obj["init_hp"].get<double>();
+        material->radius = obj["radius"].get<double>();
+        
+        picojson::array &shot_array = obj["shot"].get<picojson::array>();
+        for(auto &array_element : shot_array){
+                picojson::object &shot = array_element.get<picojson::object>();
+                material->shot_data.emplace_back(parse_shot_field(shot));
+        }
+
+        /*
+         * 出現時間は後で決定する。
+         */
+        material->time = 0;
+
+        return std::make_pair(obj["name"].get<std::string>(), material);
+}
+
+bool EnemyCharacterTable::check_magic(std::string magic)
+{
+        return magic == "enemy_description";
+}
+
+FunctionCallEssential EnemyCharacterTable::parse_shot_field(picojson::object &obj)
+{
+        sf::Vector2f relative_point(0, 0);
+        if(obj.find("at") != std::end(obj)){
+                picojson::object &at = obj["at"].get<picojson::object>();
+                relative_point.x = at["x"].get<double>();
+                relative_point.y = at["y"].get<double>();
+        }
+        
+        return FunctionCallEssential(
+                obj["function_name"].get<std::string>(),
+                obj["time"].get<double>(),
+                relative_point
+                );
+}
+
+EnemyCharacterMaterial *EnemyCharacterTable::get(std::string name)
+{
+        return table[name];
 }

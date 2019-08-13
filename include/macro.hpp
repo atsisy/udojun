@@ -48,7 +48,7 @@ inline MacroID str_to_macroid(const char *str)
 
 namespace macro {
         std::vector<BulletData *> expand_macro(picojson::object &data);
-        std::vector<BulletData *> expand_dynamic_macro(picojson::object &data, DrawableCharacter running_char);
+        std::vector<BulletData *> expand_dynamic_macro(picojson::object &data, DrawableCharacter running_char, BulletData *bullet_data);
         std::vector<BulletData *> circle(sf::Vector2f origin, float r, u8 num, u64 time, float phase);
         std::vector<BulletData *> ellipse(sf::Vector2f origin, float r, float a, float b,
                                           u8 num, u64 time, float phase);

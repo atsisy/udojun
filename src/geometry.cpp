@@ -35,9 +35,9 @@ namespace geometry {
                 
                 if(diff.x < 0){
                         if(diff.y >= 0){
-                                angle -= (M_PI_2 - angle);
+                                angle += M_PI;
                         }else{
-                                angle += M_PI_2;
+                                angle += (M_PI / 2);
                         }
                 }
 

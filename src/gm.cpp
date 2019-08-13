@@ -8,13 +8,19 @@ TextureTable GameMaster::texture_table;
 util::xor128 util::generate_random;
 
 GameData::GameData()
+        : enemy_table({ "stage1_enemy.json" })
 {
-        font_container = new FontContainer("fonts.json");
+        font_container = new FontContainer("fonts.json");       
 }
 
 sf::Font *GameData::get_font(FontID id)
 {
         return font_container->get(id);
+}
+
+EnemyCharacterMaterial *GameData::get_enemy_material(std::string name)
+{
+        return this->enemy_table.get(name);
 }
 
 GameMaster::GameMaster()

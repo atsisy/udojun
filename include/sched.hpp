@@ -5,7 +5,6 @@
 #include <functional>
 #include <list>
 #include "move_func.hpp"
-#include "programable.hpp"
 
 constexpr auto c = [](const BulletData *d1, const BulletData *d2){
                            return d1->appear_time > d2->appear_time;

@@ -514,7 +514,8 @@ namespace macro {
                 }
         }
 
-        std::vector<BulletData *> expand_dynamic_macro(picojson::object &data, DrawableCharacter running_char)
+        std::vector<BulletData *> expand_dynamic_macro(picojson::object &data,
+                                                       DrawableCharacter running_char, BulletData *bullet_data)
         {
                 switch(str_to_macroid(data["ID"].get<std::string>().c_str())){
                 case CIRCLE:
@@ -575,12 +576,14 @@ namespace macro {
 				data["time"].get<double>());
                 case MULTI_SHOT:
                         return multi_shot(str_to_txid(data["texture"].get<std::string>().data()),
-                                          sf::Vector2f(data["x"].get<double>(),
-						       data["y"].get<double>()),
+                                          bullet_data->appear_point,
                                           (int)data["num"].get<double>(),
                                           data["speed"].get<double>(),
                                           geometry::calc_angle(running_char.get_origin(),
-                                                               sf::Vector2f(data["x"].get<double>(), data["y"].get<double>())),
+                                                               bullet_data->appear_point +
+                                                               sf::Vector2f(
+                                                                       bullet_data->scale.x * bullet_data->texture->getSize().x * 0.5,
+                                                                       bullet_data->scale.y * bullet_data->texture->getSize().y * 0.5)),
                                           data["bias"].get<double>(),
                                           data["time"].get<double>(),
                                           data["distance"].get<double>());

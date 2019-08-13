@@ -183,6 +183,7 @@ private:
         u64 danmaku_timer_id;
         ConversationEvent *kaiwa_event;
         AbstractDanmakuSchedule abs_danmaku_sched;
+        EnemyCharacterSchedule enemy_sched;
 
 	void add_new_functional_bullets_to_schedule(void);
         void add_new_danmaku(void);
@@ -206,10 +207,12 @@ private:
 class GameData {
 private:
         FontContainer *font_container;
+        EnemyCharacterTable enemy_table;
 
 public:
         GameData();
         sf::Font *get_font(FontID id);
+        EnemyCharacterMaterial *get_enemy_material(std::string name);
         
 };
 

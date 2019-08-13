@@ -2,6 +2,7 @@
 #include "gm.hpp"
 #include "value.hpp"
 #include <iostream>
+#include <fstream>
 #include "enemy_character.hpp"
 
 #include "move_func.hpp"
@@ -168,12 +169,81 @@ void PlayerCharacter::set_core_place()
                 center.y - ((core_sprite.getTextureRect().height * scale.y) / 2));
 }
 
+EnemyCharacterSchedule::EnemyCharacterSchedule(GameData *game_data, const char *path)
+{
+        std::ifstream ifs(path, std::ios::in);
+                
+        std::cout << "Loading Enemy Schedule listed in " << path << "..." << std::endl;
+
+        if (ifs.fail()) {
+                DEBUG_PRINT_HERE();
+                std::cerr << "failed to read json file" << std::endl;
+                exit(1);
+        }
+
+        const std::string json((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+        ifs.close();
+
+        picojson::value v;
+        const std::string err = picojson::parse(v, json);
+        if (err.empty() == false) {
+                DEBUG_PRINT_HERE();
+                std::cerr << err << std::endl;
+                exit(1);
+        }
+        
+        picojson::object &obj = v.get<picojson::object>();
+        picojson::array &array = obj["enemy_list"].get<picojson::array>();
+
+        for(auto &array_element : array){
+                picojson::object &elem = array_element.get<picojson::object>();
+                picojson::object &point = elem["point"].get<picojson::object>();
+                
+                sf::Vector2f relative_point(point["x"].get<double>(), point["y"].get<double>());
+
+                EnemyCharacterMaterial material(*game_data->get_enemy_material(elem["name"].get<std::string>()));
+                material.time = elem["time"].get<double>();
+                material.point += relative_point;
+                data_list.emplace_back(material);
+        }
+
+        sort();
+}
+
+EnemyCharacterMaterial EnemyCharacterSchedule::get_front(void)
+{
+        return data_list.back();
+}
+
+void EnemyCharacterSchedule::pop_front(void)
+{
+        return data_list.pop_back();
+}
+
+size_t EnemyCharacterSchedule::size(void)
+{
+        return data_list.size();       
+}
+
+EnemyCharacterMaterial EnemyCharacterSchedule::at(int index)
+{
+        return data_list[index];
+}
+
+void EnemyCharacterSchedule::sort(void)
+{
+        std::sort(std::begin(data_list), std::end(data_list),
+                  [](EnemyCharacterMaterial e1, EnemyCharacterMaterial e2){
+                          return e1.time > e2.time;
+                  });
+}
+
 EnemyCharacter::EnemyCharacter(CharacterAttribute attribute, sf::Texture *t,
 			       sf::Vector2f p, sf::Vector2f scale, u64 begin_count,
                                std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
                                std::function<float(Rotatable *, u64, u64)> r_fn,
-                               float hp_max, float hp_init, DanmakuScheduler d_sched, bool damage_flag)
-	: DrawableCharacter(attribute, t, p, scale, f, r_fn, begin_count), danmaku_sched(d_sched)
+                               float hp_max, float hp_init, bool damage_flag)
+	: DrawableCharacter(attribute, t, p, scale, f, r_fn, begin_count)
 {
         this->hp_actual = hp_init;
         this->hp_max = hp_max;
@@ -182,6 +252,22 @@ EnemyCharacter::EnemyCharacter(CharacterAttribute attribute, sf::Texture *t,
                 damage_on();
         else
                 damage_off();
+}
+
+EnemyCharacter::EnemyCharacter(EnemyCharacterMaterial material, u64 time)
+        : DrawableCharacter(CharacterAttribute(material.name), GameMaster::texture_table[material.txid],
+                            material.point, material.scale, material.move_func, material.rot_func, time),
+          shot_data(material.shot_data)
+{
+        this->hp_actual = material.init_hp;
+        this->hp_max = material.max_hp;
+        set_radius(material.radius);
+        damage_on();
+        for(FunctionCallEssential &f : shot_data){
+                f.time += time;
+        }
+        std::sort(std::begin(shot_data), std::end(shot_data),
+                  [](FunctionCallEssential &e1, FunctionCallEssential &e2){ return e1.time > e2.time; });
 }
 
 float EnemyCharacter::get_hp(void)
@@ -224,4 +310,16 @@ void EnemyCharacter::damage_on(void)
 void EnemyCharacter::damage_off(void)
 {
         this->damage_enable = false;
+}
+
+
+std::optional<FunctionCallEssential> EnemyCharacter::shot(u64 now)
+{
+        if(shot_data.size() && shot_data.back().time == now){
+                FunctionCallEssential e = shot_data.back();
+                shot_data.pop_back();
+                return e;
+        }
+
+        return std::nullopt;
 }
