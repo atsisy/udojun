@@ -166,7 +166,7 @@ namespace macro {
                                                   float r)
 	{
                 std::vector<BulletData *> ret;
-                std::vector<BulletData *> &&root_part =
+                std::vector<BulletData *> root_part =
                         udon_ellipse(origin, target, speed, change_time, r, 0.5, 1.0, 24, time);
 
                 return root_part;

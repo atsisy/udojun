@@ -27,7 +27,7 @@ public:
                           std::function<float(Rotatable *, u64, u64)> r_fn,
                           u64 begin_count);
 
-        void draw(sf::RenderWindow &window);
+        void draw(sf::RenderWindow &window) override;
         
         void move_diff(sf::Vector2f diff);
         void jump_to(sf::Vector2f p);

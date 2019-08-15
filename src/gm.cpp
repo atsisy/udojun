@@ -76,7 +76,7 @@ void GameMaster::init()
 
         load_textures("textures.json");
 
-	current_scene = title_scene_master = new TitleSceneMaster(this->game_data);
+	current_scene = new TitleSceneMaster(this->game_data);
 }
 
 SceneMaster *GameMaster::create_new_scene(GameState req)

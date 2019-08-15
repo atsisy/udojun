@@ -18,31 +18,34 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 	choice_label_set.emplace(
 		"Start",
 		new DynamicText(L"Start", game_data->get_font(JP_DEFAULT),
-				sf::Vector2f(WindowInformation::HALF_WIDTH, 100)));
+				sf::Vector2f(WindowInformation::HALF_WIDTH, 100),
+                                mf::stop, rotate::stop, get_count(), 40));
         choice_label_set.emplace(
 		"Exit",
 		new DynamicText(L"Exit", game_data->get_font(JP_DEFAULT),
-				sf::Vector2f(WindowInformation::HALF_WIDTH, 500))
+				sf::Vector2f(WindowInformation::HALF_WIDTH, 500),
+                                mf::stop, rotate::stop, get_count(), 28)
                 );
 
         selecter.add_item("Start");
 	selecter.add_item("Exit");
 
-	choice_label_set.at("Start")->set_font_size(40);
-	choice_label_set.at("Exit")->set_font_size(28);
-
-        choice_label_set.at("Exit")->set_move_func(
-                [](DynamicText *p, u64 current, u64 begin) {
-                        auto &&init = p->get_init_position();
+        choice_label_set.at("Start")->override_move_func(
+                [](MoveObject *p, u64 current, u64 begin) {
+                        auto &&init = p->get_initial_position();
                         float width = 5 * std::sin((float)(current - begin) / 20.0);
-                        p->set_place(init.x, init.y + width);
-		},
-		0);
+                        return sf::Vector2f(init.x, init.y + width);
+		});
+        choice_label_set.at("Exit")->override_move_func(
+                [](MoveObject *p, u64 current, u64 begin) {
+                        auto &&init = p->get_initial_position();
+                        float width = 5 * std::sin((float)(current - begin) / 20.0);
+                        return sf::Vector2f(init.x, init.y + width);
+		});
 
 	key_listener.add_key_event(key::ARROW_KEY_DOWN, [this](key::KeyStatus status) {
 		if (status & key::KEY_FIRST_PRESSED) {
-			this->selecter.down();
-                        
+			this->selecter.down();       
 		}
 	});
 	key_listener.add_key_event(

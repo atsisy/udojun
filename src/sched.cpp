@@ -87,10 +87,11 @@ void BulletScheduler::add(std::vector<BulletData *> *data)
 }
 
 DanmakuCallEssential::DanmakuCallEssential(FunctionCallEssential fe,
-                                           u64 sec, DanmakuType type)
+                                           u64 sec, DanmakuType type, std::wstring *name)
         : func_essential(fe), time_limit(sec)
 {
         this->type = type;
+        this->danmaku_name = name;
 }
 
 DanmakuScheduler::DanmakuScheduler(std::vector<DanmakuCallEssential> s)
@@ -100,12 +101,13 @@ DanmakuScheduler::DanmakuScheduler(std::vector<DanmakuCallEssential> s)
 }
 
 AbstractDanmakuData::AbstractDanmakuData(std::string f_name,
-                                         std::wstring d_name, u64 time_limit,
+                                         std::wstring *d_name, u64 time_limit,
                                          DanmakuType type)
-        : func_name(f_name), danmaku_name(d_name)
+        : func_name(f_name)
 {
         this->time_limit = time_limit;
         this->type = type;
+        this->danmaku_name = d_name;
 }
 
 AbstractDanmakuSchedule::AbstractDanmakuSchedule(std::vector<const char *> json_path_set)
@@ -140,7 +142,7 @@ AbstractDanmakuSchedule::AbstractDanmakuSchedule(std::vector<const char *> json_
                         picojson::object &elem = array_element.get<picojson::object>();
                         tmp_buf->emplace_back(
                                 elem["function"].get<std::string>(),
-                                *util::utf8_str_to_widechar_str(elem["danmaku_name"].get<std::string>()),
+                                util::utf8_str_to_widechar_str(elem["danmaku_name"].get<std::string>()),
                                 elem["time_limit"].get<double>(),
                                 str_to_dnmaku_type(elem["type"].get<std::string>().data()));
                 }

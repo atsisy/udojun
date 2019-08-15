@@ -180,7 +180,7 @@ namespace mf {
 
 		return [=](MoveObject *bullet, u64 now_lmd,
 			   u64 begin_lmd) {
-                               const sf::Vector2f &&init = bullet->get_inital_position();
+                               const sf::Vector2f &&init = bullet->get_initial_position();
                                
                                float s = util::count_to_second(now_lmd, begin_lmd, 60);
                                float r = init_r + (s * r_bias);
@@ -280,6 +280,17 @@ namespace mf {
                                                now.x + second_speed.x,
                                                now.y + second_speed.y);
                                }
+                       };
+	}
+
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
+	ratio_step(sf::Vector2f goal, float ratio)
+	{
+		return [=](MoveObject *p, u64 now_lmd, u64 begin_lmd) {
+                               sf::Vector2f now = p->get_place();
+                               sf::Vector2f offset = goal - now;
+                               offset *= ratio;
+                               return now + offset;
                        };
 	}
 }

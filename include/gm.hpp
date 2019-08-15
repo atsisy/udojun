@@ -143,9 +143,11 @@ class RaceSceneMaster : public SceneMaster {
         private:
                 std::forward_list<Tachie *> tachie_container;
                 std::forward_list<MoveObject *> objects;
+                MoveObject *background;
                 
         public:
-                SpellCardEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *data);
+                SpellCardEvent(RaceSceneMaster *rsm, sf::Vector2f pos,
+                               GameData *data, DanmakuCallEssential danmaku_data);
 
                 void pre_process(sf::RenderWindow &window) override;
                 void drawing_process(sf::RenderWindow &window) override;
@@ -156,7 +158,7 @@ private:
         std::forward_list<Tachie *> tachie_container;
         std::forward_list<MoveObject *> move_object_container;
         std::vector<EnemyCharacter *> enemy_container;
-        util::GPContainer<SceneSubEvent *, std::list> sub_event_list;
+        std::list<SceneSubEvent *> sub_event_list;
         
         GameData *game_data;
         PlayerCharacter running_char;
@@ -181,7 +183,6 @@ private:
         u64 last_danmaku_timer_id;
         BulletPipelineContainer bullet_pipeline;
         u64 danmaku_timer_id;
-        ConversationEvent *kaiwa_event;
         AbstractDanmakuSchedule abs_danmaku_sched;
         EnemyCharacterSchedule enemy_sched;
 
@@ -189,7 +190,7 @@ private:
         void add_new_danmaku(void);
         void next_danmaku_forced(void);
         void conflict_judge(void);
-        void kill_out_of_filed_bullet(std::vector<Bullet *> &bullets);
+        void kill_out_of_filed_bullet(std::list<Bullet *> &bullets);
         void player_spellcard(void);
         void random_mist(void);
         void insert_enemy_spellcard(int index);
@@ -222,8 +223,6 @@ private:
         sf::WindowHandle window_handle;
 
         SceneMaster *current_scene;
-        RaceSceneMaster *race_scene_master;
-        TitleSceneMaster *title_scene_master;
         GameState current_state;
         GameData *game_data;
 

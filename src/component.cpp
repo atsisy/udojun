@@ -273,6 +273,14 @@ void DrawableObject::set_scale(float x, float y)
 	sprite.setScale(x, y);
 }
 
+void DrawableObject::move_sprite(sf::Vector2f offset)
+{
+        sf::IntRect rect = sprite.getTextureRect();
+        rect.left += offset.x;
+        rect.top += offset.y;
+        sprite.setTextureRect(rect);
+}
+
 void DrawableObject::set_default_origin(void)
 {
         sprite.setOrigin(texture.getSize().x / 2,
@@ -419,7 +427,7 @@ void MoveObject::rotate_with_func(u64 now)
         this->call_rotate_func(now, this->begin_count);
 }
 
-sf::Vector2f MoveObject::get_inital_position(void)
+sf::Vector2f MoveObject::get_initial_position(void)
 {
         return this->init_pos;
 }

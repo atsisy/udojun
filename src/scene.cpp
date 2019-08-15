@@ -96,7 +96,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           abs_danmaku_sched({ "stage1_danmaku.json" }),
           enemy_sched(game_data, "stage1_enemy_schedule.json")
 {
-        set_count_for_debug(3240);
+        set_count_for_debug(3200);
         
         this->game_data = game_data;
 	test_bullet = new Bullet(GameMaster::texture_table[BULLET1],
@@ -177,30 +177,29 @@ void RaceSceneMaster::player_spellcard(void)
                                 effect::kill_at(150) });
                 {
                         int n = 0;
-                        std::vector<Bullet *> &bullets = bullet_pipeline.enemy_pipeline.actual_bullets;
-                        for (u32 i = 0; i < bullets.size();
-                             i++) {
-                                if (running_char.distance(
-                                            bullets[i]) < 240) {
+                        std::list<Bullet *> &bullets = bullet_pipeline.enemy_pipeline.actual_bullets;
+                        for (Bullet *b : bullets) {
+                                if (running_char.distance(b) < 240) {
                                         bullet_pipeline.special_pipeline.direct_insert_bullet(
                                                 new Bullet(
                                                         GameMaster::texture_table[SMALL_CRYSTAL2],
-                                                        bullets[i]->get_place(),
+                                                        b->get_place(),
                                                         mf::active_homing(sf::Vector2f(300, 300), 10, running_char.get_homing_point()),
                                                         get_count(),
                                                         sf::Vector2f(0.7, 0.7), 7,
                                                         true, false
                                                         ));
-                                        delete bullets[i];
-                                        bullets[i] =
-                                                bullets.back();
-                                        bullets.pop_back();
-                                        n++;
-                                        if (!bullets.size()) {
-                                                break;
-                                        }
                                 }
                         }
+
+                        for(Bullet *&b : bullets){
+				if (running_char.distance(b) < 240) {
+					delete b;
+					b = nullptr;
+				}
+			}
+                        bullets.remove_if([=](Bullet *b){ return !b; });
+                        
                         graze_counter.counter_method().add(
                                 -200);
                         junko_param.add(-n);
@@ -219,8 +218,9 @@ void RaceSceneMaster::add_new_danmaku(void)
 			danmaku_sched.top().func_essential.func_name,
                         get_count()));
 		if (danmaku_sched.top().type == SPELL_CARD_DANMAKU) {
-			sub_event_list.add(new SpellCardEvent(
-				this, sf::Vector2f(0, 0), game_data));
+			sub_event_list.push_back(new SpellCardEvent(
+                                                   this, sf::Vector2f(0, 0), game_data,
+                                                   danmaku_sched.top()));
 		}
                 
 			// スケジュールした弾幕が切れた時に新しい弾幕をスケジュール出来るように処理
@@ -375,26 +375,27 @@ void RaceSceneMaster::next_danmaku_forced(void)
         this->add_new_danmaku();
 }
 
-void RaceSceneMaster::kill_out_of_filed_bullet(std::vector<Bullet *> &bullets)
+void RaceSceneMaster::kill_out_of_filed_bullet(std::list<Bullet *> &bullets)
 {
-	for (u32 i = 0; i < bullets.size(); i++) {
-		if (bullets[i]->is_finish(
-			    sf::IntRect(-1368, -768, 1368 * 2, 768 * 2)) ||
-		    !bullets[i]->visible()) {
-			delete bullets[i];
-			bullets[i] = bullets.back();
-			bullets.pop_back();
-			if (!bullets.size()) {
-				break;
-			}
-		}else if(running_char.outer_distance(bullets[i]) < 15){
-			if (bullets[i]->is_grazable()){
+        bullets.remove_if([](Bullet *b){
+                                  if (b->is_finish(
+                                              sf::IntRect(-1368, -768, 1368 * 2, 768 * 2)) ||
+                                      !b->visible()) {
+                                          delete b;
+                                          b = nullptr;
+                                          return true;
+                                  }
+                                  return false;
+                          });
+	for (Bullet *b : bullets) {
+                if(running_char.outer_distance(b) < 15){
+			if (b->is_grazable()){
 				graze_counter.counter_method().add(5);
-                                bullets[i]->disable_graze();
+                                b->disable_graze();
                         }
                 }
-		bullets[i]->move(get_count());
-                bullets[i]->effect(get_count());
+                b->move(get_count());
+                b->effect(get_count());
 	}
 }
 
@@ -406,7 +407,8 @@ void RaceSceneMaster::insert_enemy_spellcard(int index)
                 danmaku_sched.push_back(
                         DanmakuCallEssential(
                                 FunctionCallEssential(data.func_name,
-                                                      begin_time, sf::Vector2f(0, 0)), data.time_limit, data.type));
+                                                      begin_time, sf::Vector2f(0, 0)), data.time_limit, data.type, data.danmaku_name)
+                        );
                 begin_time += data.time_limit;
         }
 }
@@ -552,7 +554,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
                 backgroundTile.set_scroll_speed(-1);
                 timer_list.add_timer(
                         [&](void){
-                                sub_event_list.add(new ConversationEvent(this, sf::Vector2f(0, 0), game_data));
+                                sub_event_list.push_back(new ConversationEvent(this, sf::Vector2f(0, 0), game_data));
                         }, 240, get_count());
                         
         }
@@ -660,7 +662,6 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
 GameState RaceSceneMaster::post_process(sf::RenderWindow &window)
 {
         sub_event_list
-                .native_method()
                 .remove_if([&](SceneSubEvent *sse)
                                    { return sse->post_process(window) == SUBEVE_FINISH; });
 
@@ -740,7 +741,8 @@ GameState RaceSceneMaster::ConversationEvent::post_process(sf::RenderWindow &win
         return SceneSubEvent::post_process(window);
 }
 
-RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *data)
+RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector2f pos,
+                                                GameData *data, DanmakuCallEssential danmaku_data)
         : SceneSubEvent(pos)
 {
         set_status(SUBEVE_CONTINUE);
@@ -781,7 +783,7 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
                 p->add_effect({effect::fade_out(150)});
                 objects.push_front(p);
         }
-        timer_list.add_timer([this](void){ this->set_status(SUBEVE_FINISH); }, 180);
+        timer_list.add_timer([this](void){ this->set_status(SUBEVE_FINISH); }, danmaku_data.time_limit);
 
         auto hexagram = new MoveObject(GameMaster::texture_table[HEXAGRAM],
                                        sf::Vector2f(200, 50),
@@ -793,15 +795,29 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
         hexagram->add_effect({ effect::fade_in(30) });
         objects.push_front(hexagram);
 
-        auto background = new MoveObject(GameMaster::texture_table[BACKGROUND1],
+        if(danmaku_data.type == SPELL_CARD_DANMAKU){
+                objects.push_front(new DynamicText(
+                                           danmaku_data.danmaku_name->data(), data->get_font(JP_DEFAULT),
+                                           sf::Vector2f(800, 600), mf::ratio_step(sf::Vector2f(800, 80), 0.1),
+                                           rotate::stop, 0, 20));
+        }
+        
+        background = new MoveObject(GameMaster::texture_table[BACKGROUND1],
                                          sf::Vector2f(0, 0),
                                          mf::stop,
                                          rotate::stop,
                                          get_count());
+
         background->set_repeat_flag(true);
         background->add_effect({ effect::fade_in(20) });
         background->set_alpha(200);
-        objects.push_front(background);
+        background->override_move_func([](MoveObject *p, u64 now, u64 begin){
+                                               p->move_sprite(sf::Vector2f(now - begin, 0));
+                                               return p->get_place();
+                                       });
+
+        create_view("general", sf::FloatRect(0.0f, 0.0f, 920.f, 768.f))->setViewport(sf::FloatRect(0.0f, 0.0f, 920.f / 1366, 1.0f));
+        create_view("background", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))->setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
 }
 
 void RaceSceneMaster::SpellCardEvent::pre_process(sf::RenderWindow &window)
@@ -817,12 +833,17 @@ void RaceSceneMaster::SpellCardEvent::pre_process(sf::RenderWindow &window)
                 if(p->visible())
                         p->move(get_count());
 	}
-        
+
+        timer_list.check_and_call(get_count());
         update_count();
 }
 
 void RaceSceneMaster::SpellCardEvent::drawing_process(sf::RenderWindow &window)
 {
+        background->draw(window);
+        background->move_sprite(sf::Vector2f(1, 0));
+
+
         for(auto &&p : objects){
                 if(p->visible())
                         p->draw(window);
@@ -832,6 +853,7 @@ void RaceSceneMaster::SpellCardEvent::drawing_process(sf::RenderWindow &window)
                 if(p->visible())
                         p->draw(window);
 	}
+        
 }
 
 GameState RaceSceneMaster::SpellCardEvent::post_process(sf::RenderWindow &window)

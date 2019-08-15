@@ -35,6 +35,7 @@ namespace mf {
         DEF_MOVE_FUNC(step, sf::Vector2f begin, sf::Vector2f first_speed, u64 limit,
                       u64 stop, sf::Vector2f second_speed);
         DEF_MOVE_FUNC(shadow_vector_linear, sf::Vector2f speed, u64 enable_time, u64 disable_time);
+        DEF_MOVE_FUNC(ratio_step, sf::Vector2f goal, float ratio);
 }
 
 

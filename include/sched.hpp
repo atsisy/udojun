@@ -70,11 +70,11 @@ inline DanmakuType str_to_dnmaku_type(const char *str)
 class AbstractDanmakuData {
 public:
         std::string func_name;
-        std::wstring danmaku_name;
+        std::wstring *danmaku_name;
         u64 time_limit;
         DanmakuType type;
 
-        AbstractDanmakuData(std::string f_name, std::wstring d_name, u64 time_limit, DanmakuType type);
+        AbstractDanmakuData(std::string f_name, std::wstring *d_name, u64 time_limit, DanmakuType type);
 };
 
 class AbstractDanmakuSchedule {
@@ -95,8 +95,9 @@ public:
         FunctionCallEssential func_essential;
         u64 time_limit;
         DanmakuType type;
+        std::wstring *danmaku_name;
         
-        DanmakuCallEssential(FunctionCallEssential fe, u64 sec, DanmakuType type);
+        DanmakuCallEssential(FunctionCallEssential fe, u64 sec, DanmakuType type, std::wstring *name);
 };
 
 class DanmakuScheduler {

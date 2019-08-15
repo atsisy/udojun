@@ -149,6 +149,7 @@ public:
         void rotate(float rad);
         void set_default_origin(void);
         void set_repeat_flag(bool flag);
+        void move_sprite(sf::Vector2f offset);
 };
 
 class BackgroundTile : public DrawableObject {
@@ -204,7 +205,7 @@ public:
                    u64 begin_count);
 	void add_effect(std::vector<std::function<void(MoveObject *, u64, u64)>> fn);
         void clear_effect_queue(void);
-	void move(u64 count);
+	virtual void move(u64 count);
         void draw(sf::RenderWindow &window) override;
 	void effect(u64 count);
         void override_move_func(std::function<sf::Vector2f(MoveObject *, u64, u64)> fn);
@@ -215,7 +216,7 @@ public:
 
         void move_diff(sf::Vector2f diff);
 
-        sf::Vector2f get_inital_position(void);
+        sf::Vector2f get_initial_position(void);
 };
 
 class Conflictable {
@@ -256,9 +257,9 @@ public:
         bool is_grazable(void);
         void disable_graze(void);
         void enable_graze(void);
-        void move(u64 count);
-        void rotate(float a);
-        void call_rotate_func(u64 now, u64 begin);
-        void rotate_with_func(u64 now);
-        void draw(sf::RenderWindow &window);
+        void move(u64 count) override;
+        void rotate(float a) override;
+        void call_rotate_func(u64 now, u64 begin) override;
+        void rotate_with_func(u64 now) override;
+        void draw(sf::RenderWindow &window) override;
 };

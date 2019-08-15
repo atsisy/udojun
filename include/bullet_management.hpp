@@ -10,7 +10,7 @@ class BulletPipeline {
     public:
 	FunctionScheduler func_sched;
 	BulletScheduler bullet_sched;
-	std::vector<Bullet *> actual_bullets;
+	std::list<Bullet *> actual_bullets;
 
 	void add_function(FunctionCallEssential *e);
 	void flush_called_function(u64 now, BulletFuncTable &func_table);

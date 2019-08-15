@@ -63,19 +63,17 @@ void BulletPipeline::schedule_bullet(u64 now, PlayerCharacter &player)
 
                                 // 実体化し、表示する弾丸のグループに加える
 				for (auto &elem : gen) {
-					util::concat_container<
-						std::vector<Bullet *> >(
-						actual_bullets,
-						BulletGenerator::generate(
-							elem, player,
-							now));
+                                        auto generated = BulletGenerator::generate(
+                                                elem, player,
+                                                now);
+                                        std::copy(std::begin(generated), std::end(generated), std::back_inserter(actual_bullets));
 				}
 			} else {
                                 // 実体化し、表示する弾丸のグループに加える
-				util::concat_container<std::vector<Bullet *> >(
-					actual_bullets, BulletGenerator::generate(
-							 target, player,
-							 now));
+                                auto generated = BulletGenerator::generate(
+                                        target, player,
+                                        now);
+                                std::copy(std::begin(generated), std::end(generated), std::back_inserter(actual_bullets));
 			}
 		} else {
                         // スケジュールは出現時間でソートされているため、先頭が達していない場合はbreak

@@ -59,48 +59,20 @@ public:
         }
 };
 
-class DynamicText : public Label, public DynamicComponent<DynamicText> {
+class DynamicText : public MoveObject {
 private:
-        sf::Vector2f init_position;
+        Label label;
         
 public:
-        DynamicText(const wchar_t *str, sf::Font *f, sf::Vector2f init)
-                : Label(str, f), init_position(init)
-        {
-                Label::set_place(init.x, init.y);
-        }
+        DynamicText(const wchar_t *str, sf::Font *font, sf::Vector2f init,
+                    std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
+                    std::function<float(Rotatable *, u64, u64)> r_fn,
+                    u64 begin_count, u8 font_size);
 
-	void set_move_func(std::function<void(DynamicText *, u64, u64)> f, u64 begin)
-        {
-                set_move_start_count(begin);
-                DynamicComponent::set_move_func(f);
-        }
-        
-        void run_animation(
-                std::function<void(DynamicText *, u64, u64)> effect)
-	{
-                add_effect(effect);
-        }
-
-        void move(u64 current_count)
-        {
-                if(move_func_is_available()){
-                        if (get_move_start_count() < current_count) {
-                                call_move_func(this, current_count,
-                                               get_move_start_count());
-                        }
-                }
-        }
-        
-        void draw(sf::RenderWindow &window)
-        {
-                Label::draw(window);
-        }
-
-        sf::Vector2f get_init_position(void)
-        {
-                return init_position;
-        }
+        void move(u64 count);
+        void draw(sf::RenderWindow &window);
+        void set_font_size(u8 size);
+        std::string get_text(void);
 };
 
 class NovelText : public DrawableComponent {
