@@ -203,6 +203,7 @@ public:
                    std::function<float(Rotatable *, u64, u64)> r_fn,
                    u64 begin_count);
 	void add_effect(std::vector<std::function<void(MoveObject *, u64, u64)>> fn);
+        void clear_effect_queue(void);
 	void move(u64 count);
         void draw(sf::RenderWindow &window) override;
 	void effect(u64 count);

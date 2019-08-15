@@ -10,6 +10,7 @@ enum MacroID {
 	UDON_TSUJO1,
 	UDON_TSUJO2,
         UDON_SPELL1,
+        UDON_SPELL2,
 	N_WAY,
         RANDOM_CIRCLES,
 	UNKNOWN_MACRO,
@@ -36,6 +37,7 @@ inline MacroID str_to_macroid(const char *str)
         str_to_idx_sub(str, ELLIPSE);
         str_to_idx_sub(str, UDON_ELLIPSE);
         str_to_idx_sub(str, UDON_SPELL1);
+        str_to_idx_sub(str, UDON_SPELL2);
         str_to_idx_sub(str, MULTI_SHOT);
         str_to_idx_sub(str, JUNKO_SHOT_FAST_LV1);
         str_to_idx_sub(str, JUNKO_SHOT_SLOW_LV1);
@@ -71,6 +73,8 @@ namespace macro {
         std::vector<BulletData *> udon_spellcard1(sf::Vector2f origin, sf::Vector2f target,
                                                   float speed, u64 change_time, u64 time,
                                                   float r);
+        std::vector<BulletData *> udon_spellcard2(float speed,
+                                                  u64 enable_time, u64 disable_time, u64 time, float r, u64 num);
         /**
          * 第一引数: テクスチャID
          * 第二引数: 弾丸の開始場所

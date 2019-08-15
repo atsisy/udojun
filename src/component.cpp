@@ -382,7 +382,14 @@ void MoveObject::draw(sf::RenderWindow &window)
 
 void MoveObject::effect(u64 count)
 {
-        for(auto &&fn : effects) fn(this, count, begin_count);
+	for (auto &&fn : effects) {
+                try {
+                        fn(this, count, begin_count);
+                }
+                catch (std::bad_function_call& e) {
+                        std::cout << "bad function call" << std::endl;
+                }
+	}
 }
 
 void MoveObject::override_move_func(std::function<sf::Vector2f(MoveObject *, u64, u64)> fn)
@@ -420,6 +427,11 @@ sf::Vector2f MoveObject::get_inital_position(void)
 void MoveObject::move_diff(sf::Vector2f diff)
 {
         this->place += diff;
+}
+
+void MoveObject::clear_effect_queue(void)
+{
+        this->effects.clear();
 }
 
 Conflictable::Conflictable(sf::Vector2f &p, bool default_on)

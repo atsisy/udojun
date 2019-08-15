@@ -168,16 +168,57 @@ namespace macro {
                 std::vector<BulletData *> ret;
                 std::vector<BulletData *> &&root_part =
                         udon_ellipse(origin, target, speed, change_time, r, 0.5, 1.0, 24, time);
-                //util::concat_container<std::vector<BulletData *>>(ret, root_part);
-                /*
-                std::vector<BulletData *> &&leaf_part =
-                        udon_ellipse(origin - sf::Vector2f(0, 200), target, speed, change_time, r * 0.3, 0.7, 0.7, 24, time);
-                util::concat_container<std::vector<BulletData *>>(ret, leaf_part);
 
-                return ret;
-                */
                 return root_part;
 	}
+
+        std::vector<BulletData *> udon_spellcard2_sub(sf::Vector2f origin, float speed,
+                                                      u64 enable_time, u64 disable_time, u64 time, float r, u64 num)
+	{
+                std::vector<BulletData *> ret;
+                float unit_rad = (2 * M_PI) / (float)num;
+                float rad = 0;
+
+                for(u8 i = 0;i < num;i++, rad += unit_rad){
+                        ret.push_back(new BulletData(
+                                              str_to_bfid("SHADOW_VECTOR_LINEAR"),
+                                              BULLET_HART,
+                                              mf::shadow_vector_linear(
+                                                      sf::Vector2f(speed * std::cos(rad),
+                                                                   speed * std::sin(rad)),
+                                                      enable_time, disable_time),
+                                              time,
+                                              sf::Vector2f(
+                                                      origin.x + (r * std::cos(rad)),
+                                                      origin.y + (r * std::sin(rad)))
+                                              ));
+                }
+                
+                return ret;
+	}
+
+        std::vector<BulletData *> udon_spellcard2(float speed,
+                                                  u64 enable_time, u64 disable_time, u64 time, float r, u64 num)
+        {
+                std::vector<BulletData *> ret;
+                std::vector<BulletData *> &&circle11 = udon_spellcard2_sub(sf::Vector2f(50, 50), speed,
+                                                                         enable_time, disable_time, time, r, num);
+                std::vector<BulletData *> &&circle12 = udon_spellcard2_sub(sf::Vector2f(900, 50), speed,
+                                                                         enable_time, disable_time, time, r, num);
+                std::vector<BulletData *> &&circle21 = udon_spellcard2_sub(sf::Vector2f(50, 700), speed,
+                                                                          enable_time, disable_time, time, r, num);
+                std::vector<BulletData *> &&circle22 = udon_spellcard2_sub(sf::Vector2f(900, 700), speed,
+                                                                          enable_time, disable_time, time, r, num);
+
+                util::concat_container<std::vector<BulletData *>>(ret, circle11);
+                util::concat_container<std::vector<BulletData *>>(ret, circle12);
+                util::concat_container<std::vector<BulletData *>>(ret, circle21);
+                util::concat_container<std::vector<BulletData *>>(ret, circle22);
+                
+                return ret;
+        }
+
+        
 
 	std::vector<BulletData *> hart(sf::Vector2f origin, float r, u8 num, u64 time)
         {
@@ -461,6 +502,13 @@ namespace macro {
                                 data["quantity"].get<double>(),
                                 data["time"].get<double>()
                                 );
+                case UDON_SPELL2:
+                        return macro::udon_spellcard2(data["speed"].get<double>(),
+                                                      data["enable_time"].get<double>(),
+                                                      data["disable_time"].get<double>(),
+                                                      data["time"].get<double>(),
+                                                      data["r"].get<double>(),
+                                                      data["num"].get<double>());
                 case UDON_TSUJO1:
 			return udon_tsujo1(
 				sf::Vector2f(data["x"].get<double>(),
@@ -546,6 +594,13 @@ namespace macro {
                                                       data["switch_time"].get<double>(),
                                                       data["time"].get<double>(),
                                                       data["r"].get<double>());
+                case UDON_SPELL2:
+                        return macro::udon_spellcard2(data["speed"].get<double>(),
+                                                      data["enable_time"].get<double>(),
+                                                      data["disable_time"].get<double>(),
+                                                      data["time"].get<double>(),
+                                                      data["r"].get<double>(),
+                                                      data["num"].get<double>());
                 case HART:
                         return hart(
                                 running_char.get_origin(),

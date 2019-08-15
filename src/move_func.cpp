@@ -4,6 +4,7 @@
 #include "utility.hpp"
 #include "laser.hpp"
 #include "value.hpp"
+#include "effect.hpp"
 
 namespace mf {
         sf::Vector2f stop(MoveObject *bullet, u64 now, u64 begin)
@@ -63,6 +64,26 @@ namespace mf {
                                return sf::Vector2f(
                                        now.x + speed.x,
                                        now.y - speed.y);
+                       };
+        }
+
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
+	shadow_vector_linear(sf::Vector2f speed, u64 enable_time, u64 disable_time)
+	{
+                return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd){
+                               u64 past = now_lmd - begin_lmd;
+                               if(past % (enable_time + disable_time) == enable_time){
+                                       // disable time
+                                       bullet->clear_effect_queue();
+                                       bullet->add_effect({ effect::fade_out(20, now_lmd) });
+                               }else if(past % (enable_time + disable_time) == 0){
+                                       bullet->clear_effect_queue();
+                                       bullet->add_effect({ effect::fade_in(20, now_lmd) });
+                               }
+                               const sf::Vector2f &&now = bullet->get_place();
+                               return sf::Vector2f(
+                                       now.x + speed.x,
+                                       now.y + speed.y);
                        };
         }
 
@@ -185,7 +206,6 @@ namespace mf {
                                return sf::Vector2f(now.x + dx, now.y + dy);
                        };
 	}
-
                 
         std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	move_point_constant(sf::Vector2f dest, sf::Vector2f now, u64 start_time, u64 end_time)

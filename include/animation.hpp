@@ -93,14 +93,14 @@ public:
         }
         
         void draw(sf::RenderWindow &window)
-                {
-                        Label::draw(window);
-                }
+        {
+                Label::draw(window);
+        }
 
         sf::Vector2f get_init_position(void)
-                {
-                        return init_position;
-                }
+        {
+                return init_position;
+        }
 };
 
 class NovelText : public DrawableComponent {

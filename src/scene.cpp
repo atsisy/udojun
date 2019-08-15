@@ -96,7 +96,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           abs_danmaku_sched({ "stage1_danmaku.json" }),
           enemy_sched(game_data, "stage1_enemy_schedule.json")
 {
-        set_count_for_debug(0);
+        set_count_for_debug(3240);
         
         this->game_data = game_data;
 	test_bullet = new Bullet(GameMaster::texture_table[BULLET1],
@@ -394,6 +394,7 @@ void RaceSceneMaster::kill_out_of_filed_bullet(std::vector<Bullet *> &bullets)
                         }
                 }
 		bullets[i]->move(get_count());
+                bullets[i]->effect(get_count());
 	}
 }
 

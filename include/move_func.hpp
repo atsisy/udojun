@@ -34,6 +34,7 @@ namespace mf {
         DEF_MOVE_FUNC(same_position, MoveObject *p);
         DEF_MOVE_FUNC(step, sf::Vector2f begin, sf::Vector2f first_speed, u64 limit,
                       u64 stop, sf::Vector2f second_speed);
+        DEF_MOVE_FUNC(shadow_vector_linear, sf::Vector2f speed, u64 enable_time, u64 disable_time);
 }
 
 
@@ -50,6 +51,7 @@ enum BulletFunctionID {
         BEZIER_CURVE,
         ACTIVE_HOMING,
         STEP,
+        SHADOW_VECTOR_LINEAR,
         UNKNOWN_BFID,
 };
 
@@ -74,6 +76,7 @@ inline BulletFunctionID str_to_bfid(const char *str)
         str_to_idx_sub(str, BEZIER_CURVE);
         str_to_idx_sub(str, STOP);
         str_to_idx_sub(str, STEP);
+        str_to_idx_sub(str, SHADOW_VECTOR_LINEAR);
 
 	std::cout << "Unknown Bullet Function ID: " << str << std::endl;
         

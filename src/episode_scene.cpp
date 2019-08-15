@@ -58,7 +58,6 @@ bool EpisodeController::last_page(void)
         return episode.size() - 1 == page_index;
 }
 
-
 NovelText *EpisodeController::get_current_page(void)
 {
         return episode[page_index];
