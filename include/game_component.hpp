@@ -236,6 +236,7 @@ public:
         void update_center(sf::Vector2f p);
         void move_center(sf::Vector2f d);
         void set_radius(float r);
+        float get_radius(void);
 
         sf::Vector2f *get_homing_point(void);
 

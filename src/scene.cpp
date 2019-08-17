@@ -96,7 +96,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           abs_danmaku_sched({ "stage1_danmaku.json" }),
           enemy_sched(game_data, "stage1_enemy_schedule.json")
 {
-        set_count_for_debug(3200);
+        set_count_for_debug(3400);
         
         this->game_data = game_data;
 	test_bullet = new Bullet(GameMaster::texture_table[BULLET1],
@@ -223,7 +223,7 @@ void RaceSceneMaster::add_new_danmaku(void)
                                                    danmaku_sched.top()));
 		}
                 
-			// スケジュールした弾幕が切れた時に新しい弾幕をスケジュール出来るように処理
+                // スケジュールした弾幕が切れた時に新しい弾幕をスケジュール出来るように処理
                 danmaku_timer_id = last_danmaku_timer_id = timer_list.add_timer(
 			[this](void) { this->next_danmaku_forced(); },
 			get_count(), danmaku_sched.top().time_limit);
@@ -369,6 +369,13 @@ void RaceSceneMaster::next_danmaku_forced(void)
 	}
         
         bullet_pipeline.enemy_pipeline.clear_all_bullets();
+        sub_event_list.remove_if([](SceneSubEvent *sse){
+                                         if(sse->get_name() == "spell"){
+                                                 delete sse;
+                                                 return true;
+                                         }
+                                         return false;
+                                 });
         
         this->target_udon.set_hp_max();
         // 次の弾幕を追加し、タイマも設定する
@@ -388,14 +395,20 @@ void RaceSceneMaster::kill_out_of_filed_bullet(std::list<Bullet *> &bullets)
                                   return false;
                           });
 	for (Bullet *b : bullets) {
-                if(running_char.outer_distance(b) < 15){
-			if (b->is_grazable()){
+                b->move(get_count());
+                b->effect(get_count());
+	}
+}
+
+void RaceSceneMaster::check_graze(std::list<Bullet *> &bullets)
+{
+        for (Bullet *b : bullets) {
+                if (b->is_grazable()){
+                        if(running_char.outer_distance(b) < b->get_radius() + 5){
 				graze_counter.counter_method().add(5);
                                 b->disable_graze();
                         }
                 }
-                b->move(get_count());
-                b->effect(get_count());
 	}
 }
 
@@ -516,6 +529,8 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 	score_counter.counter_method().add(1);
         timelimit_counter.counter_method().add(-1);
 
+        check_graze(bullet_pipeline.enemy_pipeline.actual_bullets);
+        
         kill_out_of_filed_bullet(bullet_pipeline.player_pipeline.actual_bullets);
         kill_out_of_filed_bullet(bullet_pipeline.enemy_pipeline.actual_bullets);
         kill_out_of_filed_bullet(bullet_pipeline.special_pipeline.actual_bullets);
@@ -669,7 +684,7 @@ GameState RaceSceneMaster::post_process(sf::RenderWindow &window)
 }
 
 RaceSceneMaster::ConversationEvent::ConversationEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *data)
-        : SceneSubEvent(pos), episode("stage1_spell.txt", data->get_font(JP_DEFAULT)),
+        : SceneSubEvent(pos, "conv"), episode("stage1_spell.txt", data->get_font(JP_DEFAULT)),
           background(GameMaster::texture_table[SAMPLE_BACKGROUND1], sf::Vector2f(0, 450), mf::stop, rotate::stop, 0)
 {
         set_status(SUBEVE_CONTINUE);
@@ -743,14 +758,14 @@ GameState RaceSceneMaster::ConversationEvent::post_process(sf::RenderWindow &win
 
 RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector2f pos,
                                                 GameData *data, DanmakuCallEssential danmaku_data)
-        : SceneSubEvent(pos)
+        : SceneSubEvent(pos, "spell")
 {
         set_status(SUBEVE_CONTINUE);
         
         auto udon = new Tachie(
                 GameMaster::texture_table[UDON_TACHIE],
-                sf::Vector2f(100, 70),
-                mf::vector_linear(sf::Vector2f(3, -0.2)),
+                sf::Vector2f(500, 70),
+                mf::vector_linear(sf::Vector2f(1, -2)),
                 rotate::stop,
                 get_count(), "udon");
         udon->set_scale(0.55, 0.55);
@@ -810,7 +825,7 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
 
         background->set_repeat_flag(true);
         background->add_effect({ effect::fade_in(20) });
-        background->set_alpha(200);
+        background->set_alpha(220);
         background->override_move_func([](MoveObject *p, u64 now, u64 begin){
                                                p->move_sprite(sf::Vector2f(now - begin, 0));
                                                return p->get_place();

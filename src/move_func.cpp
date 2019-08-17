@@ -72,13 +72,15 @@ namespace mf {
 	{
                 return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd){
                                u64 past = now_lmd - begin_lmd;
-                               if(past % (enable_time + disable_time) == enable_time){
+                               if(past == enable_time){
                                        // disable time
                                        bullet->clear_effect_queue();
                                        bullet->add_effect({ effect::fade_out(20, now_lmd) });
-                               }else if(past % (enable_time + disable_time) == 0){
+                                       dynamic_cast<Bullet *>(bullet)->conflict_off();
+                               }else if(past == (enable_time + disable_time)){
                                        bullet->clear_effect_queue();
                                        bullet->add_effect({ effect::fade_in(20, now_lmd) });
+                                       dynamic_cast<Bullet *>(bullet)->conflict_on();
                                }
                                const sf::Vector2f &&now = bullet->get_place();
                                return sf::Vector2f(

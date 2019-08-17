@@ -58,11 +58,14 @@ class SceneSubEvent : public SceneMaster, public SceneAnimation {
 private:
         sf::Vector2f position;
         GameState current_status;
+        std::string name;
 
 public:
-        SceneSubEvent(sf::Vector2f pos);
+        SceneSubEvent(sf::Vector2f pos, std::string n);
         void set_status(GameState status);
         GameState get_status(void);
+
+        std::string get_name(void);
 
         void pre_process(sf::RenderWindow &window) override;
         void drawing_process(sf::RenderWindow &window) override;
@@ -191,6 +194,7 @@ private:
         void next_danmaku_forced(void);
         void conflict_judge(void);
         void kill_out_of_filed_bullet(std::list<Bullet *> &bullets);
+        void check_graze(std::list<Bullet *> &bullets);
         void player_spellcard(void);
         void random_mist(void);
         void insert_enemy_spellcard(int index);

@@ -1,10 +1,8 @@
 #include "gm.hpp"
 
-SceneSubEvent::SceneSubEvent(sf::Vector2f pos)
-        : position(pos)
-{
-        
-}
+SceneSubEvent::SceneSubEvent(sf::Vector2f pos, std::string n)
+        : position(pos), name(n)
+{}
 
 void SceneSubEvent::set_status(GameState status)
 {
@@ -15,6 +13,11 @@ void SceneSubEvent::set_status(GameState status)
 GameState SceneSubEvent::get_status(void)
 {
         return this->current_status;
+}
+
+std::string SceneSubEvent::get_name(void)
+{
+        return name;
 }
 
 void SceneSubEvent::pre_process(sf::RenderWindow &window)

@@ -484,6 +484,11 @@ void Conflictable::set_radius(float r)
 	this->r = r;
 }
 
+float Conflictable::get_radius(void)
+{
+        return r;
+}
+
 void Conflictable::move_center(sf::Vector2f d)
 {
 	center.x += d.x;
