@@ -25,3 +25,19 @@ public:
         void draw(sf::RenderWindow &window) override;
         void move(u64 count);
 };
+
+class StraightLaser : public DrawableComponent {
+private:
+        std::list<Bullet *> laser;
+        sf::Texture *texture;
+        sf::Vector2f begin;
+        sf::Vector2f end;
+        std::function<sf::Vector2f(MoveObject *, u64, u64)> scale_func;
+
+public:
+        StraightLaser(sf::Texture *t, sf::Vector2f begin, sf::Vector2f end,
+                      std::function<sf::Vector2f(MoveObject *, u64, u64)> fn, u64 begin_count);
+        void draw(sf::RenderWindow &window) override;
+        void update_scale(u64 count);
+        std::list<Bullet *> get_bullet_stream(void);
+};

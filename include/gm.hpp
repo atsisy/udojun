@@ -177,7 +177,6 @@ private:
         Meter udon_hp;
         Label stamina_label;
         Label junko_param_label;
-        Label rec_label;
         Label graze_label;
         Label game_score_label;
         DrawableScoreCounter graze_counter;

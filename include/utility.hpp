@@ -278,6 +278,15 @@ namespace util {
                         return buffer;
                 }
         };
+
+        inline size_t wstrlen(wchar_t *s)
+        {
+                size_t count = 0;
+                u32 *wide_p = (u32 *)s;
+                while(*wide_p++)
+                        count++;
+                return count;
+        }
 }
 
 #define enum_to_str(var) #var

@@ -55,6 +55,7 @@ void SceneMaster::update_count()
 Bullet *test_bullet;
 Bullet *test_bullet2;
 Laser *test_laser;
+StraightLaser *test_slaser;
 
 RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 	: running_char(CharacterAttribute("stick man"),
@@ -86,7 +87,6 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 		  sf::Color(110, 50, 50)),
 		  stamina_label(L"体力", game_data->get_font(JP_DEFAULT)),
 	  junko_param_label(L"純化度", game_data->get_font(JP_DEFAULT)),
-	  rec_label(L"●REC", game_data->get_font(JP_DEFAULT)),
 	  graze_label(L"グレイズ", game_data->get_font(JP_DEFAULT)),
           game_score_label(L"スコア", game_data->get_font(JP_DEFAULT)),
 	  graze_counter(0, game_data->get_font(JP_DEFAULT)),
@@ -96,7 +96,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           abs_danmaku_sched({ "stage1_danmaku.json" }),
           enemy_sched(game_data, "stage1_enemy_schedule.json")
 {
-        set_count_for_debug(3400);
+        set_count_for_debug(3200);
         
         this->game_data = game_data;
 	test_bullet = new Bullet(GameMaster::texture_table[BULLET1],
@@ -119,14 +119,19 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
                                          sf::Vector2f(700, 650),
                                          200),
                                0, sf::Vector2f(0.3, 0.3), BulletSize::BULLET1, 128);
+        test_slaser = new StraightLaser(GameMaster::texture_table[LASER_BODY3],
+                                        sf::Vector2f(500, 100), sf::Vector2f(100, 500),
+                                        [](MoveObject *p, u64 n, u64 b){
+                                                p->set_scale(1 - (0.01 * (n-b)), 1);
+                                                return p->get_place();
+                                        },
+                                        get_count());
         
 	stamina_label.set_place(0, 50);
 	stamina.set_place(0, 80);
 	junko_param_label.set_place(0, 110);
 	junko_param.set_place(0, 140);
         udon_hp.set_place(92, 48);
-	rec_label.set_place(900, 50);
-	rec_label.set_color(sf::Color::Red);
         timelimit_counter.set_place(870, 48);
         graze_label.set_place(0, 250);
         graze_counter.set_place(150, 250);
@@ -508,6 +513,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 	player_move();
         test_bullet->move(get_count());
         test_laser->move(get_count());
+        test_slaser->update_scale(get_count());
 
         for(auto p : enemy_container){
                 std::optional<FunctionCallEssential> e = p->shot(get_count());
@@ -644,8 +650,8 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
 	test_bullet->draw(window);
         test_bullet2->draw(window);
         test_laser->draw(window);
+        //test_slaser->draw(window);
 
-	rec_label.draw(window);
         udon_hp.draw(window);
         timelimit_counter.draw(window);
 
@@ -811,10 +817,11 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
         objects.push_front(hexagram);
 
         if(danmaku_data.type == SPELL_CARD_DANMAKU){
+                float x = 980 - (24 * util::wstrlen(danmaku_data.danmaku_name->data()));
                 objects.push_front(new DynamicText(
                                            danmaku_data.danmaku_name->data(), data->get_font(JP_DEFAULT),
-                                           sf::Vector2f(800, 600), mf::ratio_step(sf::Vector2f(800, 80), 0.1),
-                                           rotate::stop, 0, 20));
+                                           sf::Vector2f(x, 600), mf::ratio_step(sf::Vector2f(x, 80), 0.1),
+                                           rotate::stop, 0, 24));
         }
         
         background = new MoveObject(GameMaster::texture_table[BACKGROUND1],
