@@ -411,6 +411,22 @@ void BulletData::init_texture_data(TextureID id)
 		scale = sf::Vector2f(0.12, 0.12);
                 radius = BulletSize::BULLET1;
 		break;
+        case CIRCLE_BLUE:
+		scale = sf::Vector2f(0.05, 0.05);
+                radius = BulletSize::BULLET1;
+		break;
+        case CIRCLE_RED:
+		scale = sf::Vector2f(0.05, 0.05);
+                radius = BulletSize::BULLET1;
+		break;
+        case CIRCLE_GREEN:
+		scale = sf::Vector2f(0.05, 0.05);
+                radius = BulletSize::BULLET1;
+		break;
+        case CIRCLE_LIGHT_GREEN:
+		scale = sf::Vector2f(0.05, 0.05);
+                radius = BulletSize::BULLET1;
+		break;
         default:
                 DEBUG_PRINT_HERE();
                 std::cerr << "Invalid Texture ID: " << std::endl;

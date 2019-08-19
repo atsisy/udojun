@@ -221,7 +221,7 @@ void RaceSceneMaster::add_new_danmaku(void)
                 // 残りをスケジュールする
 		bullet_pipeline.enemy_pipeline.add_function(new FunctionCallEssential(
 			danmaku_sched.top().func_essential.func_name,
-                        get_count()));
+                        get_count() + 60));
 		if (danmaku_sched.top().type == SPELL_CARD_DANMAKU) {
 			sub_event_list.push_back(new SpellCardEvent(
                                                    this, sf::Vector2f(0, 0), game_data,
@@ -832,7 +832,7 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
 
         background->set_repeat_flag(true);
         background->add_effect({ effect::fade_in(20) });
-        background->set_alpha(220);
+        background->set_alpha(250);
         background->override_move_func([](MoveObject *p, u64 now, u64 begin){
                                                p->move_sprite(sf::Vector2f(now - begin, 0));
                                                return p->get_place();

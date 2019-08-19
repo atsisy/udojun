@@ -172,7 +172,7 @@ namespace macro {
                 return root_part;
 	}
 
-        std::vector<BulletData *> udon_spellcard2_sub(sf::Vector2f origin, float speed,
+        std::vector<BulletData *> udon_spellcard2_sub(TextureID txid, sf::Vector2f origin, float speed,
                                                       u64 enable_time, u64 disable_time, u64 time, float r, u64 num)
 	{
                 std::vector<BulletData *> ret;
@@ -182,7 +182,7 @@ namespace macro {
                 for(u8 i = 0;i < num;i++, rad += unit_rad){
                         ret.push_back(new BulletData(
                                               str_to_bfid("SHADOW_VECTOR_LINEAR"),
-                                              BULLET_HART,
+                                              txid,
                                               mf::shadow_vector_linear(
                                                       sf::Vector2f(speed * std::cos(rad),
                                                                    speed * std::sin(rad)),
@@ -201,32 +201,32 @@ namespace macro {
                                                   u64 enable_time, u64 disable_time, u64 time, float r, u64 num)
         {
                 std::vector<BulletData *> ret;
-                std::vector<BulletData *> &&circle11 = udon_spellcard2_sub(sf::Vector2f(50, 50), speed,
+                std::vector<BulletData *> &&circle11 = udon_spellcard2_sub(CIRCLE_BLUE, sf::Vector2f(50, 50), speed,
                                                                          enable_time, disable_time, time, r, num);
-                std::vector<BulletData *> &&circle11_1 = udon_spellcard2_sub(sf::Vector2f(150, 50), speed,
+                std::vector<BulletData *> &&circle11_1 = udon_spellcard2_sub(CIRCLE_BLUE, sf::Vector2f(150, 50), speed,
                                                                            enable_time, disable_time, time, r, num);
-                std::vector<BulletData *> &&circle11_2 = udon_spellcard2_sub(sf::Vector2f(50, 150), speed,
+                std::vector<BulletData *> &&circle11_2 = udon_spellcard2_sub(CIRCLE_BLUE, sf::Vector2f(50, 150), speed,
                                                                              enable_time, disable_time, time, r, num);
                 
-                std::vector<BulletData *> &&circle12 = udon_spellcard2_sub(sf::Vector2f(900, 50), speed,
+                std::vector<BulletData *> &&circle12 = udon_spellcard2_sub(CIRCLE_GREEN, sf::Vector2f(900, 50), speed,
                                                                          enable_time, disable_time, time, r, num);
-                std::vector<BulletData *> &&circle12_1 = udon_spellcard2_sub(sf::Vector2f(800, 50), speed,
+                std::vector<BulletData *> &&circle12_1 = udon_spellcard2_sub(CIRCLE_GREEN, sf::Vector2f(800, 50), speed,
                                                                              enable_time, disable_time, time, r, num);
-                std::vector<BulletData *> &&circle12_2 = udon_spellcard2_sub(sf::Vector2f(900, 150), speed,
-                                                                             enable_time, disable_time, time, r, num);
-                
-                std::vector<BulletData *> &&circle21 = udon_spellcard2_sub(sf::Vector2f(50, 700), speed,
-                                                                          enable_time, disable_time, time, r, num);
-                std::vector<BulletData *> &&circle21_1 = udon_spellcard2_sub(sf::Vector2f(150, 700), speed,
-                                                                             enable_time, disable_time, time, r, num);
-                std::vector<BulletData *> &&circle21_2 = udon_spellcard2_sub(sf::Vector2f(50, 600), speed,
+                std::vector<BulletData *> &&circle12_2 = udon_spellcard2_sub(CIRCLE_GREEN, sf::Vector2f(900, 150), speed,
                                                                              enable_time, disable_time, time, r, num);
                 
-                std::vector<BulletData *> &&circle22 = udon_spellcard2_sub(sf::Vector2f(900, 700), speed,
+                std::vector<BulletData *> &&circle21 = udon_spellcard2_sub(CIRCLE_RED, sf::Vector2f(50, 700), speed,
                                                                           enable_time, disable_time, time, r, num);
-                std::vector<BulletData *> &&circle22_1 = udon_spellcard2_sub(sf::Vector2f(800, 700), speed,
+                std::vector<BulletData *> &&circle21_1 = udon_spellcard2_sub(CIRCLE_RED, sf::Vector2f(150, 700), speed,
+                                                                             enable_time, disable_time, time, r, num);
+                std::vector<BulletData *> &&circle21_2 = udon_spellcard2_sub(CIRCLE_RED, sf::Vector2f(50, 600), speed,
+                                                                             enable_time, disable_time, time, r, num);
+                
+                std::vector<BulletData *> &&circle22 = udon_spellcard2_sub(CIRCLE_LIGHT_GREEN, sf::Vector2f(900, 700), speed,
+                                                                          enable_time, disable_time, time, r, num);
+                std::vector<BulletData *> &&circle22_1 = udon_spellcard2_sub(CIRCLE_LIGHT_GREEN, sf::Vector2f(800, 700), speed,
                                                                            enable_time, disable_time, time, r, num);
-                std::vector<BulletData *> &&circle22_2 = udon_spellcard2_sub(sf::Vector2f(900, 600), speed,
+                std::vector<BulletData *> &&circle22_2 = udon_spellcard2_sub(CIRCLE_LIGHT_GREEN, sf::Vector2f(900, 600), speed,
                                                                            enable_time, disable_time, time, r, num);
 
                 util::concat_container<std::vector<BulletData *>>(ret, circle11);
