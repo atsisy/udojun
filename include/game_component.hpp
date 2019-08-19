@@ -130,7 +130,7 @@ public:
 
 class DrawableObject : public DrawableComponent {
 protected:
-        sf::Texture texture;
+        sf::Texture *texture;
         sf::Sprite sprite;
         sf::Vector2f place;
 

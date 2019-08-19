@@ -28,11 +28,11 @@ DrawableCharacter::DrawableCharacter(CharacterAttribute attribute,
         set_radius(6);
         sprite.setScale(scale.x, scale.y);
         update_center(sf::Vector2f(
-                              place.x + ((texture.getSize().x * scale.x) / 2),
-                              place.y + ((texture.getSize().y * scale.y) / 2)));
+                              place.x + ((texture->getSize().x * scale.x) / 2),
+                              place.y + ((texture->getSize().y * scale.y) / 2)));
         set_conflict_offset(sf::Vector2f(
-                                    ((texture.getSize().x * scale.x) / 2),
-                                    ((texture.getSize().y * scale.y) / 2)));
+                                    ((texture->getSize().x * scale.x) / 2),
+                                    ((texture->getSize().y * scale.y) / 2)));
 }
 
 void DrawableCharacter::move_diff(sf::Vector2f diff)
@@ -49,7 +49,7 @@ void DrawableCharacter::jump_to(sf::Vector2f diff)
         this->place.x = diff.x;
         this->place.y = diff.y;
         sprite.setPosition(place);
-        update_center(sf::Vector2f(place.x + (texture.getSize().x / 2), place.y + (texture.getSize().y / 2)));
+        update_center(sf::Vector2f(place.x + (texture->getSize().x / 2), place.y + (texture->getSize().y / 2)));
 }
 
 void DrawableCharacter::draw(sf::RenderWindow &window)
@@ -66,8 +66,8 @@ void DrawableCharacter::rotate(float a)
         MoveObject::rotate(a);
         
         sf::Vector2f relative_center = sf::Vector2f(
-                ((texture.getSize().x / 2) * get_scale().x),
-                ((texture.getSize().y / 2) * get_scale().y)
+                ((texture->getSize().x / 2) * get_scale().x),
+                ((texture->getSize().y / 2) * get_scale().y)
                 );
 
         relative_center = geometry::rotate_point(get_angle(), relative_center);
@@ -81,8 +81,8 @@ void DrawableCharacter::call_rotate_func(u64 now, u64 begin)
         MoveObject::call_rotate_func(now, begin);
         
         sf::Vector2f relative_center = sf::Vector2f(
-                ((texture.getSize().x / 2) * get_scale().x),
-                ((texture.getSize().y / 2) * get_scale().y)
+                ((texture->getSize().x / 2) * get_scale().x),
+                ((texture->getSize().y / 2) * get_scale().y)
                 );
 
         relative_center = geometry::rotate_point(get_angle(), relative_center);
@@ -98,8 +98,8 @@ void DrawableCharacter::rotate_with_func(u64 now)
 
 void DrawableCharacter::change_textures(sf::Texture *t)
 {
-        this->texture = *t;
-        sprite.setTexture(texture);
+        this->texture = t;
+        sprite.setTexture(*texture);
         sprite.setPosition(place);
 }
 

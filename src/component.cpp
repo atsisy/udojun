@@ -228,9 +228,10 @@ void DrawableScoreCounter::set_place(i16 x, i16 y)
 
 DrawableObject::DrawableObject(sf::Texture *t, sf::Vector2f p,
 			       sf::Vector2f texture_scale)
-	: texture(*t), place(p)
+	: place(p)
 {
-	sprite.setTexture(texture);
+        this->texture = t;
+	sprite.setTexture(*texture);
 	sprite.setPosition(place);
 	sprite.setScale(texture_scale);
 }
@@ -283,15 +284,15 @@ void DrawableObject::move_sprite(sf::Vector2f offset)
 
 void DrawableObject::set_default_origin(void)
 {
-        sprite.setOrigin(texture.getSize().x / 2,
-                         texture.getSize().y / 2);
+        sprite.setOrigin(texture->getSize().x / 2,
+                         texture->getSize().y / 2);
 }
 
 sf::Vector2f DrawableObject::get_origin(void)
 {
 	return sf::Vector2f(
-		place.x + ((texture.getSize().x * sprite.getScale().x) / 2),
-		place.y + ((texture.getSize().y * sprite.getScale().y) / 2));
+		place.x + ((texture->getSize().x * sprite.getScale().x) / 2),
+		place.y + ((texture->getSize().y * sprite.getScale().y) / 2));
 }
 
 sf::Vector2f DrawableObject::get_place(void)
@@ -307,13 +308,13 @@ void DrawableObject::draw(sf::RenderWindow &window)
 sf::Vector2f DrawableObject::displaying_size()
 {
 	sf::Vector2f scale = sprite.getScale();
-	sf::Vector2u size = texture.getSize();
+	sf::Vector2u size = texture->getSize();
 	return sf::Vector2f((float)size.x * scale.x, (float)size.y * scale.y);
 }
 
 void DrawableObject::set_repeat_flag(bool flag)
 {
-        texture.setRepeated(flag);
+        texture->setRepeated(flag);
 }
 
 BackgroundTile::BackgroundTile(sf::Texture *t, sf::Vector2f p,
@@ -321,7 +322,7 @@ BackgroundTile::BackgroundTile(sf::Texture *t, sf::Vector2f p,
 			       sf::Vector2f texture_scale)
 	: DrawableObject(t, p, texture_scale), init_position(p)
 {
-	texture.setRepeated(true);
+	texture->setRepeated(true);
 	sprite.setTextureRect(
                 sf::IntRect(
                         sprite_rect.left, sprite_rect.top,
@@ -343,7 +344,7 @@ void BackgroundTile::set_scroll_speed(i32 speed)
 void BackgroundTile::scroll(i32 speed)
 {
 	static float remain;
-	const float mod = (u64)(speed + remain) % texture.getSize().y;
+	const float mod = (u64)(speed + remain) % texture->getSize().y;
         
         set_place(sf::Vector2f(init_position.x, init_position.y + mod - init_position.y));
 
@@ -575,8 +576,8 @@ void Bullet::rotate(float a)
         MoveObject::rotate(a);
         
         sf::Vector2f relative_center = sf::Vector2f(
-                ((texture.getSize().x / 2) * get_scale().x),
-                ((texture.getSize().y / 2) * get_scale().y)
+                ((texture->getSize().x / 2) * get_scale().x),
+                ((texture->getSize().y / 2) * get_scale().y)
                 );
 
         relative_center = geometry::rotate_point(get_angle(), relative_center);
@@ -590,8 +591,8 @@ void Bullet::call_rotate_func(u64 now, u64 begin)
         MoveObject::call_rotate_func(now, begin);
         
         sf::Vector2f relative_center = sf::Vector2f(
-                ((texture.getSize().x / 2) * get_scale().x),
-                ((texture.getSize().y / 2) * get_scale().y)
+                ((texture->getSize().x / 2) * get_scale().x),
+                ((texture->getSize().y / 2) * get_scale().y)
                 );
 
         relative_center = geometry::rotate_point(get_angle(), relative_center);
