@@ -27,6 +27,7 @@ set(udjn_src
   src/dependent_util_function.cpp
   src/rotate.cpp
   src/geometry.cpp
+  src/3d.cpp
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

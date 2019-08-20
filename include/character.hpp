@@ -44,6 +44,7 @@ private:
         sf::Texture core_texture;
         sf::Sprite core_sprite;
         bool enable_core;
+        bool enable_shot;
 
         void set_core_place();
 
@@ -51,8 +52,13 @@ public:
         PlayerCharacter(CharacterAttribute attribute, sf::Texture *character,
                         sf::Texture *core, sf::Vector2f p);
 
-        void core_on();
-        void core_off();
+        void shot_on(void);
+        void shot_off(void);
+
+        bool shot_is_enable(void);
+
+        void core_on(void);
+        void core_off(void);
         void move_diff(sf::Vector2f diff);
         void draw(sf::RenderWindow &window);
 };

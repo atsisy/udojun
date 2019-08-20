@@ -49,4 +49,13 @@ namespace geometry {
                 return angle / 180.0 * M_PI;
         }
 
+        sf::Vector2f vector_translate(sf::Vector3f position, float distance)
+        {
+                float x = distance * position.x / position.z;
+                float y = distance * position.y / position.z;
+
+                return sf::Vector2f(x, y);
+        }
+
+
 }

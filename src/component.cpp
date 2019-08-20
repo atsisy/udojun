@@ -204,8 +204,8 @@ float Meter::get_value()
 	return value;
 }
 
-DrawableScoreCounter::DrawableScoreCounter(i64 initial, sf::Font *f)
-	: score_counter(initial), label(L"0", f)
+DrawableScoreCounter::DrawableScoreCounter(i64 initial, sf::Font *f, i64 rate)
+	: score_counter(initial, rate), label(L"0", f)
 {
 	//label.set_color(sf::Color::White);
 }

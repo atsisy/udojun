@@ -79,7 +79,7 @@ namespace macro {
                                 origin.y + (b * r * std::sin(rad)));
                         ret.push_back(new BulletData(
                                               str_to_bfid("LINEAR"),
-                                              BULLET_HART,
+                                              CIRCLE_ORANGE,
                                               mf::vector_linear(sf::Vector2f(
                                                                         init_speed.x * std::sin(target_angle),
                                                                         -(init_speed.y * std::cos(target_angle)))),
@@ -96,7 +96,7 @@ namespace macro {
                                 small_origin.y + (r * 0.3 * std::sin(rad)));
                         ret.push_back(new BulletData(
                                               str_to_bfid("LINEAR"),
-                                              BULLET_HART,
+                                              CIRCLE_GREEN,
                                               mf::vector_linear(sf::Vector2f(
                                                                         init_speed.x * std::sin(target_angle),
                                                                         -(init_speed.y * std::cos(target_angle)))),

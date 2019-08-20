@@ -19,6 +19,7 @@
 #include "key_input.hpp"
 #include "bullet_management.hpp"
 #include "enemy_character.hpp"
+#include "3d.hpp"
 
 class GameData;
 
@@ -162,6 +163,7 @@ private:
         std::forward_list<MoveObject *> move_object_container;
         std::vector<EnemyCharacter *> enemy_container;
         std::list<SceneSubEvent *> sub_event_list;
+        std::list<DrawableObject3D *> object3d_list;
         
         GameData *game_data;
         PlayerCharacter running_char;

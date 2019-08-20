@@ -423,6 +423,10 @@ void BulletData::init_texture_data(TextureID id)
 		scale = sf::Vector2f(0.05, 0.05);
                 radius = BulletSize::BULLET1;
 		break;
+        case CIRCLE_ORANGE:
+		scale = sf::Vector2f(0.05, 0.05);
+                radius = BulletSize::BULLET1;
+		break;
         case CIRCLE_LIGHT_GREEN:
 		scale = sf::Vector2f(0.05, 0.05);
                 radius = BulletSize::BULLET1;

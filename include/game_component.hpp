@@ -24,10 +24,12 @@ template <typename T>
 class ScoreCounter {
 private:
         T score;
+        T rate;
 public:
-        ScoreCounter(T initial)
+        ScoreCounter(T initial, T _rate = 1)
         {
                 set_score(initial);
+                this->rate = _rate;
         }
 
         void add(T val)
@@ -41,6 +43,11 @@ public:
         }
 
         T get_score()
+        {
+                return this->score / this->rate;
+        }
+
+        T get_raw_score()
         {
                 return this->score;
         }
@@ -122,7 +129,7 @@ private:
         Label label;
 
 public:
-        DrawableScoreCounter(i64 initial, sf::Font *f);
+        DrawableScoreCounter(i64 initial, sf::Font *f, i64 rate = 1);
         void draw(sf::RenderWindow &window) override;
         ScoreCounter<i64> &counter_method();
         void set_place(i16 x, i16 y);

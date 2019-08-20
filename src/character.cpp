@@ -118,6 +118,22 @@ PlayerCharacter::PlayerCharacter(CharacterAttribute attribute,
         core_sprite.setColor(sf::Color(255, 230, 230));
         set_radius(6);
         core_off();
+        this->enable_shot = true;
+}
+
+void PlayerCharacter::shot_on(void)
+{
+        this->enable_shot = true;
+}
+
+void PlayerCharacter::shot_off(void)
+{
+        this->enable_shot = false;
+}
+
+bool PlayerCharacter::shot_is_enable(void)
+{
+        return enable_shot;
 }
 
 void PlayerCharacter::core_on()
