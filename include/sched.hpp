@@ -15,26 +15,25 @@ constexpr auto func_scheduler_compare = [](const FunctionCallEssential *e1, cons
 
 class FunctionScheduler {
 private:
-        std::priority_queue<
-        FunctionCallEssential *, std::vector<FunctionCallEssential *>,
-        std::function<bool(const FunctionCallEssential *, const FunctionCallEssential *)> >
-        queue;
+        std::list<FunctionCallEssential *> queue;
 
 public:
         FunctionScheduler(void);
         void add_function(FunctionCallEssential *e);
 	void add_function(std::string fn, u64 t);
         void clear_func_sched(void);
+        void clear_func_sched(SHOT_MASTER_ID id);
         size_t size(void);
         FunctionCallEssential *head(void);
 	FunctionCallEssential *pop(void);
+        std::list<FunctionCallEssential *>::iterator begin(void);
+        std::list<FunctionCallEssential *>::iterator end(void);
+        void remove_if(std::function<bool(FunctionCallEssential *)> fn);
 };
 
 class BulletScheduler {
 private:
-    std::priority_queue<
-	    BulletData *, std::vector<BulletData *>,
-        std::function<bool(const BulletData *, const BulletData *)> > queue;
+        std::list<BulletData *> queue;
 
 public:
         BulletScheduler(void);
@@ -46,6 +45,8 @@ public:
         void add(std::vector<BulletData *> data);
 	void add(std::vector<BulletData *> *data);
         void clear(void);
+        void clear(SHOT_MASTER_ID id);
+        void remove_if(std::function<bool(BulletData *)> fn);
 };
 
 enum DanmakuType {
@@ -73,8 +74,10 @@ public:
         std::wstring *danmaku_name;
         u64 time_limit;
         DanmakuType type;
+        std::string enemy_object_schedule_path;
 
-        AbstractDanmakuData(std::string f_name, std::wstring *d_name, u64 time_limit, DanmakuType type);
+        AbstractDanmakuData(std::string f_name, std::wstring *d_name,
+                            u64 time_limit, DanmakuType type, std::string enemy_schedule_path);
 };
 
 class AbstractDanmakuSchedule {
@@ -90,25 +93,3 @@ public:
         std::vector<AbstractDanmakuData> *at(int index);
 };
 
-class DanmakuCallEssential {
-public:
-        FunctionCallEssential func_essential;
-        u64 time_limit;
-        DanmakuType type;
-        std::wstring *danmaku_name;
-        
-        DanmakuCallEssential(FunctionCallEssential fe, u64 sec, DanmakuType type, std::wstring *name);
-};
-
-class DanmakuScheduler {
-private:
-        std::vector<DanmakuCallEssential> schedule;
-        
-public:
-        DanmakuScheduler(std::vector<DanmakuCallEssential> s);
-        bool function_is_coming(u64 count);
-        DanmakuCallEssential drop_top(void);
-	DanmakuCallEssential top(void);
-        size_t size(void);
-        void push_back(DanmakuCallEssential e);
-};

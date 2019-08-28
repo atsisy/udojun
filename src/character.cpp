@@ -9,6 +9,8 @@
 #include "rotate_func.hpp"
 #include "geometry.hpp"
 
+SHOT_MASTER_ID EnemyCharacter::NEXT_SHOT_MASTER_ID;
+
 DanmakuScheduler danmaku_empty_sched =
         DanmakuScheduler({});
 
@@ -54,10 +56,12 @@ void DrawableCharacter::jump_to(sf::Vector2f diff)
 
 void DrawableCharacter::draw(sf::RenderWindow &window)
 {
+        /*
         sf::CircleShape shape(r);
         shape.setPosition(sf::Vector2f(center.x - r, center.y - r));
         shape.setFillColor(sf::Color(255, 0, 0));
         window.draw(shape);
+        */
         window.draw(sprite);
 }
 
@@ -226,6 +230,11 @@ EnemyCharacterSchedule::EnemyCharacterSchedule(GameData *game_data, const char *
         sort();
 }
 
+void EnemyCharacterSchedule::push_back(EnemyCharacterMaterial enemy_material)
+{
+        data_list.emplace_back(enemy_material);
+}
+
 EnemyCharacterMaterial EnemyCharacterSchedule::get_front(void)
 {
         return data_list.back();
@@ -238,7 +247,7 @@ void EnemyCharacterSchedule::pop_front(void)
 
 size_t EnemyCharacterSchedule::size(void)
 {
-        return data_list.size();       
+        return data_list.size();
 }
 
 EnemyCharacterMaterial EnemyCharacterSchedule::at(int index)
@@ -261,6 +270,8 @@ EnemyCharacter::EnemyCharacter(CharacterAttribute attribute, sf::Texture *t,
                                float hp_max, float hp_init, bool damage_flag)
 	: DrawableCharacter(attribute, t, p, scale, f, r_fn, begin_count)
 {
+        this->id = NEXT_SHOT_MASTER_ID++;
+
         this->hp_actual = hp_init;
         this->hp_max = hp_max;
         set_radius(12);
@@ -275,12 +286,16 @@ EnemyCharacter::EnemyCharacter(EnemyCharacterMaterial material, u64 time)
                             material.point, material.scale, material.move_func, material.rot_func, time),
           shot_data(material.shot_data)
 {
+        this->id = NEXT_SHOT_MASTER_ID++;
+        
         this->hp_actual = material.init_hp;
         this->hp_max = material.max_hp;
+        this->dead_flag = false;
         set_radius(material.radius);
         damage_on();
         for(FunctionCallEssential &f : shot_data){
                 f.time += time;
+                f.shot_master_id = this->id;
         }
         std::sort(std::begin(shot_data), std::end(shot_data),
                   [](FunctionCallEssential &e1, FunctionCallEssential &e2){ return e1.time > e2.time; });
@@ -307,9 +322,19 @@ void EnemyCharacter::damage(float value)
                 this->hp_actual -= value;
 }
 
-bool EnemyCharacter::dead(void)
+bool EnemyCharacter::hp_zero(void)
 {
         return hp_actual <= 0;
+}
+
+void EnemyCharacter::make_dead(void)
+{
+        dead_flag = true;
+}
+
+bool EnemyCharacter::dead(void)
+{
+        return dead_flag;
 }
 
 void EnemyCharacter::move(u64 count)
@@ -338,4 +363,9 @@ std::optional<FunctionCallEssential> EnemyCharacter::shot(u64 now)
         }
 
         return std::nullopt;
+}
+
+SHOT_MASTER_ID EnemyCharacter::get_shot_master_id(void)
+{
+        return id;
 }

@@ -108,6 +108,7 @@ public:
         bool conflictable;
         bool grazable;
         float init_rotation;
+        SHOT_MASTER_ID shot_master_id;
 
         BulletData(picojson::object &json_data);
         BulletData(picojson::object &json_data, u64 flg);
@@ -138,10 +139,11 @@ class FunctionCallEssential {
 public:
         std::string func_name;
         u64 time;
-
+        SHOT_MASTER_ID shot_master_id;
         sf::Vector2f origin;
 
-	FunctionCallEssential(std::string fn, u64 t, sf::Vector2f origin_p = sf::Vector2f(0, 0));
+	FunctionCallEssential(std::string fn, u64 t, SHOT_MASTER_ID sm_id,
+                              sf::Vector2f origin_p = sf::Vector2f(0, 0));
 };
 
 

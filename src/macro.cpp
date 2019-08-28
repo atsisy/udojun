@@ -248,14 +248,53 @@ namespace macro {
                 return ret;
         }
 
-        
+        std::vector<BulletData *> udon_spellcard4_sub(TextureID txid, sf::Vector2f origin, float speed,
+                                                      u64 enable_time, u64 disable_time, u64 time, float r, u64 num)
+        {
+                std::vector<BulletData *> ret;
+                float unit_rad = (2 * M_PI) / (float)num;
+                float rad = ((float)(util::generate_random() % 360) / 180.0) * M_PI;
 
+                for(u8 i = 0;i < num;i++, rad += unit_rad){
+                        ret.push_back(new BulletData(
+                                              str_to_bfid("SHADOW_VECTOR_LINEAR"),
+                                              txid,
+                                              mf::shadow_vector_linear(
+                                                      sf::Vector2f(speed * std::cos(rad),
+                                                                   speed * std::sin(rad)),
+                                                      enable_time, disable_time),
+                                              time,
+                                              sf::Vector2f(
+                                                      origin.x + (r * std::cos(rad)),
+                                                      origin.y + (r * std::sin(rad)))
+                                              ));
+                }
+                
+                return ret;
+        }
+
+        std::vector<BulletData *> udon_spellcard4(TextureID txid, sf::Vector2f origin, float speed,
+                                                  u64 enable_time, u64 disable_time, u64 cast_times,
+                                                  u64 time, u64 time_offset, float r, u64 num)
+        {
+                std::vector<BulletData *> ret;
+
+                for(u64 i = 0;i < cast_times;i++, time += time_offset, enable_time -= time_offset){
+                        std::vector<BulletData *> &&circle = udon_spellcard4_sub(txid, sf::Vector2f(50, 50), speed,
+                                                                                   enable_time, disable_time, time, r, num);
+                        util::concat_container<std::vector<BulletData *>>(ret, circle);
+                }
+                
+                return ret;
+        }
+
+        
 	std::vector<BulletData *> hart(sf::Vector2f origin, float r, u8 num, u64 time)
         {
                 std::vector<BulletData *> ret;
                 float unit_rad = (2 * M_PI) / (float)num;
                 float rad = 0;
-
+                
                 for(u8 i = 0;i < num;i++, rad += unit_rad){
                         float c = (rad > (M_PI / 2) && rad < (3* M_PI / 2) ? -2 : 2);
                         ret.push_back(new BulletData(
@@ -431,6 +470,37 @@ namespace macro {
                 return ret;
         }
 
+        std::vector<BulletData *> junko_shot_fast_lv2(TextureID txid1, TextureID txid2,
+                                                      sf::Vector2f center, float speed, u64 time)
+        {
+                std::vector<BulletData *> ret;
+
+                auto &&lv1 = junko_shot_fast_lv1(txid1, center, speed, time);
+                util::concat_container<std::vector<BulletData *>>(ret, lv1);
+
+                ret.push_back(new BulletData(
+                                      str_to_bfid("LINEAR"),
+                                      txid2,
+                                      mf::vector_linear(
+                                              sf::Vector2f(0.6 * speed * std::cos(geometry::convert_to_radian(120)),
+                                                           0.6 * speed * std::sin(geometry::convert_to_radian(120)))),
+                                      time,
+                                      center + sf::Vector2f(-30, 16)
+                                      ));
+                ret.push_back(new BulletData(
+                                      str_to_bfid("LINEAR"),
+                                      txid2,
+                                      mf::vector_linear(
+                                              sf::Vector2f(0.6 * speed * std::cos(geometry::convert_to_radian(60)),
+                                                           0.6 * speed * std::sin(geometry::convert_to_radian(60)))),
+                                      time,
+                                      center + sf::Vector2f(30, 16)
+                                      ));
+                
+
+                return ret;
+        }
+
         std::vector<BulletData *> junko_shot_slow_lv1(TextureID txid, sf::Vector2f center, float speed, u64 time)
         {
                 std::vector<BulletData *> ret;
@@ -532,11 +602,32 @@ namespace macro {
                                 data["quantity"].get<double>(),
                                 data["time"].get<double>()
                                 );
+                case UDON_CIRCLE1:
+                        return udon_circle(
+                                sf::Vector2f(data["x"].get<double>(), data["y"].get<double>()),
+                                data["speed"].get<double>(),
+                                data["r"].get<double>(),
+                                data["num"].get<double>(),
+                                data["time"].get<double>(),
+                                TAKE_DEFAULT_ARG(data, "phase", double, 0)
+                                );
                 case UDON_SPELL2:
                         return macro::udon_spellcard2(data["speed"].get<double>(),
                                                       data["enable_time"].get<double>(),
                                                       data["disable_time"].get<double>(),
                                                       data["time"].get<double>(),
+                                                      data["r"].get<double>(),
+                                                      data["num"].get<double>());
+                case UDON_SPELL4:
+                        return macro::udon_spellcard4(str_to_txid(data["texture"].get<std::string>().data()),
+                                                      sf::Vector2f(data["x"].get<double>(),
+                                                                   data["y"].get<double>()),
+                                                      data["speed"].get<double>(),
+                                                      data["enable_time"].get<double>(),
+                                                      data["disable_time"].get<double>(),
+                                                      data["cast_times"].get<double>(),
+                                                      data["time"].get<double>(),
+                                                      data["time_offset"].get<double>(),
                                                       data["r"].get<double>(),
                                                       data["num"].get<double>());
                 case UDON_TSUJO1:
@@ -582,6 +673,12 @@ namespace macro {
                                                    sf::Vector2f(data["x"].get<double>(),
                                                                 data["y"].get<double>()),
                                                    data["speed"].get<double>(), data["time"].get<double>());
+                case JUNKO_SHOT_FAST_LV2:
+                        return junko_shot_fast_lv2(str_to_txid(data["texture1"].get<std::string>().data()),
+                                                   str_to_txid(data["texture2"].get<std::string>().data()),
+                                                   sf::Vector2f(data["x"].get<double>(),
+                                                                data["y"].get<double>()),
+                                                   data["speed"].get<double>(), data["time"].get<double>());
                 case JUNKO_SHOT_SLOW_LV1:
                         return junko_shot_slow_lv1(str_to_txid(data["texture"].get<std::string>().data()),
                                                    sf::Vector2f(data["x"].get<double>(),
@@ -593,12 +690,12 @@ namespace macro {
         }
 
         std::vector<BulletData *> expand_dynamic_macro(picojson::object &data,
-                                                       DrawableCharacter running_char, BulletData *bullet_data)
+                                                       DrawableCharacter *running_char, BulletData *bullet_data)
         {
                 switch(str_to_macroid(data["ID"].get<std::string>().c_str())){
                 case CIRCLE:
                         return macro::circle(
-                                running_char.get_origin(),
+                                running_char->get_origin(),
                                 data["r"].get<double>(),
                                 data["quantity"].get<double>(),
                                 data["time"].get<double>(),
@@ -606,7 +703,7 @@ namespace macro {
                                 );
                 case ELLIPSE:
                         return macro::ellipse(
-                                running_char.get_origin(),
+                                running_char->get_origin(),
                                 data["r"].get<double>(),
                                 data["a"].get<double>(),
                                 data["b"].get<double>(),
@@ -618,7 +715,7 @@ namespace macro {
                 case UDON_SPELL1:
                         return macro::udon_spellcard1(sf::Vector2f(data["x"].get<double>(),
                                                                    data["y"].get<double>()),
-                                                      running_char.get_origin(),
+                                                      running_char->get_origin(),
                                                       sf::Vector2f(data["speed_x"].get<double>(),
                                                                    data["speed_y"].get<double>()),
                                                       data["switch_time"].get<double>(),
@@ -631,16 +728,28 @@ namespace macro {
                                                       data["time"].get<double>(),
                                                       data["r"].get<double>(),
                                                       data["num"].get<double>());
+                case UDON_SPELL4:
+                        return macro::udon_spellcard4(str_to_txid(data["texture"].get<std::string>().data()),
+                                                      sf::Vector2f(data["x"].get<double>(),
+                                                                   data["y"].get<double>()),
+                                                      data["speed"].get<double>(),
+                                                      data["enable_time"].get<double>(),
+                                                      data["disable_time"].get<double>(),
+                                                      data["cast_times"].get<double>(),
+                                                      data["time"].get<double>(),
+                                                      data["time_offset"].get<double>(),
+                                                      data["r"].get<double>(),
+                                                      data["num"].get<double>());
                 case HART:
                         return hart(
-                                running_char.get_origin(),
+                                running_char->get_origin(),
                                 data["r"].get<double>(),
                                 data["quantity"].get<double>(),
                                 data["time"].get<double>()
                                 );
                 case N_WAY:
                         return n_way(
-                                running_char.get_origin(),
+                                running_char->get_origin(),
                                 data["r"].get<double>(),
                                 data["angle"].get<double>(),
                                 data["width"].get<double>(),
@@ -664,7 +773,7 @@ namespace macro {
                                           bullet_data->appear_point,
                                           (int)data["num"].get<double>(),
                                           data["speed"].get<double>(),
-                                          geometry::calc_angle(running_char.get_origin(),
+                                          geometry::calc_angle(running_char->get_origin(),
                                                                bullet_data->appear_point +
                                                                sf::Vector2f(
                                                                        bullet_data->scale.x * bullet_data->texture->getSize().x * 0.5,

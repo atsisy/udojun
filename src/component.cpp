@@ -617,3 +617,8 @@ void Bullet::draw(sf::RenderWindow &window)
         window.draw(shape);
         */
 }
+
+SHOT_MASTER_ID Bullet::get_shot_master_id(void)
+{
+        return id;
+}

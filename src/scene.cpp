@@ -96,7 +96,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           abs_danmaku_sched({ "stage1_danmaku.json" }),
           enemy_sched(game_data, "stage1_enemy_schedule.json")
 {
-        set_count_for_debug(3200);
+        set_count_for_debug(3400);
         
         this->game_data = game_data;
 	test_bullet = new Bullet(GameMaster::texture_table[BULLET1],
@@ -159,7 +159,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 		->setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
 
         bullet_pipeline.enemy_pipeline.add_function(
-                new FunctionCallEssential("field1", 30,
+                new FunctionCallEssential("field1", 30, NO_SHOT_MASTER,
                                           sf::Vector2f(0, 0)));
 
         backgroundTile.set_scroll_speed(5);
@@ -223,20 +223,29 @@ void RaceSceneMaster::add_new_danmaku(void)
                 // 残りをスケジュールする
 		bullet_pipeline.enemy_pipeline.add_function(new FunctionCallEssential(
 			danmaku_sched.top().func_essential.func_name,
-                        get_count() + 60));
+                        get_count() + 60, MAIN_ENEMY_SHOT));
 		if (danmaku_sched.top().type == SPELL_CARD_DANMAKU) {
 			sub_event_list.push_back(new SpellCardEvent(
                                                    this, sf::Vector2f(0, 0), game_data,
                                                    danmaku_sched.top()));
 		}
+
+                EnemyCharacterSchedule spell_enemy_sched = danmaku_sched.top().enemy_sched;
+                while(spell_enemy_sched.size()){
+                        EnemyCharacterMaterial &&elem = spell_enemy_sched.get_front();
+                        elem.time += get_count();
+                        enemy_sched.push_back(elem);
+                        spell_enemy_sched.pop_front();
+                }
                 
                 // スケジュールした弾幕が切れた時に新しい弾幕をスケジュール出来るように処理
                 danmaku_timer_id = last_danmaku_timer_id = timer_list.add_timer(
-			[this](void) { this->next_danmaku_forced(); },
+                        [this](void) { this->next_danmaku_forced(); },
 			get_count(), danmaku_sched.top().time_limit);
-		// タイマの実行時間は、弾幕発生 + 弾幕タイムリミット
                 
+		// タイマの実行時間は、弾幕発生 + 弾幕タイムリミット
                 timelimit_counter.counter_method().set_score(danmaku_sched.top().time_limit);
+
                 
                 // 先頭の弾幕を捨てる
                 danmaku_sched.drop_top();
@@ -316,18 +325,19 @@ void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) {
                                 bullet_pipeline.player_pipeline.add_function(
                                         new FunctionCallEssential(
-                                                "junko_shot_slow_lv1", get_count(),
+                                                "junko_shot_slow_lv1", get_count(), RUNNING_CHARACTER_SHOT,
                                                 sf::Vector2f(p.x + 10, p.y - 7)));
                         }else{
                                 bullet_pipeline.player_pipeline.add_function(
                                         new FunctionCallEssential(
-                                                "junko_shot_fast_lv1", get_count(),
+                                                "junko_shot_fast_lv1", get_count(), RUNNING_CHARACTER_SHOT,
                                                 sf::Vector2f(p.x + 10, p.y - 7)));
                         }
                 } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::K)) {
                         bullet_pipeline.enemy_pipeline.clear_all_bullets();
                 }
-	}
+        }
+
 
 	/*
           if(danmaku_sched.function_is_coming(get_count())){
@@ -345,7 +355,7 @@ void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
 void RaceSceneMaster::next_danmaku_forced(void)
 {
         for (auto &&bullet : bullet_pipeline.enemy_pipeline.actual_bullets) {
-                if(bullet->visible() && !bullet->is_finish(sf::IntRect(-512, -512, 1366 + 1024, 768 + 1024))){
+                if(bullet->visible() && !bullet->is_finish(sf::IntRect(0, 0, 1366, 768))){
                         bullet_pipeline.special_pipeline.direct_insert_bullet(
                         new Bullet(
                                 GameMaster::texture_table[SMALL_CRYSTAL2],
@@ -374,10 +384,13 @@ void RaceSceneMaster::next_danmaku_forced(void)
 
 void RaceSceneMaster::kill_out_of_filed_bullet(std::list<Bullet *> &bullets)
 {
-        bullets.remove_if([](Bullet *b){
+        bullets.remove_if([this](Bullet *b){
                                   if (b->is_finish(
                                               sf::IntRect(-1368, -768, 1368 * 2, 768 * 2)) ||
-                                      !b->visible()) {
+                                      !b->visible() ||
+                                      std::find(std::begin(killed_shot_master_id),
+                                                std::end(killed_shot_master_id),
+                                                b->get_shot_master_id()) != std::end(killed_shot_master_id)) {
                                           delete b;
                                           b = nullptr;
                                           return true;
@@ -409,10 +422,22 @@ void RaceSceneMaster::insert_enemy_spellcard(int index)
         for(AbstractDanmakuData &data : *buf){
                 danmaku_sched.push_back(
                         DanmakuCallEssential(
-                                FunctionCallEssential(data.func_name,
-                                                      begin_time, sf::Vector2f(0, 0)), data.time_limit, data.type, data.danmaku_name)
+                                FunctionCallEssential(data.func_name, MAIN_ENEMY_SHOT,
+                                                      begin_time, sf::Vector2f(0, 0)),
+                                data.time_limit,
+                                data.type,
+                                data.danmaku_name,
+                                data.enemy_object_schedule_path,
+                                this->game_data)
                         );
                 begin_time += data.time_limit;
+        }
+}
+
+void RaceSceneMaster::remove_killed_shot(BulletPipeline &pipeline)
+{
+        for(SHOT_MASTER_ID id : killed_shot_master_id){
+                pipeline.clear_killed_shot(id);
         }
 }
 
@@ -427,7 +452,7 @@ void RaceSceneMaster::conflict_judge(void)
                                 game_score_counter.counter_method().add(3);
                                 udon_hp.set_value(target_udon.get_hp());
                                 // HPが0になると次の弾幕に移行
-                                if(target_udon.dead()){
+                                if(target_udon.hp_zero()){
                                         timer_list.cancel(last_danmaku_timer_id);
                                         next_danmaku_forced();
                                 }
@@ -435,8 +460,8 @@ void RaceSceneMaster::conflict_judge(void)
                         }
                 }
 
-                for(size_t i = 0;i < enemy_container.size();i++){
-                        auto p = enemy_container[i];
+
+                for(EnemyCharacter *p : enemy_container){
                         if(p->check_conflict(*bullet)){
                                 p->damage(1);
                                 bullet->hide();
@@ -449,14 +474,28 @@ void RaceSceneMaster::conflict_judge(void)
                                                 sf::Vector2f(0.7, 0.7), 7,
                                                 true, false
                                                 ));
-                                if(p->dead()){
-                                        puts("dead");
-                                        std::swap(enemy_container[i], enemy_container.back());
-                                        enemy_container.pop_back();
-                                }
-                                break;
+                        }
+                        if(!p->dead() && p->hp_zero()){
+                                auto bomb = new MoveObject(
+                                        GameMaster::texture_table[MIST1],
+                                        p->get_place(),
+                                        mf::stop,
+                                        rotate::stop,
+                                        get_count());
+                                bomb->add_effect({ effect::kill_at(60), effect::fade_out(60),
+                                                   effect::scale_effect(sf::Vector2f(0.03, 0.03), sf::Vector2f(0.2, 0.2), 60) });
+                                move_object_container.emplace_front(bomb);
+                                puts("dead");
+                                p->add_effect({ effect::fade_out(3, get_count()), effect::kill_at(3, get_count()) });
+                                p->make_dead();
+                                killed_shot_master_id.push_back(p->get_shot_master_id());
                         }
                 }
+
+                enemy_container.remove_if(
+                        [](EnemyCharacter *p){
+                                return !p->visible();
+                        });
 	}
         
         for (auto &&bullet : bullet_pipeline.enemy_pipeline.actual_bullets) {
@@ -504,17 +543,19 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
         for(auto p : enemy_container){
                 std::optional<FunctionCallEssential> e = p->shot(get_count());
                 if(e){
+                        std::cout << "shot name: " << e.value().func_name << std::endl;
                         bullet_pipeline.enemy_pipeline.add_function(
                                 new FunctionCallEssential(
                                         e.value().func_name,
                                         get_count(),
+                                        e.value().shot_master_id,
                                         p->get_place()));
                 }
         }
 
         if(get_count() == 20){
                 bullet_pipeline.enemy_pipeline.add_function(
-			new FunctionCallEssential("ellipse", get_count(),
+			new FunctionCallEssential("ellipse", get_count(), NO_SHOT_MASTER,
                                                   sf::Vector2f(0, 0)));
         }
 
@@ -553,10 +594,12 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
         kill_out_of_filed_bullet(bullet_pipeline.player_pipeline.actual_bullets);
         kill_out_of_filed_bullet(bullet_pipeline.enemy_pipeline.actual_bullets);
         kill_out_of_filed_bullet(bullet_pipeline.special_pipeline.actual_bullets);
+        remove_killed_shot(bullet_pipeline.enemy_pipeline);
+        killed_shot_master_id.clear();
 
         while(enemy_sched.size()){
 		if (enemy_sched.get_front().time == get_count()) {
-			enemy_container.emplace_back(new EnemyCharacter(
+			enemy_container.push_front(new EnemyCharacter(
 				enemy_sched.get_front(), get_count()));
 			enemy_sched.pop_front();
 		}else{
@@ -565,12 +608,12 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 	}
 
 	if(get_count() == 300){
-                enemy_container.emplace_back(new EnemyCharacter(CharacterAttribute("test"),
+                enemy_container.push_front(new EnemyCharacter(CharacterAttribute("test"),
                                                                 GameMaster::texture_table[UDON1], sf::Vector2f(0, 200),
                                                                 sf::Vector2f(0.8, 0.8), get_count(),
                                                                 mf::tachie_move_constant(2, 0),
                                                                 rotate::stop, 15, 15, true));
-                enemy_container.emplace_back(new EnemyCharacter(CharacterAttribute("test"),
+                enemy_container.push_front(new EnemyCharacter(CharacterAttribute("test"),
                                                                 GameMaster::texture_table[FLOWER1], sf::Vector2f(0, 0),
                                                                 sf::Vector2f(0.75, 0.75), get_count(),
                                                                 mf::curve(sf::Vector2f(0, 0),
@@ -602,12 +645,20 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 
         for(auto &&p : enemy_container){
                 p->move(get_count());
+                p->effect(get_count());
                 p->rotate_with_func(get_count());
 	}
 
-        for(auto p : move_object_container){
-                p->move(get_count());
-        }
+        move_object_container.remove_if(
+                [this](MoveObject *p){
+                        if(p->visible()){
+                                p->move(get_count());
+                                p->effect(get_count());
+                                return false;
+                        }else{
+                                return true;
+                        }
+                });
         
 	//backgroundTile.scroll();
 
@@ -901,4 +952,13 @@ void RaceSceneMaster::SpellCardEvent::drawing_process(sf::RenderWindow &window)
 GameState RaceSceneMaster::SpellCardEvent::post_process(sf::RenderWindow &window)
 {
         return SceneSubEvent::post_process(window);
+}
+
+RaceSceneMaster::RaceSceneEffectController::RaceSceneEffectController(void)
+{
+        bullet_stop = false;
+        bullet_force_hide = false;
+        enemy_stop = false;
+        enemy_force_hide = false;
+        time_limit_hide = true;
 }

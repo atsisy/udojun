@@ -5,81 +5,79 @@ void BulletPipeline::add_function(FunctionCallEssential *e)
         func_sched.add_function(e);
 }
 
+void BulletPipeline::clear_killed_shot(SHOT_MASTER_ID id)
+{
+        func_sched.clear_func_sched(id);
+        bullet_sched.clear(id);
+}
+
 void BulletPipeline::flush_called_function(u64 now, BulletFuncTable &func_table)
 {
-        // スケジュールされる予定の弾幕がまだある場合継続
-        while (func_sched.size()) {
-		/*
-                 * スケジュールされる予定のカウントに達した
-                 */
-		if (func_sched.head()->time <= now) {
-                        // 関数生成のためのデータを取り出す
-			FunctionCallEssential *f_essential =
-                                func_sched.pop();
-			// 生成
-			std::vector<BulletData *> &&v =
-				func_table.call_function(*f_essential);
-			// 生成されたそれぞれの弾丸データに出現時刻をセットする
-                        // 基本的には即時出現
-			std::for_each(std::begin(v), std::end(v),
-				      [this, now](BulletData *d) {
-					      d->set_appear_time(now);
-                                              // スケジュールに追加
-                                              this->bullet_sched.add(d);
-                                      });
-                        delete f_essential;
-                } else {
+        func_sched.remove_if(
+                [&](FunctionCallEssential *f_essential){
                         /*
-                         * この待ち行列（のようなもの）は既にスケジュール時刻でソートされているため、
-                         * 先頭が達していない場合は、それ以降すべて達していないことになり、breakする
+                         * スケジュールされる予定のカウントに達した
                          */
-                        break;
-                }
-        }
+                        if (f_essential->time <= now) {
+                                // 生成
+                                std::vector<BulletData *> &&v =
+                                        func_table.call_function(*f_essential);
+                                // 生成されたそれぞれの弾丸データに出現時刻をセットする
+                                // 基本的には即時出現
+                                std::for_each(std::begin(v), std::end(v),
+                                              [this, now](BulletData *d) {
+                                                      d->set_appear_time(now);
+                                                      // スケジュールに追加
+                                                      this->bullet_sched.add(d);
+                                              });
+                                delete f_essential;
+                                return true;
+                        } else {
+                                /*
+                                 * 発射時刻では無いので、falseを返してremoveしない
+                                 */
+                                return false;
+                        }        
+                });
 }
 
 void BulletPipeline::schedule_bullet(u64 now, PlayerCharacter &player)
 {
-        /*
-         * 弾幕データがスケジュールされているか？
-         */
-	while (bullet_sched.size()) {
-                // 出現時間を迎えているか？
-		if (bullet_sched.next()->appear_time <= now) {
-                        // ターゲットの弾幕データを取り出し
-			BulletData *target = bullet_sched.next();
-
-                        // 取り出したので、削除
-			bullet_sched.drop();
-
-                        /*
-                         * 動的なマクロか？
-                         */
-			if (target->flags & DYNAMIC_MACRO) {
-                                // 動的なマクロを展開
-                                // これにより、BulletDataのvectorが得られる
-				auto &&gen = macro::expand_dynamic_macro(
-					target->original_data, player, target);
-
-                                // 実体化し、表示する弾丸のグループに加える
-				for (auto &elem : gen) {
+        bullet_sched.remove_if(
+                [&, this](BulletData *target){
+                        // 出現時間を迎えているか？
+                        if (target->appear_time <= now) {
+                                /*
+                                 * 動的なマクロか？
+                                 */
+                                if (target->flags & DYNAMIC_MACRO) {
+                                        // 動的なマクロを展開
+                                        // これにより、BulletDataのvectorが得られる
+                                        auto &&gen = macro::expand_dynamic_macro(
+                                                target->original_data, &player, target);
+                                        
+                                        // 実体化し、表示する弾丸のグループに加える
+                                        for (auto &elem : gen) {
+                                                auto generated = BulletGenerator::generate(
+                                                        elem, player,
+                                                        now);
+                                                std::copy(
+                                                        std::begin(generated),
+                                                        std::end(generated),
+                                                        std::back_inserter(actual_bullets));
+                                        }
+                                } else {
+                                        // 実体化し、表示する弾丸のグループに加える
                                         auto generated = BulletGenerator::generate(
-                                                elem, player,
+                                                target, player,
                                                 now);
                                         std::copy(std::begin(generated), std::end(generated), std::back_inserter(actual_bullets));
-				}
-			} else {
-                                // 実体化し、表示する弾丸のグループに加える
-                                auto generated = BulletGenerator::generate(
-                                        target, player,
-                                        now);
-                                std::copy(std::begin(generated), std::end(generated), std::back_inserter(actual_bullets));
-			}
-		} else {
-                        // スケジュールは出現時間でソートされているため、先頭が達していない場合はbreak
-			break;
-		}
-	}
+                                }
+                                return true;
+                        } else {
+                                return false;
+                        }
+                });
 }
 
 void BulletPipeline::clear_all_bullets(void)

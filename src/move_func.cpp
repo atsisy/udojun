@@ -427,10 +427,42 @@ void BulletData::init_texture_data(TextureID id)
 		scale = sf::Vector2f(0.05, 0.05);
                 radius = BulletSize::BULLET1;
 		break;
+        case CIRCLE_PURPLE:
+		scale = sf::Vector2f(0.05, 0.05);
+                radius = BulletSize::BULLET1;
+		break;
+        case JUNKO_CORE_BULLET:
+		scale = sf::Vector2f(0.085, 0.085);
+                radius = BulletSize::BULLET1;
+		break;
+        case JUNKO_HART_BULLET:
+		scale = sf::Vector2f(0.12, 0.12);
+                radius = BulletSize::BULLET1;
+		break;
         case CIRCLE_LIGHT_GREEN:
 		scale = sf::Vector2f(0.05, 0.05);
                 radius = BulletSize::BULLET1;
 		break;
+        case ELLIPSE_BLUE:
+                scale = sf::Vector2f(0.05, 0.05);
+                radius = BulletSize::BULLET1;
+                break;
+        case ELLIPSE_ORANGE:
+                scale = sf::Vector2f(0.05, 0.05);
+                radius = BulletSize::BULLET1;
+                break;
+        case ELLIPSE_GREEN:
+                scale = sf::Vector2f(0.05, 0.05);
+                radius = BulletSize::BULLET1;
+                break;
+        case ELLIPSE_RED:
+                scale = sf::Vector2f(0.05, 0.05);
+                radius = BulletSize::BULLET1;
+                break;
+        case ELLIPSE_PURPLE:
+                scale = sf::Vector2f(0.05, 0.05);
+                radius = BulletSize::BULLET1;
+                break;
         default:
                 DEBUG_PRINT_HERE();
                 std::cerr << "Invalid Texture ID: " << std::endl;
@@ -482,9 +514,9 @@ void BulletData::set_appear_time(u64 current)
         this->appear_time = current + this->offset;
 }
 
-FunctionCallEssential::FunctionCallEssential(std::string fn, u64 t,
+FunctionCallEssential::FunctionCallEssential(std::string fn, u64 t, SHOT_MASTER_ID sm_id,
 					     sf::Vector2f origin_p)
-	: func_name(fn), time(t), origin(origin_p)
+	: func_name(fn), time(t), shot_master_id(sm_id), origin(origin_p)
 {}
 
 std::vector<Bullet *> BulletGenerator::generate_laser(BulletData *data, DrawableCharacter &running_char, u64 count)

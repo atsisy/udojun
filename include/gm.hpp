@@ -128,6 +128,17 @@ public:
 
 class RaceSceneMaster : public SceneMaster {
 
+        class RaceSceneEffectController {
+        public:
+                bool bullet_stop: 1;
+                bool bullet_force_hide: 1;
+                bool enemy_stop: 1;
+                bool enemy_force_hide: 1;
+                bool time_limit_hide: 1;
+
+                RaceSceneEffectController(void);
+        };
+
         class ConversationEvent : public SceneSubEvent {
         private:
                 std::forward_list<Tachie *> tachie_container;
@@ -161,9 +172,10 @@ class RaceSceneMaster : public SceneMaster {
 private:
         std::forward_list<Tachie *> tachie_container;
         std::forward_list<MoveObject *> move_object_container;
-        std::vector<EnemyCharacter *> enemy_container;
+        std::forward_list<EnemyCharacter *> enemy_container;
         std::list<SceneSubEvent *> sub_event_list;
         std::list<DrawableObject3D *> object3d_list;
+        std::vector<SHOT_MASTER_ID> killed_shot_master_id;
         
         GameData *game_data;
         PlayerCharacter running_char;
@@ -189,6 +201,7 @@ private:
         u64 danmaku_timer_id;
         AbstractDanmakuSchedule abs_danmaku_sched;
         EnemyCharacterSchedule enemy_sched;
+        RaceSceneEffectController effect_conroller;
 
 	void add_new_functional_bullets_to_schedule(void);
         void add_new_danmaku(void);
@@ -199,6 +212,7 @@ private:
         void player_spellcard(void);
         void random_mist(void);
         void insert_enemy_spellcard(int index);
+        void remove_killed_shot(BulletPipeline &pipeline);
 
     public:
         RaceSceneMaster(GameData *game_data);

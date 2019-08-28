@@ -4,26 +4,32 @@
 #include <fstream>
 
 FunctionScheduler::FunctionScheduler()
-        : queue(func_scheduler_compare)
 {}
 
 
 void FunctionScheduler::add_function(FunctionCallEssential *e)
 {
-        queue.emplace(e);
+        queue.push_back(e);
 }
 
 void FunctionScheduler::add_function(std::string fn, u64 t)
 {
-	queue.emplace(new FunctionCallEssential(fn, t));
+	queue.push_back(new FunctionCallEssential(fn, t, SHOT_MASTER_UNDEFINED));
 }
 
 void FunctionScheduler::clear_func_sched(void)
 {
-	while (queue.size()) {
-		delete queue.top();
-		queue.pop();
-	}
+        for(FunctionCallEssential *p : queue){
+                delete p;
+        }
+        queue.clear();
+}
+
+void FunctionScheduler::clear_func_sched(SHOT_MASTER_ID id)
+{
+        queue.remove_if([=](FunctionCallEssential *f_essential){
+                                return f_essential->shot_master_id == id;
+                        });
 }
 
 size_t FunctionScheduler::size(void)
@@ -33,28 +39,42 @@ size_t FunctionScheduler::size(void)
 
 FunctionCallEssential *FunctionScheduler::head(void)
 {
-        return queue.top();
+        return queue.front();
 }
 
 FunctionCallEssential *FunctionScheduler::pop(void)
 {
         FunctionCallEssential *ret = head();
-        queue.pop();
+        queue.pop_front();
         return ret;
 }
 
+std::list<FunctionCallEssential *>::iterator FunctionScheduler::begin(void)
+{
+        return std::begin(queue);
+}
+
+std::list<FunctionCallEssential *>::iterator FunctionScheduler::end(void)
+{
+        return std::end(queue);
+}
+
+void FunctionScheduler::remove_if(std::function<bool(FunctionCallEssential *)> fn)
+{
+        queue.remove_if(fn);
+}
+
 BulletScheduler::BulletScheduler()
-        : queue(c)
 {}
 
 BulletData *BulletScheduler::next()
 {
-        return queue.top();
+        return queue.front();
 }
 
 void BulletScheduler::drop()
 {
-        queue.pop();
+        queue.pop_front();
 }
 
 bool BulletScheduler::empty()
@@ -69,7 +89,7 @@ size_t BulletScheduler::size()
 
 void BulletScheduler::add(BulletData *data)
 {
-        queue.push(data);
+        queue.push_back(data);
 }
 
 void BulletScheduler::add(std::vector<BulletData *> data)
@@ -86,24 +106,10 @@ void BulletScheduler::add(std::vector<BulletData *> *data)
 	}
 }
 
-DanmakuCallEssential::DanmakuCallEssential(FunctionCallEssential fe,
-                                           u64 sec, DanmakuType type, std::wstring *name)
-        : func_essential(fe), time_limit(sec)
-{
-        this->type = type;
-        this->danmaku_name = name;
-}
-
-DanmakuScheduler::DanmakuScheduler(std::vector<DanmakuCallEssential> s)
-	: schedule(s)
-{
-        std::reverse(std::begin(schedule), std::end(schedule));
-}
-
 AbstractDanmakuData::AbstractDanmakuData(std::string f_name,
                                          std::wstring *d_name, u64 time_limit,
-                                         DanmakuType type)
-        : func_name(f_name)
+                                         DanmakuType type, std::string enemy_schedule_path)
+        : func_name(f_name), enemy_object_schedule_path(enemy_schedule_path)
 {
         this->time_limit = time_limit;
         this->type = type;
@@ -144,7 +150,8 @@ AbstractDanmakuSchedule::AbstractDanmakuSchedule(std::vector<const char *> json_
                                 elem["function"].get<std::string>(),
                                 util::utf8_str_to_widechar_str(elem["danmaku_name"].get<std::string>()),
                                 elem["time_limit"].get<double>(),
-                                str_to_dnmaku_type(elem["type"].get<std::string>().data()));
+                                str_to_dnmaku_type(elem["type"].get<std::string>().data()),
+                                elem["enemy_schedule_json"].get<std::string>());
                 }
 
                 data_list.push_back(tmp_buf);
@@ -173,42 +180,28 @@ void AbstractDanmakuSchedule::pop_front(void)
         data_list.erase(std::begin(data_list));
 }
 
-bool DanmakuScheduler::function_is_coming(u64 count)
-{
-	if (schedule.size()) {
-		return schedule.back().func_essential.time == count;
-	}else{
-                return false;
-	}
-}
-
-DanmakuCallEssential DanmakuScheduler::drop_top(void)
-{
-        DanmakuCallEssential f = schedule.back();
-        schedule.pop_back();
-        return f;
-}
-
 void BulletScheduler::clear(void)
 {
-        while(queue.size()){
-                delete queue.top();
-                queue.pop();
+        for(BulletData *b : queue){
+                delete b;
         }
+        queue.clear();
 }
 
-DanmakuCallEssential DanmakuScheduler::top(void)
+void BulletScheduler::clear(SHOT_MASTER_ID id)
 {
-        return schedule.back();
+        queue.remove_if(
+                [=](BulletData *b){
+                        if(b->shot_master_id == id){
+                                delete b;
+                                return true;
+                        }else{
+                                return false;
+                        }
+                });
 }
 
-size_t DanmakuScheduler::size(void)
+void BulletScheduler::remove_if(std::function<bool(BulletData *)> fn)
 {
-	return schedule.size();
+        queue.remove_if(fn);
 }
-
-void DanmakuScheduler::push_back(DanmakuCallEssential e)
-{
-        schedule.push_back(e);
-}
-

@@ -142,7 +142,6 @@ protected:
         sf::Vector2f place;
 
         void set_place(sf::Vector2f np);
-	sf::Vector2f get_scale(void);
 public:
         DrawableObject(sf::Texture *t, sf::Vector2f p, sf::Vector2f texture_scale = sf::Vector2f(1.0, 1.0));
         void draw(sf::RenderWindow &window) override;
@@ -150,6 +149,7 @@ public:
         sf::Vector2f get_place(void);
         void set_scale(sf::Vector2f scale);
         void set_scale(float x, float y);
+        sf::Vector2f get_scale(void);
         void set_color(sf::Color color);
         void set_alpha(u8 alpha);
         sf::Vector2f displaying_size();
@@ -252,9 +252,16 @@ public:
         void set_conflict_offset(sf::Vector2f offset);
 };
 
+using SHOT_MASTER_ID = u64;
+constexpr SHOT_MASTER_ID NO_SHOT_MASTER = -1;
+constexpr SHOT_MASTER_ID SHOT_MASTER_UNDEFINED = -2;
+constexpr SHOT_MASTER_ID RUNNING_CHARACTER_SHOT = -3;
+constexpr SHOT_MASTER_ID MAIN_ENEMY_SHOT = -4;
+
 class Bullet : public MoveObject, public Conflictable {
 private:
         bool grazable;
+        SHOT_MASTER_ID id;
         
 public:
         Bullet(sf::Texture *t, sf::Vector2f p,
@@ -270,4 +277,5 @@ public:
         void call_rotate_func(u64 now, u64 begin) override;
         void rotate_with_func(u64 now) override;
         void draw(sf::RenderWindow &window) override;
+        SHOT_MASTER_ID get_shot_master_id(void);
 };

@@ -93,11 +93,13 @@ BulletFuncTable::BulletFuncTable(std::string main_file)
                 table.emplace(parse(src_name));
         }
 
+        /*
         for(auto &array_element : sched_array){
                 picojson::object &data = array_element.get<picojson::object>();
                 auto &&parsed = highlevel_controll_statement(data);
                 //util::concat_container<std::vector<FunctionCallEssential>>(func_sched, parsed);
         }
+        */
 }
 
 std::vector<FunctionCallEssential>
@@ -113,7 +115,8 @@ BulletFuncTable::parse_builtin_for(picojson::object &obj)
         while(times--){
                 ret.emplace_back(
                         call,
-                        count
+                        count,
+                        SHOT_MASTER_UNDEFINED
                         );
                 count += dist_count;
         }
@@ -132,6 +135,7 @@ BulletFuncTable::highlevel_controll_statement(picojson::object &obj)
                 return std::vector<FunctionCallEssential>{
                         FunctionCallEssential(
                                 func_name,
+                                SHOT_MASTER_UNDEFINED,
                                 obj["time"].get<double>()
                                 )
                                 };
@@ -256,13 +260,20 @@ void BulletFuncTable::parse_builtin_function_multiple_calling(std::string func_n
 std::vector<BulletData *> BulletFuncTable::call_function(FunctionCallEssential e)
 {
         std::vector<BulletData *> ret;
-        auto &&original_bullets_data = table[e.func_name];
 
-	for(auto &&bullet_data : *original_bullets_data){
-		BulletData *p = new BulletData(*bullet_data);
-		p->appear_point += e.origin;
-                ret.push_back(p);
-	}
+        try{
+                auto &&original_bullets_data = table.at(e.func_name);
+                for(auto &&bullet_data : *original_bullets_data){
+                        BulletData *p = new BulletData(*bullet_data);
+                        p->shot_master_id = e.shot_master_id;
+                        p->appear_point += e.origin;
+                        ret.push_back(p);
+                }
+        }
+        catch(std::out_of_range &) {
+                DEBUG_PRINT_HERE();
+                std::cout << "Exception!! No such bullet schedule written in JSON: " << e.func_name << std::endl;
+        }
 
 	return ret;
 }
@@ -363,6 +374,7 @@ FunctionCallEssential EnemyCharacterTable::parse_shot_field(picojson::object &ob
         return FunctionCallEssential(
                 obj["function_name"].get<std::string>(),
                 obj["time"].get<double>(),
+                SHOT_MASTER_UNDEFINED,
                 relative_point
                 );
 }

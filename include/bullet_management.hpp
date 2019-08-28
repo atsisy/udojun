@@ -19,6 +19,8 @@ class BulletPipeline {
         
         void draw(sf::RenderWindow &window);
         void direct_insert_bullet(Bullet *bullet);
+
+        void clear_killed_shot(SHOT_MASTER_ID id);
 };
 
 class BulletPipelineContainer {

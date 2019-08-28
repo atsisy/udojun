@@ -28,6 +28,7 @@ set(udjn_src
   src/rotate.cpp
   src/geometry.cpp
   src/3d.cpp
+  src/danmaku_data_structure.cpp
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
