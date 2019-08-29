@@ -29,6 +29,7 @@ set(udjn_src
   src/geometry.cpp
   src/3d.cpp
   src/danmaku_data_structure.cpp
+  src/enemy_management.cpp
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

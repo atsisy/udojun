@@ -126,6 +126,15 @@ public:
         GameState post_process(sf::RenderWindow &window) override;
 };
 
+class EnemyManager {
+public:
+        EnemyManager(void);
+        MoveObject *kill_enemy_with_normal_effect(EnemyCharacter *p, u64 now);
+        std::vector<MoveObject *> kill_all_enemy_with_normal_effect(
+                std::forward_list<EnemyCharacter *> &p_vec,
+                u64 now);
+};
+
 class RaceSceneMaster : public SceneMaster {
 
         class RaceSceneEffectController {
@@ -202,6 +211,7 @@ private:
         AbstractDanmakuSchedule abs_danmaku_sched;
         EnemyCharacterSchedule enemy_sched;
         RaceSceneEffectController effect_conroller;
+        EnemyManager enemy_manager;
 
 	void add_new_functional_bullets_to_schedule(void);
         void add_new_danmaku(void);
@@ -213,6 +223,7 @@ private:
         void random_mist(void);
         void insert_enemy_spellcard(int index);
         void remove_killed_shot(BulletPipeline &pipeline);
+        void cleanup_enemy_container(void);
 
     public:
         RaceSceneMaster(GameData *game_data);

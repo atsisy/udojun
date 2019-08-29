@@ -369,9 +369,18 @@ void RaceSceneMaster::next_danmaku_forced(void)
 	}
         
         bullet_pipeline.enemy_pipeline.clear_all_bullets();
-        sub_event_list.remove_if([](SceneSubEvent *sse){
+        sub_event_list.remove_if([&, this](SceneSubEvent *sse){
                                          if(sse->get_name() == "spell"){
                                                  delete sse;
+                                                 auto &&bomb = enemy_manager.kill_all_enemy_with_normal_effect(
+                                                         enemy_container,
+                                                         get_count());
+                                                 for(auto p : enemy_container){
+                                                         killed_shot_master_id.push_back(p->get_shot_master_id());
+                                                 }
+                                                 for(auto effect : bomb){
+                                                         move_object_container.push_front(effect);
+                                                 }
                                                  return true;
                                          }
                                          return false;
@@ -441,6 +450,11 @@ void RaceSceneMaster::remove_killed_shot(BulletPipeline &pipeline)
         }
 }
 
+void RaceSceneMaster::cleanup_enemy_container(void)
+{
+        
+}
+
 void RaceSceneMaster::conflict_judge(void)
 {
 	for (auto &&bullet : bullet_pipeline.player_pipeline.actual_bullets) {
@@ -476,18 +490,8 @@ void RaceSceneMaster::conflict_judge(void)
                                                 ));
                         }
                         if(!p->dead() && p->hp_zero()){
-                                auto bomb = new MoveObject(
-                                        GameMaster::texture_table[MIST1],
-                                        p->get_place(),
-                                        mf::stop,
-                                        rotate::stop,
-                                        get_count());
-                                bomb->add_effect({ effect::kill_at(60), effect::fade_out(60),
-                                                   effect::scale_effect(sf::Vector2f(0.03, 0.03), sf::Vector2f(0.2, 0.2), 60) });
+                                auto bomb = enemy_manager.kill_enemy_with_normal_effect(p, get_count());
                                 move_object_container.emplace_front(bomb);
-                                puts("dead");
-                                p->add_effect({ effect::fade_out(3, get_count()), effect::kill_at(3, get_count()) });
-                                p->make_dead();
                                 killed_shot_master_id.push_back(p->get_shot_master_id());
                         }
                 }
