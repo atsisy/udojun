@@ -76,6 +76,9 @@ enum TextureID {
         JUNKO_CORE_BULLET,
         JUNKO_HART_BULLET,
         UDON_EYE1,
+        UDON_MARKER,
+        HEXAGRAM_BLUE,
+        HEXAGRAM_RED,
 };
 
 enum LaserTextureID {
@@ -139,6 +142,8 @@ inline TextureID str_to_txid(const char *str)
         str_to_idx_sub(str, SPELL_CARD_ATTACK);
         str_to_idx_sub(str, BACKGROUND1);
         str_to_idx_sub(str, HEXAGRAM);
+        str_to_idx_sub(str, HEXAGRAM_BLUE);
+        str_to_idx_sub(str, HEXAGRAM_RED);
         
         str_to_idx_sub(str, LASER_BODY3);
         str_to_idx_sub(str, LASER_HEAD3);
@@ -166,6 +171,8 @@ inline TextureID str_to_txid(const char *str)
         str_to_idx_sub(str, JUNKO_CORE_BULLET);
         str_to_idx_sub(str, JUNKO_HART_BULLET);
         str_to_idx_sub(str, UDON_EYE1);
+
+        str_to_idx_sub(str, UDON_MARKER);
 
 	std::cout << "Unknown texture: " << str << std::endl;
 

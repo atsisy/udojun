@@ -20,6 +20,7 @@ enum MacroID {
         JUNKO_SHOT_FAST_LV1,
         JUNKO_SHOT_FAST_LV2,
         JUNKO_SHOT_SLOW_LV1,
+        JUNKO_SPELL1,
 };
 
 inline MacroID str_to_macroid(const char *str)
@@ -47,6 +48,7 @@ inline MacroID str_to_macroid(const char *str)
         str_to_idx_sub(str, JUNKO_SHOT_FAST_LV2);
         str_to_idx_sub(str, JUNKO_SHOT_SLOW_LV1);
         str_to_idx_sub(str, UDON_CIRCLE1);
+        str_to_idx_sub(str, JUNKO_SPELL1);
 
 	std::cout << "Unknown Macro ID: " << str << std::endl;
         
@@ -118,4 +120,19 @@ namespace macro {
         std::vector<BulletData *> junko_shot_fast_lv1(TextureID txid, sf::Vector2f center, float speed, u64 time);
         std::vector<BulletData *> junko_shot_fast_lv2(TextureID txid1, TextureID txid2,
                                                       sf::Vector2f center, float speed, u64 time);
+
+        /**
+         * 第一引数: テクスチャID
+         * 第二引数: 純狐のorigin座標
+         * 第三引数: カーブのベジェ中間点
+         * 第四引数: カーブの終点
+         * 第五引数: 一つ一つの弾幕が発射される間隔
+         * 第六引数: スピード
+         * 第七引数: 半径
+         * 第八引数: 弾丸の数
+         * 第九引数: 時間
+         */
+        std::vector<BulletData *> junko_spellcard(TextureID txid, sf::Vector2f junko_origin,
+                                                  sf::Vector2f curve_middle, sf::Vector2f curve_end,
+                                                  u64 time_offset, float speed, float r, float num, u64 time);
 }

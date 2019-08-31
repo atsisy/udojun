@@ -287,7 +287,6 @@ namespace macro {
                 
                 return ret;
         }
-
         
 	std::vector<BulletData *> hart(sf::Vector2f origin, float r, u8 num, u64 time)
         {
@@ -572,6 +571,68 @@ namespace macro {
 
                 return ret;
         }
+
+        std::vector<BulletData *> junko_spellcard_sub_hart(TextureID txid, sf::Vector2f origin, sf::Vector2f curve_middle,
+                                                           sf::Vector2f curve_end, float speed, float r, u64 num, u64 time)
+        {
+                std::vector<BulletData *> ret;
+                float unit_rad = (2 * M_PI) / (float)num;
+                float rad = 0;
+                
+                for(u8 i = 0;i < num;i++, rad += unit_rad){
+                        sf::Vector2f point(
+                                origin.x + (r * (16 * std::pow(std::sin(rad), 3))),
+                                origin.y - (r * ((13 * std::cos(rad)) - (5 * std::cos(2 * rad)) - (2 * std::cos(3 * rad)) - std::cos(4 * rad)))
+                                );
+                        sf::Vector2f offset = point - origin;
+                        ret.push_back(new BulletData(
+                                              BEZIER_CURVE,
+                                              JUNKO_HART_BULLET,
+                                              //mf::vector_linear(sf::Vector2f(0, -4)),
+                                              mf::curve(point, curve_middle + offset,
+                                                        curve_end + offset, 60),
+                                              time,
+                                              point));
+
+                        std::cout << offset.x << ":" << offset.y << std::endl;
+                }
+                return ret;
+        }
+        
+        std::vector<BulletData *> junko_spellcard(TextureID txid, sf::Vector2f junko_origin,
+                                                  sf::Vector2f curve_middle, sf::Vector2f curve_end,
+                                                  u64 time_offset, float speed, float r, float num, u64 time)
+        {
+                std::vector<BulletData *> ret;
+
+                /*
+                sf::Vector2f x_offset(0, 0);
+                
+                for(int cols = 0;cols < 16;cols++, time += time_offset){
+                        auto &&right_side = junko_spellcard_sub_hart(txid, junko_origin, curve_middle + x_offset,
+                                                                   curve_end + x_offset, speed, r, num, time);
+                        auto &&left_side = junko_spellcard_sub_hart(txid, junko_origin, curve_middle - x_offset,
+                                                                     curve_end - x_offset, speed, r, num, time);
+                        util::concat_container<std::vector<BulletData *>>(ret, right_side);
+                        util::concat_container<std::vector<BulletData *>>(ret, left_side);
+                }
+                */
+                for(int cols = 0;cols < 16;cols++){
+                        for(int rows = 0;rows < 90;rows++){
+                                ret.push_back(
+                                        new BulletData(
+                                                VECTOR_LINEAR,
+                                                JUNKO_HART_BULLET,
+                                                mf::vector_linear(sf::Vector2f(0, 10)),
+                                                time,
+                                                sf::Vector2f(rows * 10, 700)
+                                                ));
+                                time += time_offset;
+                        }
+                }
+                
+                return ret;
+        }
         
         std::vector<BulletData *> expand_macro(picojson::object &data)
         {
@@ -684,6 +745,20 @@ namespace macro {
                                                    sf::Vector2f(data["x"].get<double>(),
                                                                 data["y"].get<double>()),
                                                    data["speed"].get<double>(), data["time"].get<double>());
+                case JUNKO_SPELL1:
+                {
+                        auto &curve_middle = data["curve_middle"].get<picojson::object>();
+                        auto &curve_end = data["curve_end"].get<picojson::object>();
+                        return junko_spellcard(str_to_txid(data["texture"].get<std::string>().data()),
+                                               sf::Vector2f(450, 800),
+                                               sf::Vector2f(curve_middle["x"].get<double>(), curve_middle["y"].get<double>()),
+                                               sf::Vector2f(curve_end["x"].get<double>(), curve_end["y"].get<double>()),
+                                               data["time_offset"].get<double>(),
+                                               data["speed"].get<double>(),
+                                               data["r"].get<double>(),
+                                               data["num"].get<double>(),
+                                               data["time"].get<double>());
+                }
 		default:
                         return std::vector<BulletData *>();
                 }
@@ -781,6 +856,20 @@ namespace macro {
                                           data["bias"].get<double>(),
                                           data["time"].get<double>(),
                                           data["distance"].get<double>());
+                case JUNKO_SPELL1:
+                {
+                        auto &curve_middle = data["curve_middle"].get<picojson::object>();
+                        auto &curve_end = data["curve_end"].get<picojson::object>();
+                        return junko_spellcard(str_to_txid(data["texture"].get<std::string>().data()),
+                                               running_char->get_origin(),
+                                               sf::Vector2f(curve_middle["x"].get<double>(), curve_middle["y"].get<double>()),
+                                               sf::Vector2f(curve_end["x"].get<double>(), curve_end["y"].get<double>()),
+                                               data["time_offset"].get<double>(),
+                                               data["speed"].get<double>(),
+                                               data["r"].get<double>(),
+                                               data["num"].get<double>(),
+                                               data["time"].get<double>());
+                }
 		default:
                         return std::vector<BulletData *>();
                 }

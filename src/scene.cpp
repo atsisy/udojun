@@ -94,7 +94,8 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 		       sf::IntRect(32, 32, 960, 704)),
 	  danmaku_sched({}),
           abs_danmaku_sched({ "stage1_danmaku.json" }),
-          enemy_sched(game_data, "stage1_enemy_schedule.json")
+          enemy_sched(game_data, "stage1_enemy_schedule.json"),
+          udon_marker(GameMaster::texture_table[UDON_MARKER], sf::Vector2f(0, 725), mf::stop, rotate::stop, 0)
 {
         set_count_for_debug(3400);
         
@@ -163,6 +164,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
                                           sf::Vector2f(0, 0)));
 
         backgroundTile.set_scroll_speed(5);
+        udon_marker.set_scale(0.4, 0.4);
 
 }
 
@@ -210,6 +212,10 @@ void RaceSceneMaster::player_spellcard(void)
                         graze_counter.counter_method().add(
                                 -200);
                         junko_param.add(-n);
+                        bullet_pipeline.player_pipeline.add_function(
+                                new FunctionCallEssential(
+                                        "junko_spell1", get_count(), RUNNING_CHARACTER_SHOT,
+                                        sf::Vector2f(0, 0)));
                 }
         }
 }
@@ -301,6 +307,8 @@ void RaceSceneMaster::player_move()
 
         target_udon.move_diff(sf::Vector2f(((float)(util::generate_random() % 10) / 10.0) * std::sin((float)((float)get_count() / (float)60)), 0));
         target_udon.move(get_count());
+        sf::Vector2f udon_place = target_udon.get_place();
+        udon_marker.set_place(sf::Vector2f(udon_place.x, 725));
         
 /*
   if (get_count() % 20 == 16) {
@@ -637,6 +645,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
                         [&](void){
                                 sub_event_list.push_back(new ConversationEvent(this, sf::Vector2f(0, 0), game_data));
                         }, 240, get_count());
+                effect_conroller.udon_marker_hide = false;
                         
         }
         
@@ -692,8 +701,11 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
         switch_view("background", window);
         
 	game_background.draw(window);
-        
-        switch_view("field", window);
+	if (!effect_conroller.udon_marker_hide) {
+		udon_marker.draw(window);
+	}
+
+	switch_view("field", window);
         
 	backgroundTile.draw(window);
         for(DrawableObject3D *p : object3d_list){
@@ -881,12 +893,12 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
         }
         timer_list.add_timer([this](void){ this->set_status(SUBEVE_FINISH); }, danmaku_data.time_limit);
 
-        auto hexagram = new MoveObject(GameMaster::texture_table[HEXAGRAM],
+        auto hexagram = new MoveObject(GameMaster::texture_table[HEXAGRAM_BLUE],
                                        sf::Vector2f(200, 50),
                                        mf::same_position(&rsm->target_udon),
                                        rotate::constant(0.05),
                                        get_count());
-        hexagram->set_scale(0.25, 0.25);
+        hexagram->set_scale(1, 1);
         hexagram->set_default_origin();
         hexagram->add_effect({ effect::fade_in(30) });
         objects.push_front(hexagram);
@@ -965,4 +977,5 @@ RaceSceneMaster::RaceSceneEffectController::RaceSceneEffectController(void)
         enemy_stop = false;
         enemy_force_hide = false;
         time_limit_hide = true;
+        udon_marker_hide = true;
 }

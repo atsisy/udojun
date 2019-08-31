@@ -144,6 +144,7 @@ class RaceSceneMaster : public SceneMaster {
                 bool enemy_stop: 1;
                 bool enemy_force_hide: 1;
                 bool time_limit_hide: 1;
+                bool udon_marker_hide: 1;
 
                 RaceSceneEffectController(void);
         };
@@ -212,6 +213,7 @@ private:
         EnemyCharacterSchedule enemy_sched;
         RaceSceneEffectController effect_conroller;
         EnemyManager enemy_manager;
+        MoveObject udon_marker;
 
 	void add_new_functional_bullets_to_schedule(void);
         void add_new_danmaku(void);

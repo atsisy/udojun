@@ -141,7 +141,6 @@ protected:
         sf::Sprite sprite;
         sf::Vector2f place;
 
-        void set_place(sf::Vector2f np);
 public:
         DrawableObject(sf::Texture *t, sf::Vector2f p, sf::Vector2f texture_scale = sf::Vector2f(1.0, 1.0));
         void draw(sf::RenderWindow &window) override;
@@ -157,6 +156,7 @@ public:
         void set_default_origin(void);
         void set_repeat_flag(bool flag);
         void move_sprite(sf::Vector2f offset);
+        void set_place(sf::Vector2f np);
 };
 
 class BackgroundTile : public DrawableObject {
