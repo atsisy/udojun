@@ -21,6 +21,7 @@ enum MacroID {
         JUNKO_SHOT_FAST_LV2,
         JUNKO_SHOT_SLOW_LV1,
         JUNKO_SPELL1,
+        NORMAL_ENEMY_SHOT1,
 };
 
 inline MacroID str_to_macroid(const char *str)
@@ -49,6 +50,7 @@ inline MacroID str_to_macroid(const char *str)
         str_to_idx_sub(str, JUNKO_SHOT_SLOW_LV1);
         str_to_idx_sub(str, UDON_CIRCLE1);
         str_to_idx_sub(str, JUNKO_SPELL1);
+        str_to_idx_sub(str, NORMAL_ENEMY_SHOT1);
 
 	std::cout << "Unknown Macro ID: " << str << std::endl;
         
@@ -135,4 +137,7 @@ namespace macro {
         std::vector<BulletData *> junko_spellcard(TextureID txid, sf::Vector2f junko_origin,
                                                   sf::Vector2f curve_middle, sf::Vector2f curve_end,
                                                   u64 time_offset, float speed, float r, float num, u64 time);
+
+        std::vector<BulletData *> normal_enemy_shot1(TextureID txid, sf::Vector2f origin,
+                                                     float r, float speed, float phase, u64 num, u64 time);
 }

@@ -97,7 +97,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           enemy_sched(game_data, "stage1_enemy_schedule.json"),
           udon_marker(GameMaster::texture_table[UDON_MARKER], sf::Vector2f(0, 725), mf::stop, rotate::stop, 0)
 {
-        set_count_for_debug(3400);
+        set_count_for_debug(0);
         
         this->game_data = game_data;
 	test_bullet = new Bullet(GameMaster::texture_table[BULLET1],
@@ -168,6 +168,27 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 
 }
 
+void RaceSceneMaster::player_spellcard_effect(void)
+{
+        for (int i = 0;i < 256;i++) {
+                auto p = new MoveObject(
+                        GameMaster::texture_table[JUNKO_HART_BULLET],
+                        sf::Vector2f(util::generate_random() % 900, util::generate_random() % 700),
+                        mf::stop,
+                        rotate::stop,
+                        get_count());
+                p->add_effect({
+                                effect::scale_effect(sf::Vector2f(0.01, 0.01), sf::Vector2f(0.5, 0.5), 60),
+                                effect::fade_out(60),
+                                effect::kill_at(60)});
+                move_object_container.emplace_front(p);
+        }
+        for(EnemyCharacter *e : enemy_container){
+                e->damage(400);
+        }
+        target_udon.damage(400);
+}
+
 void RaceSceneMaster::player_spellcard(void)
 {
         if (std::find_if(
@@ -176,7 +197,7 @@ void RaceSceneMaster::player_spellcard(void)
                             return p->are_you("udon");
                     }) == std::end(tachie_container)){
                 auto p = new Tachie(
-                        GameMaster::texture_table[UDON_TACHIE],
+                        GameMaster::texture_table[JUNKO_TACHIE1],
                         sf::Vector2f(500, 100),
                         mf::tachie_move_constant(4, 0),
                         rotate::stop,
@@ -187,35 +208,29 @@ void RaceSceneMaster::player_spellcard(void)
                 {
                         int n = 0;
                         std::list<Bullet *> &bullets = bullet_pipeline.enemy_pipeline.actual_bullets;
-                        for (Bullet *b : bullets) {
-                                if (running_char.distance(b) < 800) {
-                                        bullet_pipeline.special_pipeline.direct_insert_bullet(
-                                                new Bullet(
-                                                        GameMaster::texture_table[SMALL_CRYSTAL2],
-                                                        b->get_place(),
-                                                        mf::active_homing(sf::Vector2f(300, 300), 10, running_char.get_homing_point()),
-                                                        get_count(),
-                                                        sf::Vector2f(0.7, 0.7), 7,
-                                                        true, false
-                                                        ));
-                                }
-                        }
-
-                        for(Bullet *&b : bullets){
-				if (running_char.distance(b) < 240) {
-					delete b;
-					b = nullptr;
-				}
-			}
-                        bullets.remove_if([=](Bullet *b){ return !b; });
+                        bullets.remove_if([&, this](Bullet *b){
+                                                  if (running_char.distance(b) < 800) {
+                                                          bullet_pipeline.special_pipeline.direct_insert_bullet(
+                                                                  new Bullet(
+                                                                          GameMaster::texture_table[SMALL_CRYSTAL2],
+                                                                          b->get_place(),
+                                                                          mf::active_homing(sf::Vector2f(300, 300), 10, running_char.get_homing_point()),
+                                                                          get_count(),
+                                                                          sf::Vector2f(0.7, 0.7), 7,
+                                                                          true, false
+                                                                          ));
+                                                          delete b;
+                                                          return true;
+                                                  }else{
+                                                          return false;
+                                                  }
+                                          });
                         
                         graze_counter.counter_method().add(
                                 -200);
                         junko_param.add(-n);
-                        bullet_pipeline.player_pipeline.add_function(
-                                new FunctionCallEssential(
-                                        "junko_spell1", get_count(), RUNNING_CHARACTER_SHOT,
-                                        sf::Vector2f(0, 0)));
+                        player_spellcard_effect();
+                        
                 }
         }
 }
@@ -323,6 +338,9 @@ void RaceSceneMaster::player_move()
   running_char.change_textures(GameMaster::texture_table[UDON1]);
   }
 */
+        if(running_char.get_origin().y < 200){
+                current_item_collect();
+        }
 }
 
 void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
@@ -345,8 +363,8 @@ void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
                         bullet_pipeline.enemy_pipeline.clear_all_bullets();
                 }
         }
-
-
+        
+        
 	/*
           if(danmaku_sched.function_is_coming(get_count())){
           DanmakuCallEssential &&e = danmaku_sched.drop_top();
@@ -500,6 +518,26 @@ void RaceSceneMaster::conflict_judge(void)
                         if(!p->dead() && p->hp_zero()){
                                 auto bomb = enemy_manager.kill_enemy_with_normal_effect(p, get_count());
                                 move_object_container.emplace_front(bomb);
+
+                                bullet_pipeline.special_pipeline.direct_insert_bullet(
+                                        new Bullet(
+                                                GameMaster::texture_table[POWER_PANEL],
+                                                p->get_place() + sf::Vector2f(util::generate_random() % 100, 0),
+                                                mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
+                                                get_count(),
+                                                sf::Vector2f(0.04, 0.04), 7,
+                                                true, false
+                                                ));
+                                bullet_pipeline.special_pipeline.direct_insert_bullet(
+                                        new Bullet(
+                                                GameMaster::texture_table[SCORE_PANEL],
+                                                p->get_place() + sf::Vector2f(util::generate_random() % 100, 0),
+                                                mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
+                                                get_count(),
+                                                sf::Vector2f(0.04, 0.04), 7,
+                                                true, false
+                                                ));
+                                
                                 killed_shot_master_id.push_back(p->get_shot_master_id());
                         }
                 }
@@ -535,6 +573,13 @@ void RaceSceneMaster::conflict_judge(void)
 		puts("CONFLICT");
 		test_bullet->hide();
 	}
+}
+
+void RaceSceneMaster::current_item_collect(void)
+{
+        for(Bullet *b : bullet_pipeline.special_pipeline.actual_bullets){
+                b->override_move_func(mf::active_homing(sf::Vector2f(0, 0), 10, running_char.get_homing_point()));
+        }
 }
 
 void RaceSceneMaster::pre_process(sf::RenderWindow &window)
@@ -619,23 +664,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
                 }
 	}
 
-	if(get_count() == 300){
-                enemy_container.push_front(new EnemyCharacter(CharacterAttribute("test"),
-                                                                GameMaster::texture_table[UDON1], sf::Vector2f(0, 200),
-                                                                sf::Vector2f(0.8, 0.8), get_count(),
-                                                                mf::tachie_move_constant(2, 0),
-                                                                rotate::stop, 15, 15, true));
-                enemy_container.push_front(new EnemyCharacter(CharacterAttribute("test"),
-                                                                GameMaster::texture_table[FLOWER1], sf::Vector2f(0, 0),
-                                                                sf::Vector2f(0.75, 0.75), get_count(),
-                                                                mf::curve(sf::Vector2f(0, 0),
-                                                                          sf::Vector2f(50, 500),
-                                                                          sf::Vector2f(700, 50),
-                                                                          1000),
-
-                                                                rotate::pendulum(M_PI / 3, 60, 0.2),
-                                                                15, 15, true));
-        }else if(get_count() == 3500){
+        if(get_count() == 3500){
                 timer_list.cancel(danmaku_timer_id);
                 next_danmaku_forced();
                 target_udon.override_move_func(mf::move_point_constant(sf::Vector2f(480, 50),
@@ -712,12 +741,10 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
                 p->draw(window);
         }
 
-
-        
         for(SceneSubEvent *sse : sub_event_list){
                 sse->drawing_process(window);
         }
-
+        
 	running_char.draw(window);
         target_udon.draw(window);
 

@@ -79,6 +79,8 @@ enum TextureID {
         UDON_MARKER,
         HEXAGRAM_BLUE,
         HEXAGRAM_RED,
+        POWER_PANEL,
+        SCORE_PANEL,
 };
 
 enum LaserTextureID {
@@ -173,6 +175,9 @@ inline TextureID str_to_txid(const char *str)
         str_to_idx_sub(str, UDON_EYE1);
 
         str_to_idx_sub(str, UDON_MARKER);
+
+        str_to_idx_sub(str, SCORE_PANEL);
+        str_to_idx_sub(str, POWER_PANEL);
 
 	std::cout << "Unknown texture: " << str << std::endl;
 

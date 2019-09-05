@@ -89,6 +89,32 @@ namespace mf {
                        };
         }
 
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
+	accelerating(sf::Vector2f init_speed, sf::Vector2f accel, sf::Vector2f x_speed_range, sf::Vector2f y_speed_range)
+        {
+                return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd){
+                               u64 past = now_lmd - begin_lmd;
+                               sf::Vector2f speed(
+                                       init_speed.x + (accel.x * past),
+                                       init_speed.y + (accel.y * past));
+                               
+                               if(speed.x < x_speed_range.x){
+                                       speed.x = x_speed_range.x;
+                               }else if(speed.x > x_speed_range.y){
+                                       speed.x = x_speed_range.y;
+                               }
+
+                               if(speed.y < y_speed_range.x){
+                                       speed.y = y_speed_range.x;
+                               }else if(speed.y > y_speed_range.y){
+                                       speed.y = y_speed_range.y;
+                               }
+
+                               const sf::Vector2f &&now = bullet->get_place();
+                               return now + speed;
+                       };
+        }
+
 	std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	getting_slower(float init_speed, float angle, u64 limit)
 	{

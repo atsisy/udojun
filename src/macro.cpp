@@ -106,6 +106,29 @@ namespace macro {
 
                 return ret;
         }
+
+        std::vector<BulletData *> normal_enemy_shot1(TextureID txid, sf::Vector2f origin,
+                                                     float r, float speed, float phase, u64 num, u64 time)
+        {
+                std::vector<BulletData *> ret;
+                float unit_rad = (2 * M_PI) / (float)num;
+                float rad = phase;
+
+                for(u8 i = 0;i < num;i++, rad += unit_rad){
+                        BulletData *p = new BulletData(
+                                VECTOR_LINEAR,
+                                txid,
+                                mf::vector_linear(sf::Vector2f(speed * std::cos(rad),
+                                                               -speed * std::sin(rad))),
+                                time,
+                                sf::Vector2f(origin.x + (r * std::cos(rad)), origin.y + (r * std::sin(rad)))
+                                );
+                        p->init_rotation = rad + (M_PI / 2.0);
+                        ret.push_back(p);
+                }
+
+                return ret;
+        }
         
         std::vector<BulletData *> udon_circle(sf::Vector2f origin, float speed, float r, u8 num, u64 time, float phase)
         {
@@ -759,6 +782,15 @@ namespace macro {
                                                data["num"].get<double>(),
                                                data["time"].get<double>());
                 }
+                case NORMAL_ENEMY_SHOT1:
+                        return normal_enemy_shot1(str_to_txid(data["texture"].get<std::string>().data()),
+                                                  sf::Vector2f(data["x"].get<double>(),
+                                                               data["y"].get<double>()),
+                                                  data["r"].get<double>(),
+                                                  data["speed"].get<double>(),
+                                                  data["phase"].get<double>(),
+                                                  data["num"].get<double>(),
+                                                  data["time"].get<double>());
 		default:
                         return std::vector<BulletData *>();
                 }
@@ -870,6 +902,15 @@ namespace macro {
                                                data["num"].get<double>(),
                                                data["time"].get<double>());
                 }
+                case NORMAL_ENEMY_SHOT1:
+                        return normal_enemy_shot1(str_to_txid(data["texture"].get<std::string>().data()),
+                                                  sf::Vector2f(data["x"].get<double>(),
+                                                               data["y"].get<double>()),
+                                                  data["r"].get<double>(),
+                                                  data["speed"].get<double>(),
+                                                  data["phase"].get<double>(),
+                                                  data["num"].get<double>(),
+                                                  data["time"].get<double>());
 		default:
                         return std::vector<BulletData *>();
                 }

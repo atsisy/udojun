@@ -222,10 +222,12 @@ private:
         void kill_out_of_filed_bullet(std::list<Bullet *> &bullets);
         void check_graze(std::list<Bullet *> &bullets);
         void player_spellcard(void);
+        void player_spellcard_effect(void);
         void random_mist(void);
         void insert_enemy_spellcard(int index);
         void remove_killed_shot(BulletPipeline &pipeline);
         void cleanup_enemy_container(void);
+        void current_item_collect(void);
 
     public:
         RaceSceneMaster(GameData *game_data);

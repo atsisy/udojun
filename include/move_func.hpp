@@ -36,6 +36,7 @@ namespace mf {
                       u64 stop, sf::Vector2f second_speed);
         DEF_MOVE_FUNC(shadow_vector_linear, sf::Vector2f speed, u64 enable_time, u64 disable_time);
         DEF_MOVE_FUNC(ratio_step, sf::Vector2f goal, float ratio);
+        DEF_MOVE_FUNC(accelerating, sf::Vector2f init_speed, sf::Vector2f accel, sf::Vector2f x_speed_range, sf::Vector2f y_speed_range);
 }
 
 
@@ -54,6 +55,7 @@ enum BulletFunctionID {
         STEP,
         SHADOW_VECTOR_LINEAR,
         UNKNOWN_BFID,
+        ACCELERATING,
 };
 
 inline BulletFunctionID str_to_bfid(const char *str)
@@ -78,6 +80,7 @@ inline BulletFunctionID str_to_bfid(const char *str)
         str_to_idx_sub(str, STOP);
         str_to_idx_sub(str, STEP);
         str_to_idx_sub(str, SHADOW_VECTOR_LINEAR);
+        str_to_idx_sub(str, ACCELERATING);
 
 	std::cout << "Unknown Bullet Function ID: " << str << std::endl;
         
@@ -199,6 +202,18 @@ select_bullet_function(BulletFunctionID id, picojson::object &data)
                         data["first_limit"].get<double>(),
                         data["stop"].get<double>(),
                         second_speed);
+        }
+        case ACCELERATING:
+        {
+                auto &init_speed_object = data["init_speed"].get<picojson::object>();
+                sf::Vector2f init(init_speed_object["x"].get<double>(), init_speed_object["y"].get<double>());
+                auto &acc_object = data["accel"].get<picojson::object>();
+                sf::Vector2f accel(acc_object["x"].get<double>(), acc_object["y"].get<double>());
+                auto &x_range_object = data["x_speed_range"].get<picojson::object>();
+                sf::Vector2f x_speed_range(x_range_object["min"].get<double>(), x_range_object["max"].get<double>());
+                auto &y_range_object = data["y_speed_range"].get<picojson::object>();
+                sf::Vector2f y_speed_range(y_range_object["min"].get<double>(), y_range_object["max"].get<double>());
+                return mf::accelerating(init, accel, x_speed_range, y_speed_range);
         }
 	default:
                 return mf::stop;
