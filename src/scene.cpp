@@ -75,6 +75,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           game_score_counter(0, game_data->get_font(JP_DEFAULT)),
 	  score_counter(0, game_data->get_font(JP_DEFAULT)),
           timelimit_counter(30, game_data->get_font(JP_DEFAULT), 60),
+          power_counter(0, game_data->get_font(JP_DEFAULT)),
 	  func_table("main.json"),
 	  stamina(sf::Vector2f(300, 20), sf::Vector2f(2, 2), 400, 400,
 		  sf::Color(10, 10, 20), sf::Color::Green,
@@ -89,6 +90,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 	  junko_param_label(L"純化度", game_data->get_font(JP_DEFAULT)),
 	  graze_label(L"グレイズ", game_data->get_font(JP_DEFAULT)),
           game_score_label(L"スコア", game_data->get_font(JP_DEFAULT)),
+          power_label(L"霊力", game_data->get_font(JP_DEFAULT)),
 	  graze_counter(0, game_data->get_font(JP_DEFAULT)),
 	  window_frame(sf::IntRect(0, 0, 1366, 768),
 		       sf::IntRect(32, 32, 960, 704)),
@@ -140,6 +142,8 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
         graze_counter.set_place(150, 250);
         game_score_counter.set_place(150, 200);
         game_score_label.set_place(0, 200);
+        power_label.set_place(0, 300);
+        power_counter.set_place(150, 300);
 
         create_view("background", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))->
                 setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
@@ -153,8 +157,8 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 	create_view("bullets", sf::FloatRect(32.0f, 32.0f, 960.f, 768.f - (32.f * 2)))->
                 setViewport(sf::FloatRect(32.f / 1366.f, 32.f / 768.f, 960.f / 1366.f, 702.f / 768.f));
         
-        create_view("params", sf::FloatRect(0.0f, 0.0f, 420.f, 300.f))->
-                setViewport(sf::FloatRect(1010.f / 1366.f, 32.f / 768.f, 420.f / 1366.f, 300.f / 768.f));
+        create_view("params", sf::FloatRect(0.0f, 0.0f, 420.f, 500.f))->
+                setViewport(sf::FloatRect(1010.f / 1366.f, 32.f / 768.f, 420.f / 1366.f, 500.f / 768.f));
         
 	create_view("tachie", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))
 		->setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
@@ -211,13 +215,13 @@ void RaceSceneMaster::player_spellcard(void)
                         bullets.remove_if([&, this](Bullet *b){
                                                   if (running_char.distance(b) < 800) {
                                                           bullet_pipeline.special_pipeline.direct_insert_bullet(
-                                                                  new Bullet(
+                                                                  new SpecialBullet(
                                                                           GameMaster::texture_table[SMALL_CRYSTAL2],
                                                                           b->get_place(),
                                                                           mf::active_homing(sf::Vector2f(300, 300), 10, running_char.get_homing_point()),
                                                                           get_count(),
                                                                           sf::Vector2f(0.7, 0.7), 7,
-                                                                          true, false
+                                                                          true, false, 0, SpecialBulletAttribute(0, 10)
                                                                           ));
                                                           delete b;
                                                           return true;
@@ -343,22 +347,71 @@ void RaceSceneMaster::player_move()
         }
 }
 
+FunctionCallEssential *RaceSceneMaster::player_slow_shot(void)
+{
+        double current_power = power_counter.counter_method().get_score();
+        sf::Vector2f &&p = running_char.get_place();
+        
+        if(current_power < 0.25){
+                return new FunctionCallEssential(
+                        "junko_shot_slow_lv1", get_count(), RUNNING_CHARACTER_SHOT,
+                        sf::Vector2f(p.x + 10, p.y - 7));
+        }else if(current_power < 0.5){
+                return new FunctionCallEssential(
+                        "junko_shot_slow_lv2", get_count(), RUNNING_CHARACTER_SHOT,
+                        sf::Vector2f(p.x + 10, p.y - 7));
+        }else if(current_power < 1){
+                return new FunctionCallEssential(
+                        "junko_shot_slow_lv2", get_count(), RUNNING_CHARACTER_SHOT,
+                        sf::Vector2f(p.x + 10, p.y - 7));
+        }
+
+        return nullptr;
+}
+
+FunctionCallEssential *RaceSceneMaster::player_fast_shot(void)
+{
+        double current_power = power_counter.counter_method().get_score();
+        sf::Vector2f &&p = running_char.get_place();
+        
+        if(current_power < 0.25){
+                return new FunctionCallEssential(
+                        "junko_shot_fast_lv1", get_count(), RUNNING_CHARACTER_SHOT,
+                        sf::Vector2f(p.x + 10, p.y - 7));
+        }else if(current_power < 0.5){
+                return new FunctionCallEssential(
+                        "junko_shot_fast_lv1", get_count(), RUNNING_CHARACTER_SHOT,
+                        sf::Vector2f(p.x + 10, p.y - 7));
+        }else if(current_power < 1){
+                return new FunctionCallEssential(
+                        "junko_shot_fast_lv1", get_count(), RUNNING_CHARACTER_SHOT,
+                        sf::Vector2f(p.x + 10, p.y - 7));
+        }
+
+        return nullptr;
+}
+
+void RaceSceneMaster::player_shot(void)
+{
+        FunctionCallEssential *f;
+        
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) {
+                f = player_slow_shot();
+        }else{
+                f = player_fast_shot();
+        }
+
+        if(!f)
+                return;
+        
+        bullet_pipeline.player_pipeline.add_function(f);
+}
+
 void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
 {
         if(running_char.shot_is_enable()){
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) {
-                        sf::Vector2f &&p = running_char.get_place();
-                        if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) {
-                                bullet_pipeline.player_pipeline.add_function(
-                                        new FunctionCallEssential(
-                                                "junko_shot_slow_lv1", get_count(), RUNNING_CHARACTER_SHOT,
-                                                sf::Vector2f(p.x + 10, p.y - 7)));
-                        }else{
-                                bullet_pipeline.player_pipeline.add_function(
-                                        new FunctionCallEssential(
-                                                "junko_shot_fast_lv1", get_count(), RUNNING_CHARACTER_SHOT,
-                                                sf::Vector2f(p.x + 10, p.y - 7)));
-                        }
+                        player_shot();
                 } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::K)) {
                         bullet_pipeline.enemy_pipeline.clear_all_bullets();
                 }
@@ -383,13 +436,13 @@ void RaceSceneMaster::next_danmaku_forced(void)
         for (auto &&bullet : bullet_pipeline.enemy_pipeline.actual_bullets) {
                 if(bullet->visible() && !bullet->is_finish(sf::IntRect(0, 0, 1366, 768))){
                         bullet_pipeline.special_pipeline.direct_insert_bullet(
-                        new Bullet(
+                        new SpecialBullet(
                                 GameMaster::texture_table[SMALL_CRYSTAL2],
                                 bullet->get_place(),
                                 mf::active_homing(sf::Vector2f(300, 300), 10, running_char.get_homing_point()),
                                 get_count(),
                                 sf::Vector2f(0.7, 0.7), 7,
-                                true, false
+                                true, false, 0, SpecialBulletAttribute(0, 10)
                                 ));
                 }
 	}
@@ -506,13 +559,13 @@ void RaceSceneMaster::conflict_judge(void)
                                 p->damage(1);
                                 bullet->hide();
                                 bullet_pipeline.special_pipeline.direct_insert_bullet(
-                                        new Bullet(
+                                        new SpecialBullet(
                                                 GameMaster::texture_table[SMALL_CRYSTAL1],
                                                 bullet->get_place(),
                                                 mf::active_homing(sf::Vector2f(300, 300), 10, running_char.get_homing_point()),
                                                 get_count(),
                                                 sf::Vector2f(0.7, 0.7), 7,
-                                                true, false
+                                                true, false, 0, SpecialBulletAttribute(0, 10)
                                                 ));
                         }
                         if(!p->dead() && p->hp_zero()){
@@ -520,22 +573,22 @@ void RaceSceneMaster::conflict_judge(void)
                                 move_object_container.emplace_front(bomb);
 
                                 bullet_pipeline.special_pipeline.direct_insert_bullet(
-                                        new Bullet(
+                                        new SpecialBullet(
                                                 GameMaster::texture_table[POWER_PANEL],
                                                 p->get_place() + sf::Vector2f(util::generate_random() % 100, 0),
                                                 mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
                                                 get_count(),
                                                 sf::Vector2f(0.04, 0.04), 7,
-                                                true, false
+                                                true, false, 0, SpecialBulletAttribute(0.03, 0)
                                                 ));
                                 bullet_pipeline.special_pipeline.direct_insert_bullet(
-                                        new Bullet(
+                                        new SpecialBullet(
                                                 GameMaster::texture_table[SCORE_PANEL],
                                                 p->get_place() + sf::Vector2f(util::generate_random() % 100, 0),
                                                 mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
                                                 get_count(),
                                                 sf::Vector2f(0.04, 0.04), 7,
-                                                true, false
+                                                true, false, 0, SpecialBulletAttribute(0, 10)
                                                 ));
                                 
                                 killed_shot_master_id.push_back(p->get_shot_master_id());
@@ -556,9 +609,12 @@ void RaceSceneMaster::conflict_judge(void)
 	}
         
         for (auto &&bullet : bullet_pipeline.special_pipeline.actual_bullets) {
-		if (bullet->check_conflict(running_char)) {
-			bullet->hide();
-                        game_score_counter.counter_method().add(5);
+                SpecialBullet *sp_bullet = dynamic_cast<SpecialBullet *>(bullet);
+		if (sp_bullet && sp_bullet->check_conflict(running_char)) {
+                        SpecialBulletAttribute &&a = sp_bullet->get_attribute();
+			sp_bullet->hide();
+                        game_score_counter.counter_method().add(a.score);
+                        power_counter.counter_method().add(a.power);
 		}
 	}
 
@@ -566,7 +622,7 @@ void RaceSceneMaster::conflict_judge(void)
 		if (bullet->check_conflict(running_char)) {
 			bullet->hide();
                         game_score_counter.counter_method().add(5);
-		}
+                }
 	}
         
 	if (test_bullet->check_conflict(running_char)) {
@@ -600,7 +656,6 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
         for(auto p : enemy_container){
                 std::optional<FunctionCallEssential> e = p->shot(get_count());
                 if(e){
-                        std::cout << "shot name: " << e.value().func_name << std::endl;
                         bullet_pipeline.enemy_pipeline.add_function(
                                 new FunctionCallEssential(
                                         e.value().func_name,
@@ -664,7 +719,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
                 }
 	}
 
-        if(get_count() == 3500){
+        if(get_count() == 4500){
                 timer_list.cancel(danmaku_timer_id);
                 next_danmaku_forced();
                 target_udon.override_move_func(mf::move_point_constant(sf::Vector2f(480, 50),
@@ -781,6 +836,9 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
 
         graze_counter.draw(window);
         graze_label.draw(window);
+
+        power_label.draw(window);
+        power_counter.draw(window);
 
 	switch_view("tachie", window);
         // 立ち絵の移動
@@ -978,7 +1036,6 @@ void RaceSceneMaster::SpellCardEvent::drawing_process(sf::RenderWindow &window)
 {
         background->draw(window);
         background->move_sprite(sf::Vector2f(1, 0));
-
 
         for(auto &&p : objects){
                 if(p->visible())

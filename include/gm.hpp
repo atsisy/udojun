@@ -192,9 +192,10 @@ private:
         EnemyCharacter target_udon;
         BackgroundTile backgroundTile;
         BackgroundTile game_background;
-        DrawableScoreCounter game_score_counter;
-        DrawableScoreCounter score_counter;
-	DrawableScoreCounter timelimit_counter;
+        DrawableScoreCounter<i64> game_score_counter;
+        DrawableScoreCounter<i64> score_counter;
+	DrawableScoreCounter<i64> timelimit_counter;
+        DrawableScoreCounter<double> power_counter;
         BulletFuncTable func_table;
         Meter stamina;
         Meter junko_param;
@@ -203,7 +204,8 @@ private:
         Label junko_param_label;
         Label graze_label;
         Label game_score_label;
-        DrawableScoreCounter graze_counter;
+        Label power_label;
+        DrawableScoreCounter<i64> graze_counter;
         WindowFrame window_frame;
 	DanmakuScheduler danmaku_sched;
         u64 last_danmaku_timer_id;
@@ -228,6 +230,9 @@ private:
         void remove_killed_shot(BulletPipeline &pipeline);
         void cleanup_enemy_container(void);
         void current_item_collect(void);
+        FunctionCallEssential *player_slow_shot(void);
+        FunctionCallEssential *player_fast_shot(void);
+        void player_shot(void);
 
     public:
         RaceSceneMaster(GameData *game_data);

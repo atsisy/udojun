@@ -140,6 +140,42 @@ namespace mf {
                        };
 	}
 
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
+        udon_double_step_getting_slower(float init_speed, float angle, u64 change_course_time, float sub_angle)
+	{
+                float x_speed = init_speed * std::cos(angle);
+                float y_speed = init_speed * std::sin(angle);
+
+                float x_min_speed = std::cos(angle);
+		float y_min_speed = std::sin(angle);
+
+		return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd) {
+                               const sf::Vector2f &&now = bullet->get_place();
+                               u64 past = now_lmd - begin_lmd;
+                               if(past > change_course_time){
+                                       float new_rotation_angle = bullet->get_angle() + sub_angle;
+                                       float new_vector_angle = angle + sub_angle;
+                                       std::function<sf::Vector2f(MoveObject *, u64, u64)> f =
+                                               mf::vector_linear(sf::Vector2f(
+                                                                         std::cos(new_vector_angle),
+                                                                         -std::sin(new_vector_angle)
+                                                                         ));
+                                       bullet->override_move_func(f);
+                                       bullet->rotate(new_rotation_angle);
+                               }else if(init_speed / past < 1){
+				       return sf::Vector2f(
+					       now.x + x_min_speed,
+					       now.y + y_min_speed);
+			       }
+
+			       return sf::Vector2f(
+				       now.x + (x_speed /
+                                                (float)((now_lmd + 1) - begin_lmd)),
+				       now.y + (y_speed /
+                                                (float)((now_lmd + 1) - begin_lmd)));
+                       };
+	}
+
 	std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	up(float c)
 	{

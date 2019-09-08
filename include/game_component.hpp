@@ -122,18 +122,40 @@ public:
         void draw(sf::RenderWindow &window) override;
 };
 
-
+template <typename T>
 class DrawableScoreCounter : public DrawableComponent {
 private:
-        ScoreCounter<i64> score_counter;
+        ScoreCounter<T> score_counter;
         Label label;
 
 public:
-        DrawableScoreCounter(i64 initial, sf::Font *f, i64 rate = 1);
-        void draw(sf::RenderWindow &window) override;
-        ScoreCounter<i64> &counter_method();
-        void set_place(i16 x, i16 y);
+        DrawableScoreCounter(T initial, sf::Font *f, T rate = 1)
+                : score_counter(initial, rate), label(L"0", f)
+        {}
+        
+        void draw(sf::RenderWindow &window) override
+        {
+                label.set_text(std::to_string(score_counter.get_score()).c_str());
+                label.draw(window);
+        }
+        
+        ScoreCounter<T> &counter_method(void)
+        {
+                return this->score_counter;
+        }
+        
+        void set_place(i16 x, i16 y)
+        {
+                label.set_place(x, y);
+        }
 };
+
+template <>
+inline void DrawableScoreCounter<double>::draw(sf::RenderWindow &window)
+{
+        label.set_text(std::to_string(score_counter.get_score()).c_str());
+        label.draw(window);
+}
 
 class DrawableObject : public DrawableComponent {
 protected:
@@ -222,7 +244,7 @@ public:
         void rotate_with_func(u64 now) override;
 
         void move_diff(sf::Vector2f diff);
-
+        
         sf::Vector2f get_initial_position(void);
 };
 
@@ -278,4 +300,27 @@ public:
         void rotate_with_func(u64 now) override;
         void draw(sf::RenderWindow &window) override;
         SHOT_MASTER_ID get_shot_master_id(void);
+};
+
+class SpecialBulletAttribute {
+public:
+        float power;
+        i64 score;
+
+        SpecialBulletAttribute(float power, i64 score);
+};
+
+class SpecialBullet : public Bullet {
+private:
+        SpecialBulletAttribute attribute;
+
+public:
+        SpecialBullet(sf::Texture *t, sf::Vector2f p,
+               std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
+               u64 begin_count, sf::Vector2f scale, float radius,
+               bool conflictable, bool grazable, float init_rotate,
+               SpecialBulletAttribute _attribute);
+        
+        SpecialBulletAttribute get_attribute(void);
+        
 };

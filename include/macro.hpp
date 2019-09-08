@@ -4,6 +4,7 @@
 
 enum MacroID {
 	CIRCLE = 0,
+        DELAY_CIRCLE,
         ELLIPSE,
         UDON_ELLIPSE,
 	HART,
@@ -14,12 +15,14 @@ enum MacroID {
         UDON_SPELL2,
         UDON_SPELL4,
 	N_WAY,
+        WINDER1,
         RANDOM_CIRCLES,
 	UNKNOWN_MACRO,
         MULTI_SHOT,
         JUNKO_SHOT_FAST_LV1,
         JUNKO_SHOT_FAST_LV2,
         JUNKO_SHOT_SLOW_LV1,
+        JUNKO_SHOT_SLOW_LV2,
         JUNKO_SPELL1,
         NORMAL_ENEMY_SHOT1,
 };
@@ -38,6 +41,7 @@ inline MacroID str_to_macroid(const char *str)
 		return UDON_TSUJO2;
 	}
 
+        str_to_idx_sub(str, DELAY_CIRCLE);
         str_to_idx_sub(str, RANDOM_CIRCLES);
         str_to_idx_sub(str, ELLIPSE);
         str_to_idx_sub(str, UDON_ELLIPSE);
@@ -48,9 +52,11 @@ inline MacroID str_to_macroid(const char *str)
         str_to_idx_sub(str, JUNKO_SHOT_FAST_LV1);
         str_to_idx_sub(str, JUNKO_SHOT_FAST_LV2);
         str_to_idx_sub(str, JUNKO_SHOT_SLOW_LV1);
+        str_to_idx_sub(str, JUNKO_SHOT_SLOW_LV2);
         str_to_idx_sub(str, UDON_CIRCLE1);
         str_to_idx_sub(str, JUNKO_SPELL1);
         str_to_idx_sub(str, NORMAL_ENEMY_SHOT1);
+        str_to_idx_sub(str, WINDER1);
 
 	std::cout << "Unknown Macro ID: " << str << std::endl;
         
@@ -60,23 +66,26 @@ inline MacroID str_to_macroid(const char *str)
 
 namespace macro {
         std::vector<BulletData *> expand_macro(picojson::object &data);
-        std::vector<BulletData *> expand_dynamic_macro(picojson::object &data, DrawableCharacter *running_char, BulletData *bullet_data);
+        std::vector<BulletData *> expand_dynamic_macro(picojson::object &data,
+                                                       DrawableCharacter *running_char, BulletData *bullet_data);
         std::vector<BulletData *> circle(sf::Vector2f origin, float r, u8 num, u64 time, float phase);
+        std::vector<BulletData *> delay_circle(TextureID txid, sf::Vector2f origin, float r,
+                                               float speed, u8 num, u64 delay, u64 time, float phase);
         std::vector<BulletData *> ellipse(sf::Vector2f origin, float r, float a, float b,
                                           u8 num, u64 time, float phase);
         std::vector<BulletData *> hart(sf::Vector2f origin, float r, u8 num, u64 time);
 	std::vector<BulletData *> udon_tsujo1(sf::Vector2f origin, u64 time);
         
-        std::vector<BulletData *> odd_n_way(sf::Vector2f origin,
+        std::vector<BulletData *> odd_n_way(TextureID txid, sf::Vector2f origin,
                                             float r, float toward,
                                             float unit_rad, u8 num,
                                             u64 time, float speed);
-	std::vector<BulletData *> even_n_way(sf::Vector2f origin, float r,
+	std::vector<BulletData *> even_n_way(TextureID txid, sf::Vector2f origin, float r,
                                              float toward, float unit_rad, u8 num, u64 time, float speed);
-        std::vector<BulletData *> n_way(sf::Vector2f origin, float r,
+        std::vector<BulletData *> n_way(TextureID txid, sf::Vector2f origin, float r,
                                         float toward, float unit_rad, u8 num, u64 time, float speed);
         std::vector<BulletData *> udon_circle(sf::Vector2f origin, float speed, float r,
-                                              u8 num, u64 time, float phase);
+                                              u8 num, u64 time, float phase, u64 change_course_time, float sub_angle);
 	std::vector<BulletData *> udon_circle2(sf::Vector2f origin, float speed,
 					       float r, u16 num, u64 time,
 					       float phase, float unit_rad);
@@ -123,6 +132,9 @@ namespace macro {
         std::vector<BulletData *> junko_shot_fast_lv2(TextureID txid1, TextureID txid2,
                                                       sf::Vector2f center, float speed, u64 time);
 
+        std::vector<BulletData *> junko_shot_slow_lv1(TextureID txid, sf::Vector2f center, float speed, u64 time);
+        std::vector<BulletData *> junko_shot_slow_lv2(TextureID txid, sf::Vector2f center, float speed, u64 time);
+
         /**
          * 第一引数: テクスチャID
          * 第二引数: 純狐のorigin座標
@@ -140,4 +152,8 @@ namespace macro {
 
         std::vector<BulletData *> normal_enemy_shot1(TextureID txid, sf::Vector2f origin,
                                                      float r, float speed, float phase, u64 num, u64 time);
+
+        std::vector<BulletData *> winder(TextureID txid, sf::Vector2f origin, float r,
+                                         float toward, float unit_rad,
+                                         u8 num, u64 time, float speed, u64 distance, u64 term);
 }

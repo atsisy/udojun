@@ -204,28 +204,6 @@ float Meter::get_value()
 	return value;
 }
 
-DrawableScoreCounter::DrawableScoreCounter(i64 initial, sf::Font *f, i64 rate)
-	: score_counter(initial, rate), label(L"0", f)
-{
-	//label.set_color(sf::Color::White);
-}
-
-ScoreCounter<i64> &DrawableScoreCounter::counter_method()
-{
-	return score_counter;
-}
-
-void DrawableScoreCounter::draw(sf::RenderWindow &window)
-{
-	label.set_text(std::to_string(score_counter.get_score()).c_str());
-	label.draw(window);
-}
-
-void DrawableScoreCounter::set_place(i16 x, i16 y)
-{
-        label.set_place(x, y);
-}
-
 DrawableObject::DrawableObject(sf::Texture *t, sf::Vector2f p,
 			       sf::Vector2f texture_scale)
 	: place(p)
@@ -621,4 +599,24 @@ void Bullet::draw(sf::RenderWindow &window)
 SHOT_MASTER_ID Bullet::get_shot_master_id(void)
 {
         return id;
+}
+
+SpecialBulletAttribute::SpecialBulletAttribute(float power, i64 score)
+{
+        this->power = power;
+        this->score = score;
+}
+
+SpecialBullet::SpecialBullet(sf::Texture *t, sf::Vector2f p,
+                           std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
+                           u64 begin_count, sf::Vector2f scale, float radius,
+                           bool conflictable, bool grazable, float init_rotate,
+                           SpecialBulletAttribute _attribute)
+        : Bullet(t, p, f, begin_count, scale, radius, conflictable, grazable, init_rotate),
+          attribute(_attribute)
+{}
+
+SpecialBulletAttribute SpecialBullet::get_attribute(void)
+{
+        return this->attribute;
 }

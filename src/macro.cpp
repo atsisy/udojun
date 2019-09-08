@@ -29,6 +29,31 @@ namespace macro {
                 
                 return ret;
         }
+
+        std::vector<BulletData *> delay_circle(TextureID txid, sf::Vector2f origin, float r,
+                                               float speed, u8 num, u64 delay, u64 time, float phase)
+        {
+                std::vector<BulletData *> ret;
+                float unit_rad = (2 * M_PI) / (float)num;
+                float rad = phase;
+
+                for(u8 i = 0;i < num;i++, rad += unit_rad, time += delay){
+                        ret.push_back(new BulletData(
+                                              BEZIER_CURVE,
+                                              txid,
+                                              mf::vector_linear(
+                                                      sf::Vector2f(
+                                                              speed * std::cos(rad),
+                                                              -speed * std::sin(rad))),
+                                              time,
+                                              sf::Vector2f(
+                                                      origin.x + (r * std::cos(rad)),
+                                                      origin.y + (r * std::sin(rad)))
+                                              ));
+                }
+                
+                return ret;
+        }
         
         std::vector<BulletData *> ellipse(sf::Vector2f origin, float r, float a, float b,
                                           u8 num, u64 time, float phase)
@@ -36,8 +61,6 @@ namespace macro {
                 std::vector<BulletData *> ret;
                 float unit_rad = (2 * M_PI) / (float)num;
                 float rad = phase;
-
-                std::cout << a << ":" << b << std::endl;
 
                 for(u8 i = 0;i < num;i++, rad += unit_rad){
                         float c = (rad > (M_PI / 2) && rad < (3 * M_PI / 2) ? 2 : -2);
@@ -130,7 +153,9 @@ namespace macro {
                 return ret;
         }
         
-        std::vector<BulletData *> udon_circle(sf::Vector2f origin, float speed, float r, u8 num, u64 time, float phase)
+        std::vector<BulletData *> udon_circle(sf::Vector2f origin, float speed,
+                                              float r, u8 num, u64 time, float phase,
+                                              u64 change_course_time, float sub_angle)
         {
                 std::vector<BulletData *> ret;
                 float unit_rad = (2 * M_PI) / (float)num;
@@ -138,9 +163,9 @@ namespace macro {
 
                 for(u8 i = 0;i < num;i++, rad += unit_rad){
                         ret.push_back(new BulletData(
-                                              str_to_bfid("SLOWER1"),
+                                              UDON_SLOWER,
                                               BULLET1,
-                                              mf::getting_slower(speed, rad, 0),
+                                              mf::udon_double_step_getting_slower(speed, rad, change_course_time, sub_angle),
                                               time,
                                               sf::Vector2f(
                                                       origin.x + (r * std::cos(rad)),
@@ -343,14 +368,14 @@ namespace macro {
 			rad = ((float)(util::generate_random() % 360) /
 				 180.0) *
 				M_PI;
-			auto &&circle_data = udon_circle(origin, 120, 20, 36, time + (i * 15), rad);
+			auto &&circle_data = udon_circle(origin, 120, 20, 36, time + (i * 15), rad, 180, 0.1);
 			std::copy(std::begin(circle_data), std::end(circle_data), std::back_inserter(ret));
 		}
                 
                 return ret;
         }
         
-        std::vector<BulletData *> odd_n_way(sf::Vector2f origin,
+        std::vector<BulletData *> odd_n_way(TextureID txid, sf::Vector2f origin,
                                             float r, float toward,
                                             float unit_rad, u8 num,
                                             u64 time, float speed)
@@ -364,7 +389,7 @@ namespace macro {
                         float c = (rad > (M_PI / 2) && rad < (3* M_PI / 2) ? -speed : speed);
                         ret.push_back(new BulletData(
                                               str_to_bfid("LINEAR"),
-                                              BULLET_HART,
+                                              txid,
                                               (std::abs(std::cos(rad)) < 0.000001 ?
                                                mf::up(c) : mf::linear(
                                                        (r * std::sin(rad)) / ((r * std::cos(rad))),
@@ -381,7 +406,7 @@ namespace macro {
         }
 
         
-        std::vector<BulletData *> even_n_way(sf::Vector2f origin, float r,
+        std::vector<BulletData *> even_n_way(TextureID txid, sf::Vector2f origin, float r,
                                             float toward, float unit_rad,
                                              u8 num, u64 time, float speed)
         {
@@ -394,7 +419,7 @@ namespace macro {
                         float c = (rad > (M_PI / 2) && rad < (3* M_PI / 2) ? -speed : speed);
                         ret.push_back(new BulletData(
                                               str_to_bfid("LINEAR"),
-                                              BULLET_HART,
+                                              txid,
                                               (std::abs(std::cos(rad)) < 0.000001 ?
                                                mf::up(c) : mf::vector_linear(sf::Vector2f(
                                                                                      speed * std::cos(rad),
@@ -410,15 +435,31 @@ namespace macro {
                 return ret;
         }
 
-        std::vector<BulletData *> n_way(sf::Vector2f origin, float r,
+        std::vector<BulletData *> n_way(TextureID txid, sf::Vector2f origin, float r,
                                         float toward, float unit_rad,
                                         u8 num, u64 time, float speed)
         {
                 if(num % 2){
-                        return odd_n_way(origin, r, toward, unit_rad, num, time, speed);
+                        return odd_n_way(txid, origin, r, toward, unit_rad, num, time, speed);
                 }else{
-                        return even_n_way(origin, r, toward, unit_rad, num, time, speed);
+                        return even_n_way(txid, origin, r, toward, unit_rad, num, time, speed);
                 }
+        }
+
+        std::vector<BulletData *> winder(TextureID txid, sf::Vector2f origin, float r,
+                                         float toward, float unit_rad,
+                                         u8 num, u64 time, float speed, u64 distance, u64 term)
+        {
+                std::vector<BulletData *> ret;
+                u64 winder_num = term / distance;
+                
+                do{
+                        auto &&wave = n_way(txid, origin, r, toward, unit_rad, num, time, speed);
+                        util::concat_container<std::vector<BulletData *>>(ret, wave);
+                        time += distance;
+                }while(--winder_num);
+
+                return ret;
         }
 
         std::vector<BulletData *> random_circles(u16 circle_num, u16 num,
@@ -518,7 +559,6 @@ namespace macro {
                                       time,
                                       center + sf::Vector2f(30, 16)
                                       ));
-                
 
                 return ret;
         }
@@ -544,15 +584,6 @@ namespace macro {
                                               sf::Vector2f(0,
                                                            speed)),
                                       time,
-                                      center + sf::Vector2f(-10, -12)
-                                      ));
-                ret.push_back(new BulletData(
-                                      str_to_bfid("LINEAR"),
-                                      txid,
-                                      mf::vector_linear(
-                                              sf::Vector2f(0,
-                                                           speed)),
-                                      time,
                                       center + sf::Vector2f(10, -12)
                                       ));
 
@@ -567,30 +598,30 @@ namespace macro {
                                       str_to_bfid("LINEAR"),
                                       txid,
                                       mf::vector_linear(
-                                              sf::Vector2f(speed * std::cos(geometry::convert_to_radian(105)),
-                                                           -speed * std::sin(geometry::convert_to_radian(105)))),
+                                              sf::Vector2f(0,
+                                                           speed)),
                                       time,
-                                      center + sf::Vector2f(-7, -8)
-                                      ));
+                                      center + sf::Vector2f(0, -15)
+                                      )
+                        );
                 ret.push_back(new BulletData(
                                       str_to_bfid("LINEAR"),
                                       txid,
                                       mf::vector_linear(
-                                              sf::Vector2f(speed * std::cos(geometry::convert_to_radian(75)),
-                                                           -speed * std::sin(geometry::convert_to_radian(75)))),
+                                              sf::Vector2f(0,
+                                                           speed)),
                                       time,
-                                      center + sf::Vector2f(7, -8)
+                                      center + sf::Vector2f(10, -12)
                                       ));
                 ret.push_back(new BulletData(
                                       str_to_bfid("LINEAR"),
                                       txid,
                                       mf::vector_linear(
                                               sf::Vector2f(0,
-                                                           -speed)),
+                                                           speed)),
                                       time,
-                                      center + sf::Vector2f(0, -8)
-                                      )
-                        );
+                                      center + sf::Vector2f(-10, -12)
+                                      ));
 
                 return ret;
         }
@@ -668,6 +699,17 @@ namespace macro {
                                 data["time"].get<double>(),
                                 TAKE_DEFAULT_ARG(data, "phase", double, 0)
                                 );
+                case DELAY_CIRCLE:
+                        return delay_circle(
+                                str_to_txid(data["texture"].get<std::string>().data()),
+                                sf::Vector2f(data["x"].get<double>(), data["y"].get<double>()),
+                                data["r"].get<double>(),
+                                data["speed"].get<double>(),
+                                data["quantity"].get<double>(),
+                                data["delay"].get<double>(),
+                                data["time"].get<double>(),
+                                TAKE_DEFAULT_ARG(data, "phase", double, 0)
+                                );
                 case ELLIPSE:
                         return macro::ellipse(
                                 sf::Vector2f(data["x"].get<double>(), data["y"].get<double>()),
@@ -693,7 +735,9 @@ namespace macro {
                                 data["r"].get<double>(),
                                 data["num"].get<double>(),
                                 data["time"].get<double>(),
-                                TAKE_DEFAULT_ARG(data, "phase", double, 0)
+                                TAKE_DEFAULT_ARG(data, "phase", double, 0),
+                                data["change_course_time"].get<double>(),
+                                data["sub_angle"].get<double>()
                                 );
                 case UDON_SPELL2:
                         return macro::udon_spellcard2(data["speed"].get<double>(),
@@ -734,14 +778,15 @@ namespace macro {
                                 (int)data["distance"].get<double>());
 		case N_WAY:
                         return n_way(
-					  sf::Vector2f(data["x"].get<double>(),
-						       data["y"].get<double>()),
-					  data["r"].get<double>(),
-					  data["angle"].get<double>(),
-					  data["width"].get<double>(),
-					  data["quantity"].get<double>(),
-					  data["time"].get<double>(),
-                                          data["speed"].get<double>());
+                                str_to_txid(data["texture"].get<std::string>().data()),
+                                sf::Vector2f(data["x"].get<double>(),
+                                             data["y"].get<double>()),
+                                data["r"].get<double>(),
+                                data["angle"].get<double>(),
+                                data["width"].get<double>(),
+                                data["quantity"].get<double>(),
+                                data["time"].get<double>(),
+                                data["speed"].get<double>());
                 case MULTI_SHOT:
                         return multi_shot(str_to_txid(data["texture"].get<std::string>().data()),
                                           sf::Vector2f(data["x"].get<double>(),
@@ -768,6 +813,11 @@ namespace macro {
                                                    sf::Vector2f(data["x"].get<double>(),
                                                                 data["y"].get<double>()),
                                                    data["speed"].get<double>(), data["time"].get<double>());
+                case JUNKO_SHOT_SLOW_LV2:
+                        return junko_shot_slow_lv2(str_to_txid(data["texture"].get<std::string>().data()),
+                                                   sf::Vector2f(data["x"].get<double>(),
+                                                                data["y"].get<double>()),
+                                                   data["speed"].get<double>(), data["time"].get<double>());
                 case JUNKO_SPELL1:
                 {
                         auto &curve_middle = data["curve_middle"].get<picojson::object>();
@@ -791,6 +841,18 @@ namespace macro {
                                                   data["phase"].get<double>(),
                                                   data["num"].get<double>(),
                                                   data["time"].get<double>());
+                case WINDER1:
+                        return winder(str_to_txid(data["texture"].get<std::string>().data()),
+                                      sf::Vector2f(data["x"].get<double>(),
+                                                   data["y"].get<double>()),
+                                      data["r"].get<double>(),
+                                      data["toward"].get<double>(),
+                                      data["unit_rad"].get<double>(),
+                                      data["num"].get<double>(),
+                                      data["time"].get<double>(),
+                                      data["speed"].get<double>(),
+                                      data["distance"].get<double>(),
+                                      data["term"].get<double>());
 		default:
                         return std::vector<BulletData *>();
                 }
@@ -856,6 +918,7 @@ namespace macro {
                                 );
                 case N_WAY:
                         return n_way(
+                                str_to_txid(data["texture"].get<std::string>().data()),
                                 running_char->get_origin(),
                                 data["r"].get<double>(),
                                 data["angle"].get<double>(),
@@ -911,6 +974,18 @@ namespace macro {
                                                   data["phase"].get<double>(),
                                                   data["num"].get<double>(),
                                                   data["time"].get<double>());
+                case WINDER1:
+                        return winder(str_to_txid(data["texture"].get<std::string>().data()),
+                                      sf::Vector2f(data["x"].get<double>(),
+                                                   data["y"].get<double>()),
+                                      data["r"].get<double>(),
+                                      data["toward"].get<double>(),
+                                      data["unit_rad"].get<double>(),
+                                      data["num"].get<double>(),
+                                      data["time"].get<double>(),
+                                      data["speed"].get<double>(),
+                                      data["distance"].get<double>(),
+                                      data["term"].get<double>());
 		default:
                         return std::vector<BulletData *>();
                 }
