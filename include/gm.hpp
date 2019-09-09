@@ -233,6 +233,7 @@ private:
         FunctionCallEssential *player_slow_shot(void);
         FunctionCallEssential *player_fast_shot(void);
         void player_shot(void);
+        void generate_items_random(ItemOrder item, sf::Vector2f origin, i64 width);
 
     public:
         RaceSceneMaster(GameData *game_data);

@@ -620,3 +620,9 @@ SpecialBulletAttribute SpecialBullet::get_attribute(void)
 {
         return this->attribute;
 }
+
+ItemOrder::ItemOrder(u16 power, u16 score)
+{
+        this->power = power;
+        this->score = score;
+}

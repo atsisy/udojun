@@ -99,7 +99,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           enemy_sched(game_data, "stage1_enemy_schedule.json"),
           udon_marker(GameMaster::texture_table[UDON_MARKER], sf::Vector2f(0, 725), mf::stop, rotate::stop, 0)
 {
-        set_count_for_debug(4400);
+        set_count_for_debug(0);
         
         this->game_data = game_data;
 	test_bullet = new Bullet(GameMaster::texture_table[BULLET1],
@@ -140,6 +140,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
         timelimit_counter.set_place(870, 48);
         graze_label.set_place(0, 250);
         graze_counter.set_place(150, 250);
+        graze_counter.counter_method().add(10000);
         game_score_counter.set_place(150, 200);
         game_score_label.set_place(0, 200);
         power_label.set_place(0, 300);
@@ -360,7 +361,7 @@ FunctionCallEssential *RaceSceneMaster::player_slow_shot(void)
                 return new FunctionCallEssential(
                         "junko_shot_slow_lv2", get_count(), RUNNING_CHARACTER_SHOT,
                         sf::Vector2f(p.x + 10, p.y - 7));
-        }else if(current_power < 1){
+        }else{
                 return new FunctionCallEssential(
                         "junko_shot_slow_lv2", get_count(), RUNNING_CHARACTER_SHOT,
                         sf::Vector2f(p.x + 10, p.y - 7));
@@ -382,7 +383,7 @@ FunctionCallEssential *RaceSceneMaster::player_fast_shot(void)
                 return new FunctionCallEssential(
                         "junko_shot_fast_lv1", get_count(), RUNNING_CHARACTER_SHOT,
                         sf::Vector2f(p.x + 10, p.y - 7));
-        }else if(current_power < 1){
+        }else{
                 return new FunctionCallEssential(
                         "junko_shot_fast_lv1", get_count(), RUNNING_CHARACTER_SHOT,
                         sf::Vector2f(p.x + 10, p.y - 7));
@@ -401,8 +402,11 @@ void RaceSceneMaster::player_shot(void)
                 f = player_fast_shot();
         }
 
-        if(!f)
+        if(!f){
+                DEBUG_PRINT_HERE();
+                std::cerr << "FunctionCallEssential is null." << std::endl;
                 return;
+        }
         
         bullet_pipeline.player_pipeline.add_function(f);
 }
@@ -547,6 +551,7 @@ void RaceSceneMaster::conflict_judge(void)
                                 // HPが0になると次の弾幕に移行
                                 if(target_udon.hp_zero()){
                                         timer_list.cancel(last_danmaku_timer_id);
+                                        generate_items_random(ItemOrder(24, 24), target_udon.get_origin(), 100);
                                         next_danmaku_forced();
                                 }
                                 continue;
@@ -635,6 +640,35 @@ void RaceSceneMaster::current_item_collect(void)
 {
         for(Bullet *b : bullet_pipeline.special_pipeline.actual_bullets){
                 b->override_move_func(mf::active_homing(sf::Vector2f(0, 0), 10, running_char.get_homing_point()));
+        }
+}
+
+void RaceSceneMaster::generate_items_random(ItemOrder item, sf::Vector2f origin, i64 width)
+{
+        i64 half = width >> 1;
+        
+        for(int i = 0;i < item.power;i++){
+                bullet_pipeline.special_pipeline.direct_insert_bullet(
+                        new SpecialBullet(
+                                GameMaster::texture_table[POWER_PANEL],
+                                origin + sf::Vector2f((util::generate_random() % width) - half, 0),
+                                mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
+                                get_count() + (util::generate_random() % 5),
+                                sf::Vector2f(0.04, 0.04), 7,
+                                true, false, 0, SpecialBulletAttribute(0.03, 0)
+                                ));
+        }
+
+        for(int i = 0;i < item.score;i++){
+                bullet_pipeline.special_pipeline.direct_insert_bullet(
+                        new SpecialBullet(
+                                GameMaster::texture_table[SCORE_PANEL],
+                                origin + sf::Vector2f((util::generate_random() % width) - half, 0),
+                                mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
+                                get_count() + (util::generate_random() % 5),
+                                sf::Vector2f(0.04, 0.04), 7,
+                                true, false, 0, SpecialBulletAttribute(0, 10)
+                                ));
         }
 }
 

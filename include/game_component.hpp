@@ -324,3 +324,11 @@ public:
         SpecialBulletAttribute get_attribute(void);
         
 };
+
+class ItemOrder {
+public:
+        u16 power;
+        u16 score;
+
+        ItemOrder(u16 power, u16 score); 
+};

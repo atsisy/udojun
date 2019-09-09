@@ -196,8 +196,8 @@ namespace mf {
 		return [=](MoveObject *bullet, u64 now_lmd,
 			   u64 begin_lmd) {
                                const sf::Vector2f &&now = bullet->get_place();
-                               return sf::Vector2f(now.x + (std::sin(rad) * speed),
-                                                   now.y + (std::cos(rad) * speed));
+                               return sf::Vector2f(now.x + (std::cos(rad) * speed),
+                                                   now.y + (std::sin(rad) * speed));
                        };
         }
         
