@@ -191,12 +191,8 @@ namespace mf {
 	aim_self_linear(sf::Vector2f &target, float speed,
 			sf::Vector2f begin_point)
 	{
-                float rad = std::atan((float)(target.x - begin_point.x) / (float)(target.y - begin_point.y));
+                float rad = geometry::calc_angle(target, begin_point);
                 
-                if(target.y < begin_point.y){
-                        rad -= (M_PI);
-                }
-
 		return [=](MoveObject *bullet, u64 now_lmd,
 			   u64 begin_lmd) {
                                const sf::Vector2f &&now = bullet->get_place();
@@ -300,17 +296,7 @@ namespace mf {
 	{
 		return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd) {
 			const sf::Vector2f &&now = bullet->get_place();
- 			float x_diff = target->x - bullet->get_place().x;
-			float y_diff = target->y - bullet->get_place().y;
-			float angle = std::atan((y_diff / x_diff));
-
-                        if(x_diff < 0){
-                                if(y_diff >= 0){
-                                        angle -= (M_PI_2 - angle);
-                                }else{
-					angle += M_PI_2;
-				}
-                        }
+                        float angle = geometry::calc_angle(*target, now);
                         
 			float x = speed * std::cos(angle);
 			float y = speed * std::sin(angle);
@@ -494,8 +480,8 @@ void BulletData::init_texture_data(TextureID id)
                 radius = BulletSize::BULLET1;
 		break;
         case JUNKO_CORE_BULLET:
-		scale = sf::Vector2f(0.085, 0.085);
-                radius = BulletSize::BULLET1;
+		scale = sf::Vector2f(0.12, 0.12);
+                radius = BulletSize::JUNKO_CORE_BULLET;
 		break;
         case JUNKO_HART_BULLET:
 		scale = sf::Vector2f(0.12, 0.12);

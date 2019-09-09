@@ -99,7 +99,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           enemy_sched(game_data, "stage1_enemy_schedule.json"),
           udon_marker(GameMaster::texture_table[UDON_MARKER], sf::Vector2f(0, 725), mf::stop, rotate::stop, 0)
 {
-        set_count_for_debug(0);
+        set_count_for_debug(4400);
         
         this->game_data = game_data;
 	test_bullet = new Bullet(GameMaster::texture_table[BULLET1],
@@ -342,7 +342,7 @@ void RaceSceneMaster::player_move()
   running_char.change_textures(GameMaster::texture_table[UDON1]);
   }
 */
-        if(running_char.get_origin().y < 200){
+        if(running_char.get_origin().y < 250){
                 current_item_collect();
         }
 }
@@ -723,7 +723,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
                 timer_list.cancel(danmaku_timer_id);
                 next_danmaku_forced();
                 target_udon.override_move_func(mf::move_point_constant(sf::Vector2f(480, 50),
-                                                                       target_udon.get_place(), 3500, 3628));
+                                                                       target_udon.get_place(), 4500, 4628));
                 backgroundTile.set_scroll_speed(-1);
                 timer_list.add_timer(
                         [&](void){

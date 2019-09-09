@@ -34,7 +34,9 @@ class BulletFuncTable {
 private:
         std::unordered_map<std::string, std::vector<BulletData *> *> table;
 
-        std::pair<std::string, std::vector<BulletData *> *> parse(std::string sub_file);
+        std::pair<std::string, std::vector<BulletData *> *> parse_function(picojson::object &obj);
+        void parse(std::string sub_file);
+        
         std::vector<FunctionCallEssential> highlevel_controll_statement(picojson::object &obj);
         std::vector<FunctionCallEssential> parse_builtin_for(picojson::object &obj);
 

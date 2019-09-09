@@ -28,17 +28,17 @@ namespace geometry {
                 return sf::Vector2f(ret_mat(0,0), ret_mat(0,1));
         }
 
+        /**
+         * a: target
+         * b: shooter
+         */
         float calc_angle(sf::Vector2f a, sf::Vector2f b)
         {
                 sf::Vector2f diff = a - b;
                 float angle = std::atan(diff.y / diff.x);
                 
                 if(diff.x < 0){
-                        if(diff.y >= 0){
-                                angle += M_PI;
-                        }else{
-                                angle += (M_PI / 2);
-                        }
+                        angle += M_PI;
                 }
 
                 return angle;

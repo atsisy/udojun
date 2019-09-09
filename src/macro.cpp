@@ -574,7 +574,7 @@ namespace macro {
                                               sf::Vector2f(0,
                                                            speed)),
                                       time,
-                                      center + sf::Vector2f(0, -15)
+                                      center + sf::Vector2f(-7, -15)
                                       )
                         );
                 ret.push_back(new BulletData(
@@ -584,7 +584,7 @@ namespace macro {
                                               sf::Vector2f(0,
                                                            speed)),
                                       time,
-                                      center + sf::Vector2f(10, -12)
+                                      center + sf::Vector2f(7, -12)
                                       ));
 
                 return ret;
@@ -611,7 +611,7 @@ namespace macro {
                                               sf::Vector2f(0,
                                                            speed)),
                                       time,
-                                      center + sf::Vector2f(10, -12)
+                                      center + sf::Vector2f(15, -12)
                                       ));
                 ret.push_back(new BulletData(
                                       str_to_bfid("LINEAR"),
@@ -620,7 +620,7 @@ namespace macro {
                                               sf::Vector2f(0,
                                                            speed)),
                                       time,
-                                      center + sf::Vector2f(-10, -12)
+                                      center + sf::Vector2f(-15, -12)
                                       ));
 
                 return ret;

@@ -5,6 +5,7 @@ namespace BulletSize
         constexpr float HART_NORMAL_BULLET = 9;
         constexpr float BIG_CIRCLE_RED = 12;
         constexpr float BULLET1 = 5.8;
+        constexpr float JUNKO_CORE_BULLET = 9;
 }
 
 namespace TextureSize

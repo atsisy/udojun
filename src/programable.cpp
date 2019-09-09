@@ -90,7 +90,7 @@ BulletFuncTable::BulletFuncTable(std::string main_file)
 
         for(auto &array_element : src_array){
                 std::string &src_name = array_element.get<std::string>();
-                table.emplace(parse(src_name));
+                parse(src_name);
         }
 
         /*
@@ -142,30 +142,10 @@ BulletFuncTable::highlevel_controll_statement(picojson::object &obj)
         }
 }
 
-std::pair<std::string, std::vector<BulletData *> *> BulletFuncTable::parse(std::string sub_file)
+std::pair<std::string, std::vector<BulletData *> *> BulletFuncTable::parse_function(picojson::object &obj)
 {
-        std::ifstream ifs(sub_file, std::ios::in);
-
-        if (ifs.fail()) {
-                std::cerr << "failed to read json file" << std::endl;
-                exit(1);
-        }
-
-        std::cout << "Loading " << sub_file << "..." << std::endl;
-
-        const std::string json((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-        ifs.close();
-        
-        picojson::value v;
-        const std::string err = picojson::parse(v, json);
-        if (err.empty() == false) {
-                std::cerr << err << std::endl;
-                exit(1);
-        }
-
         auto bullets_sched = new std::vector<BulletData *>;
-        auto &obj = v.get<picojson::object>();
-
+        
         std::cout << "\tParse: schedule, function" << std::endl;
 
 	std::string func_name = obj["function"].get<std::string>();
@@ -202,6 +182,36 @@ std::pair<std::string, std::vector<BulletData *> *> BulletFuncTable::parse(std::
         std::cout << "OK!!" << std::endl;
         
         return std::make_pair(func_name, bullets_sched);
+}
+
+void BulletFuncTable::parse(std::string sub_file)
+{
+        std::ifstream ifs(sub_file, std::ios::in);
+
+        if (ifs.fail()) {
+                std::cerr << "failed to read json file" << std::endl;
+                exit(1);
+        }
+
+        std::cout << "Loading " << sub_file << "..." << std::endl;
+
+        const std::string json((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+        ifs.close();
+        
+        picojson::value v;
+        const std::string err = picojson::parse(v, json);
+        if (err.empty() == false) {
+                std::cerr << err << std::endl;
+                exit(1);
+        }
+
+        auto &obj = v.get<picojson::object>();
+        auto function_array = obj["function_definition"].get<picojson::array>();
+
+        for(auto &array_element : function_array){
+                picojson::object &array_object = array_element.get<picojson::object>();
+                table.emplace(parse_function(array_object));
+        }
 }
 
 void BulletFuncTable::parse_multiple_function_call(picojson::object &data,
