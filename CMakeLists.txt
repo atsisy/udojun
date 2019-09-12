@@ -30,10 +30,11 @@ set(udjn_src
   src/3d.cpp
   src/danmaku_data_structure.cpp
   src/enemy_management.cpp
+  src/sound.cpp
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_definitions("-Wall -std=c++17 -O2 -g3 -march=native -I/home/takai/Dropbox/programs/sfml_test/include")
-link_libraries("-lsfml-graphics -lsfml-window -lsfml-system")
+link_libraries("-lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio")
 add_executable(udjn_race ${udjn_src})

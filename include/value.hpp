@@ -21,3 +21,7 @@ namespace WindowInformation
 	constexpr float HALF_WIDTH = WIDTH / 2;
 	constexpr float HALF_HEIGHT = HEIGHT / 2;
 }
+
+namespace DrawingDepth {
+        
+}

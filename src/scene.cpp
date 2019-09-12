@@ -99,7 +99,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           enemy_sched(game_data, "stage1_enemy_schedule.json"),
           udon_marker(GameMaster::texture_table[UDON_MARKER], sf::Vector2f(0, 725), mf::stop, rotate::stop, 0)
 {
-        set_count_for_debug(0);
+        set_count_for_debug(4400);
         
         this->game_data = game_data;
 	test_bullet = new Bullet(GameMaster::texture_table[BULLET1],
@@ -145,6 +145,9 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
         game_score_label.set_place(0, 200);
         power_label.set_place(0, 300);
         power_counter.set_place(150, 300);
+
+        running_char.set_drawing_depth(253);
+        target_udon.set_drawing_depth(253);
 
         create_view("background", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))->
                 setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
@@ -817,10 +820,11 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
         */
 
         switch_view("background", window);
+
+        game_background.draw(window);
         
-	game_background.draw(window);
 	if (!effect_conroller.udon_marker_hide) {
-		udon_marker.draw(window);
+                udon_marker.draw(window);
 	}
 
 	switch_view("field", window);
@@ -836,6 +840,11 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
         
 	running_char.draw(window);
         target_udon.draw(window);
+
+        drawing_manager.add(&running_char);
+        drawing_manager.add(&target_udon);
+
+        drawing_manager.draw_and_clear(window);
 
         switch_view("bullets", window);
 
@@ -973,6 +982,8 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
         : SceneSubEvent(pos, "spell")
 {
         set_status(SUBEVE_CONTINUE);
+
+        this->rsm = rsm;
         
         auto udon = new Tachie(
                 GameMaster::texture_table[UDON_TACHIE],
@@ -982,6 +993,7 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
                 get_count(), "udon");
         udon->set_scale(0.55, 0.55);
         udon->add_effect({ effect::fade_out(120) });
+        udon->set_drawing_depth(252);
 
         tachie_container.push_front(udon);
 
@@ -995,6 +1007,7 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
                 p->set_scale(sf::Vector2f(0.5, 0.5));
                 p->set_alpha(128);
                 p->add_effect({effect::fade_out(150)});
+                p->set_drawing_depth(254);
                 objects.push_front(p);
         }
 
@@ -1008,6 +1021,7 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
                 p->set_scale(sf::Vector2f(0.5, 0.5));
                 p->set_alpha(128);
                 p->add_effect({effect::fade_out(150)});
+                p->set_drawing_depth(254);
                 objects.push_front(p);
         }
         timer_list.add_timer([this](void){ this->set_status(SUBEVE_FINISH); }, danmaku_data.time_limit);
@@ -1020,14 +1034,17 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
         hexagram->set_scale(1, 1);
         hexagram->set_default_origin();
         hexagram->add_effect({ effect::fade_in(30) });
+        hexagram->set_drawing_depth(254);
         objects.push_front(hexagram);
 
         if(danmaku_data.type == SPELL_CARD_DANMAKU){
                 float x = 980 - (24 * util::wstrlen(danmaku_data.danmaku_name->data()));
-                objects.push_front(new DynamicText(
-                                           danmaku_data.danmaku_name->data(), data->get_font(JP_DEFAULT),
-                                           sf::Vector2f(x, 600), mf::ratio_step(sf::Vector2f(x, 80), 0.1),
-                                           rotate::stop, 0, 24));
+                auto text = new DynamicText(
+                        danmaku_data.danmaku_name->data(), data->get_font(JP_DEFAULT),
+                        sf::Vector2f(x, 600), mf::ratio_step(sf::Vector2f(x, 80), 0.1),
+                        rotate::stop, 0, 24);
+                text->set_drawing_depth(250);
+                objects.push_front(text);
         }
         
         background = new MoveObject(GameMaster::texture_table[BACKGROUND1],
@@ -1043,6 +1060,7 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
                                                p->move_sprite(sf::Vector2f(now - begin, 0));
                                                return p->get_place();
                                        });
+        background->set_drawing_depth(255);
 
         create_view("general", sf::FloatRect(0.0f, 0.0f, 920.f, 768.f))->setViewport(sf::FloatRect(0.0f, 0.0f, 920.f / 1366, 1.0f));
         create_view("background", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))->setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
@@ -1073,12 +1091,12 @@ void RaceSceneMaster::SpellCardEvent::drawing_process(sf::RenderWindow &window)
 
         for(auto &&p : objects){
                 if(p->visible())
-                        p->draw(window);
+                        rsm->drawing_manager.add(p);
 	}
         
         for(auto &&p : tachie_container){
                 if(p->visible())
-                        p->draw(window);
+                        rsm->drawing_manager.add(p);
 	}
         
 }

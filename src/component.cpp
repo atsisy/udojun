@@ -7,6 +7,7 @@
 
 DrawableComponent::DrawableComponent()
 {
+        this->draw_depth = 255;
 	hide_flag = false;
 }
 
@@ -23,6 +24,16 @@ void DrawableComponent::appear()
 bool DrawableComponent::visible()
 {
 	return !hide_flag;
+}
+
+void DrawableComponent::set_drawing_depth(u8 depth)
+{
+        this->draw_depth = depth;
+}
+
+u8 DrawableComponent::get_drawing_depth(void)
+{
+        return this->draw_depth;
 }
 
 Label::Label(const wchar_t *str, sf::Font *f)

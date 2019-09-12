@@ -20,6 +20,7 @@
 #include "bullet_management.hpp"
 #include "enemy_character.hpp"
 #include "3d.hpp"
+#include "sound.hpp"
 
 class GameData;
 
@@ -135,6 +136,25 @@ public:
                 u64 now);
 };
 
+class DrawingManager {
+private:
+        std::priority_queue<
+        DrawableComponent *,
+        std::vector<DrawableComponent *>,
+        std::function<bool(DrawableComponent *, DrawableComponent *)>> queue;
+
+        static bool compare_depth(DrawableComponent *a, DrawableComponent *b)
+        {
+                return a->get_drawing_depth() < b->get_drawing_depth();
+        }
+        
+public:
+        DrawingManager(void);
+
+        void add(DrawableComponent *p);
+        void draw_and_clear(sf::RenderWindow &window);
+};
+
 class RaceSceneMaster : public SceneMaster {
 
         class RaceSceneEffectController {
@@ -169,6 +189,7 @@ class RaceSceneMaster : public SceneMaster {
                 std::forward_list<Tachie *> tachie_container;
                 std::forward_list<MoveObject *> objects;
                 MoveObject *background;
+                RaceSceneMaster *rsm;
                 
         public:
                 SpellCardEvent(RaceSceneMaster *rsm, sf::Vector2f pos,
@@ -216,6 +237,7 @@ private:
         RaceSceneEffectController effect_conroller;
         EnemyManager enemy_manager;
         MoveObject udon_marker;
+        DrawingManager drawing_manager;
 
 	void add_new_functional_bullets_to_schedule(void);
         void add_new_danmaku(void);
@@ -249,12 +271,13 @@ class GameData {
 private:
         FontContainer *font_container;
         EnemyCharacterTable enemy_table;
+        sound::SoundTable sound_table;
 
 public:
         GameData();
         sf::Font *get_font(FontID id);
         EnemyCharacterMaterial *get_enemy_material(std::string name);
-        
+        sf::SoundBuffer *get_sound_data(sound::SoundID id);
 };
 
 class GameMaster {

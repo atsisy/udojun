@@ -8,7 +8,8 @@ TextureTable GameMaster::texture_table;
 util::xor128 util::generate_random;
 
 GameData::GameData()
-        : enemy_table({ "stage1_enemy.json" })
+        : enemy_table({ "stage1_enemy.json" }),
+          sound_table("sound.json")
 {
         font_container = new FontContainer("fonts.json");       
 }
@@ -21,6 +22,11 @@ sf::Font *GameData::get_font(FontID id)
 EnemyCharacterMaterial *GameData::get_enemy_material(std::string name)
 {
         return this->enemy_table.get(name);
+}
+
+sf::SoundBuffer *GameData::get_sound_data(sound::SoundID id)
+{
+        return sound_table[id];
 }
 
 GameMaster::GameMaster()
@@ -126,4 +132,23 @@ void GameMaster::main_loop()
 		switch_scene(current_scene->post_process(window));
 	}
 
+}
+
+DrawingManager::DrawingManager(void)
+        : queue(DrawingManager::compare_depth)
+{
+        
+}
+
+void DrawingManager::add(DrawableComponent *p)
+{
+        this->queue.push(p);
+}
+
+void DrawingManager::draw_and_clear(sf::RenderWindow &window)
+{
+        while(!queue.empty()){
+                queue.top()->draw(window);
+                queue.pop();
+        }
 }

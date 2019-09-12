@@ -8,6 +8,7 @@
 class DrawableComponent {
 private:
         bool hide_flag;
+        u8 draw_depth;
         
 public:
         DrawableComponent();
@@ -15,9 +16,13 @@ public:
         
         virtual void draw(sf::RenderWindow &window) = 0;
 
-        bool visible();
-        void hide();
-        void appear();
+        bool visible(void);
+        void hide(void);
+        void appear(void);
+
+        void set_drawing_depth(u8 depth);
+        u8 get_drawing_depth(void);
+
 };
 
 template <typename T>
