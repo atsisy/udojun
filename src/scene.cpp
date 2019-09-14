@@ -99,7 +99,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           enemy_sched(game_data, "stage1_enemy_schedule.json"),
           udon_marker(GameMaster::texture_table[UDON_MARKER], sf::Vector2f(0, 725), mf::stop, rotate::stop, 0)
 {
-        set_count_for_debug(4400);
+        set_count_for_debug(0);
         
         this->game_data = game_data;
 	test_bullet = new Bullet(GameMaster::texture_table[BULLET1],
@@ -693,6 +693,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
         for(auto p : enemy_container){
                 std::optional<FunctionCallEssential> e = p->shot(get_count());
                 if(e){
+                        GameMaster::sound_player->add(sound::SELECTING_SOUND);
                         bullet_pipeline.enemy_pipeline.add_function(
                                 new FunctionCallEssential(
                                         e.value().func_name,

@@ -45,13 +45,15 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 
 	key_listener.add_key_event(key::ARROW_KEY_DOWN, [this](key::KeyStatus status) {
 		if (status & key::KEY_FIRST_PRESSED) {
-			this->selecter.down();       
+			this->selecter.down();
+                        GameMaster::sound_player->add(sound::SELECTING_SOUND);
 		}
 	});
 	key_listener.add_key_event(
 		key::ARROW_KEY_UP, [this](key::KeyStatus status) {
 			if (status & key::KEY_FIRST_PRESSED) {
 				this->selecter.up();
+                                GameMaster::sound_player->add(sound::SELECTING_SOUND);
 			}
 		});
 	key_listener.add_key_event(

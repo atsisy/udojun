@@ -5,11 +5,11 @@
 #include "picojson.h"
 
 TextureTable GameMaster::texture_table;
+sound::SoundPlayer *GameMaster::sound_player;
 util::xor128 util::generate_random;
 
 GameData::GameData()
-        : enemy_table({ "stage1_enemy.json" }),
-          sound_table("sound.json")
+        : enemy_table({ "stage1_enemy.json" })
 {
         font_container = new FontContainer("fonts.json");       
 }
@@ -24,17 +24,14 @@ EnemyCharacterMaterial *GameData::get_enemy_material(std::string name)
         return this->enemy_table.get(name);
 }
 
-sf::SoundBuffer *GameData::get_sound_data(sound::SoundID id)
-{
-        return sound_table[id];
-}
-
 GameMaster::GameMaster()
         : window(sf::VideoMode(1366, 768), "udjn")
 {
         window_handle = window.getSystemHandle();
         current_scene = nullptr;
         game_data = new GameData();
+        sound_player = new  sound::SoundPlayer("sound.json");
+        master_clock = 0;
 }
 
 void GameMaster::load_textures(const char *json_path)
@@ -130,6 +127,9 @@ void GameMaster::main_loop()
 		window.display();
 
 		switch_scene(current_scene->post_process(window));
+
+                GameMaster::sound_player->flush(master_clock);
+                master_clock++;
 	}
 
 }

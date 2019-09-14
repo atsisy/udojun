@@ -271,13 +271,11 @@ class GameData {
 private:
         FontContainer *font_container;
         EnemyCharacterTable enemy_table;
-        sound::SoundTable sound_table;
 
 public:
         GameData();
         sf::Font *get_font(FontID id);
         EnemyCharacterMaterial *get_enemy_material(std::string name);
-        sf::SoundBuffer *get_sound_data(sound::SoundID id);
 };
 
 class GameMaster {
@@ -289,10 +287,13 @@ private:
         GameState current_state;
         GameData *game_data;
 
+        u64 master_clock;
+
         SceneMaster *create_new_scene(GameState state);
         
 public:
         static TextureTable texture_table;
+        static sound::SoundPlayer *sound_player;
         
         GameMaster();
         void init();
