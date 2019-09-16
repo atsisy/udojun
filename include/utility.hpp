@@ -239,6 +239,31 @@ namespace util {
 
         std::wstring *utf8_str_to_widechar_str(std::string str);
 
+        template <typename T>
+        class FixedCounter {
+        private:
+                T max;
+                T current;
+
+        public:
+                FixedCounter(T max, T init)
+                {
+                        this->max = max;
+                        this->current = init;
+                }
+
+                T get_max(void)
+                {
+                        return max;
+                }
+
+                T get_current(void)
+                {
+                        return current;
+                }
+
+        };
+
         template<typename type, template<typename T> class container>
         class GPContainer {
         private:

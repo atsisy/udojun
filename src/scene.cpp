@@ -74,7 +74,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 			  sf::Vector2f(0.2, 0.2)),
           game_score_counter(0, game_data->get_font(JP_DEFAULT)),
 	  score_counter(0, game_data->get_font(JP_DEFAULT)),
-          timelimit_counter(30, game_data->get_font(JP_DEFAULT), 60),
+          timelimit_counter(300, game_data->get_font(JP_DEFAULT), 60),
           power_counter(0, game_data->get_font(JP_DEFAULT)),
 	  func_table("main.json"),
 	  stamina(sf::Vector2f(300, 20), sf::Vector2f(2, 2), 400, 400,
@@ -99,7 +99,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           enemy_sched(game_data, "stage1_enemy_schedule.json"),
           udon_marker(GameMaster::texture_table[UDON_MARKER], sf::Vector2f(0, 725), mf::stop, rotate::stop, 0)
 {
-        set_count_for_debug(0);
+        set_count_for_debug(4400);
         
         this->game_data = game_data;
 	test_bullet = new Bullet(GameMaster::texture_table[BULLET1],
@@ -274,11 +274,20 @@ void RaceSceneMaster::add_new_danmaku(void)
                 
 		// タイマの実行時間は、弾幕発生 + 弾幕タイムリミット
                 timelimit_counter.counter_method().set_score(danmaku_sched.top().time_limit);
-
+                
                 
                 // 先頭の弾幕を捨てる
                 danmaku_sched.drop_top();
-	}
+	}else{
+                /*
+                 * 全てのスペルカードを撃ち終わった
+                 */
+                sub_event_list.push_back(new ResultEvent(
+                                                 this, sf::Vector2f(0, 0), game_data,
+                                                 ScoreInformation(power_counter.counter_method().get_score(),
+                                                                  score_counter.counter_method().get_score(),
+                                                                  graze_counter.counter_method().get_score())));
+        }
 }
 
 void RaceSceneMaster::random_mist(void)
@@ -438,23 +447,29 @@ void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
         bullet_pipeline.all_flush_called_function(get_count(), func_table);
 }
 
-void RaceSceneMaster::next_danmaku_forced(void)
+void RaceSceneMaster::convert_bullet_to_small_crystal(BulletPipeline &pipeline)
 {
-        for (auto &&bullet : bullet_pipeline.enemy_pipeline.actual_bullets) {
+        for (auto &&bullet : pipeline.actual_bullets) {
                 if(bullet->visible() && !bullet->is_finish(sf::IntRect(0, 0, 1366, 768))){
                         bullet_pipeline.special_pipeline.direct_insert_bullet(
-                        new SpecialBullet(
-                                GameMaster::texture_table[SMALL_CRYSTAL2],
-                                bullet->get_place(),
-                                mf::active_homing(sf::Vector2f(300, 300), 10, running_char.get_homing_point()),
-                                get_count(),
-                                sf::Vector2f(0.7, 0.7), 7,
-                                true, false, 0, SpecialBulletAttribute(0, 10)
-                                ));
+                                new SpecialBullet(
+                                        GameMaster::texture_table[SMALL_CRYSTAL2],
+                                        bullet->get_place(),
+                                        mf::active_homing(sf::Vector2f(300, 300), 10, running_char.get_homing_point()),
+                                        get_count(),
+                                        sf::Vector2f(0.7, 0.7), 7,
+                                        true, false, 0, SpecialBulletAttribute(0, 10)
+                                        ));
                 }
 	}
         
-        bullet_pipeline.enemy_pipeline.clear_all_bullets();
+        pipeline.clear_all_bullets();
+}
+
+void RaceSceneMaster::next_danmaku_forced(void)
+{
+        convert_bullet_to_small_crystal(bullet_pipeline.enemy_pipeline);
+        
         sub_event_list.remove_if([&, this](SceneSubEvent *sse){
                                          if(sse->get_name() == "spell"){
                                                  delete sse;
@@ -693,7 +708,6 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
         for(auto p : enemy_container){
                 std::optional<FunctionCallEssential> e = p->shot(get_count());
                 if(e){
-                        GameMaster::sound_player->add(sound::SELECTING_SOUND);
                         bullet_pipeline.enemy_pipeline.add_function(
                                 new FunctionCallEssential(
                                         e.value().func_name,
@@ -759,7 +773,8 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 
         if(get_count() == 4500){
                 timer_list.cancel(danmaku_timer_id);
-                next_danmaku_forced();
+                convert_bullet_to_small_crystal(bullet_pipeline.enemy_pipeline);
+                this->target_udon.set_hp_max();
                 target_udon.override_move_func(mf::move_point_constant(sf::Vector2f(480, 50),
                                                                        target_udon.get_place(), 4500, 4628));
                 backgroundTile.set_scroll_speed(-1);
@@ -1115,4 +1130,53 @@ RaceSceneMaster::RaceSceneEffectController::RaceSceneEffectController(void)
         enemy_force_hide = false;
         time_limit_hide = true;
         udon_marker_hide = true;
+}
+
+RaceSceneMaster::ResultEvent::ResultEvent(RaceSceneMaster *rsm, sf::Vector2f pos,
+                                          GameData *game_data, ScoreInformation score_info)
+        : SceneSubEvent(pos, "result")
+{
+        set_status(SUBEVE_CONTINUE);
+        
+        this->rsm = rsm;
+
+        objects.push_front(new DynamicText(
+                                   util::utf8_str_to_widechar_str(std::string("スコア")
+                                                                  +
+                                                                  std::to_string(score_info.score.get_current()))->data(),
+                                   game_data->get_font(JP_DEFAULT),
+                                           sf::Vector2f(300, 500),
+                                           mf::stop, rotate::stop, get_count(), 28));
+        objects.push_front(new DynamicText(util::utf8_str_to_widechar_str("グレイズ")->data(), game_data->get_font(JP_DEFAULT),
+                                           sf::Vector2f(300, 700),
+                                           mf::stop, rotate::stop, get_count(), 28));
+        objects.push_front(new DynamicText(util::utf8_str_to_widechar_str("被弾数")->data(), game_data->get_font(JP_DEFAULT),
+                                           sf::Vector2f(300, 900),
+                                           mf::stop, rotate::stop, get_count(), 28));
+}
+
+void RaceSceneMaster::ResultEvent::pre_process(sf::RenderWindow &window)
+{
+        for(auto &&p : objects){
+                p->effect(get_count());
+                p->rotate_with_func(get_count());
+                if(p->visible())
+                        p->move(get_count());
+	}
+        
+        timer_list.check_and_call(get_count());
+        update_count();
+}
+
+void RaceSceneMaster::ResultEvent::drawing_process(sf::RenderWindow &window)
+{
+        for(auto &&p : objects){
+                if(p->visible())
+                        rsm->drawing_manager.add(p);
+	}
+}
+
+GameState RaceSceneMaster::ResultEvent::post_process(sf::RenderWindow &window)
+{
+        return SceneSubEvent::post_process(window);
 }

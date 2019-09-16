@@ -74,7 +74,7 @@ void BulletPipeline::schedule_bullet(u64 now, PlayerCharacter &player)
                                                 now);
                                         std::copy(std::begin(generated), std::end(generated), std::back_inserter(actual_bullets));
                                 }
-                                GameMaster::sound_player->add(sound::SELECTING_SOUND);
+                                //GameMaster::sound_player->add(sound::SHOOT1);
                                 return true;
                         } else {
                                 return false;

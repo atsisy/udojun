@@ -4,6 +4,7 @@
 #include <string>
 #include <functional>
 #include "types.hpp"
+#include "utility.hpp"
 
 class DrawableComponent {
 private:
@@ -60,6 +61,11 @@ public:
         void set_score(T val)
         {
                 this->score = val;
+        }
+
+        T get_rate(void)
+        {
+                return this->rate;
         }
 };
 
@@ -336,4 +342,13 @@ public:
         u16 score;
 
         ItemOrder(u16 power, u16 score); 
+};
+
+class ScoreInformation {
+public:
+        util::FixedCounter<double> power;
+        util::FixedCounter<u64> score;
+        util::FixedCounter<u64> graze;
+        
+        ScoreInformation(double power, u64 score, u64 graze);
 };

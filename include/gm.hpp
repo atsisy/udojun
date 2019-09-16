@@ -199,6 +199,21 @@ class RaceSceneMaster : public SceneMaster {
                 void drawing_process(sf::RenderWindow &window) override;
                 GameState post_process(sf::RenderWindow &window) override;
         };
+
+        class ResultEvent : public SceneSubEvent {
+        private:
+                std::forward_list<MoveObject *> objects;
+                MoveObject *background;
+                RaceSceneMaster *rsm;
+                
+        public:
+                ResultEvent(RaceSceneMaster *rsm, sf::Vector2f pos,
+                            GameData *game_data, ScoreInformation score_info);
+
+                void pre_process(sf::RenderWindow &window) override;
+                void drawing_process(sf::RenderWindow &window) override;
+                GameState post_process(sf::RenderWindow &window) override;
+        };
         
 private:
         std::forward_list<Tachie *> tachie_container;
@@ -256,6 +271,7 @@ private:
         FunctionCallEssential *player_fast_shot(void);
         void player_shot(void);
         void generate_items_random(ItemOrder item, sf::Vector2f origin, i64 width);
+        void convert_bullet_to_small_crystal(BulletPipeline &pipeline);
 
     public:
         RaceSceneMaster(GameData *game_data);

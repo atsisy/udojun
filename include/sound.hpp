@@ -9,12 +9,14 @@ namespace sound {
 
         enum SoundID {
                 SELECTING_SOUND = 0,
+                SHOOT1,
                 UNKNOWN_SDID,
         };
 
         inline SoundID str_to_sdid(const char *str)
         {
                 str_to_idx_sub(str, SELECTING_SOUND);
+                str_to_idx_sub(str, SHOOT1);
 
                 return UNKNOWN_SDID;
         }

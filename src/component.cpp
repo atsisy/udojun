@@ -4,6 +4,7 @@
 #include <cmath>
 #include "geometry.hpp"
 #include "rotate_func.hpp"
+#include "value.hpp"
 
 DrawableComponent::DrawableComponent()
 {
@@ -637,3 +638,10 @@ ItemOrder::ItemOrder(u16 power, u16 score)
         this->power = power;
         this->score = score;
 }
+
+ScoreInformation::ScoreInformation(double power, u64 score, u64 graze)
+        : power(Score::MAX_POWER, power),
+          score(Score::MAX_SCORE, score),
+          graze(Score::MAX_GRAZE, graze)
+          
+{}

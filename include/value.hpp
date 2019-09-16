@@ -25,3 +25,9 @@ namespace WindowInformation
 namespace DrawingDepth {
         
 }
+
+namespace Score {
+        constexpr double MAX_POWER = 4.0;
+        constexpr u64 MAX_SCORE = -1;
+        constexpr u64 MAX_GRAZE = -1;
+}
