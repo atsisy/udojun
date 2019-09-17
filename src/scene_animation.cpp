@@ -53,6 +53,11 @@ std::string DynamicText::get_text(void)
         return label.get_text();
 }
 
+void DynamicText::change_text_status(GlyphInformation &info)
+{
+        this->label.change_status(info);
+}
+
 NovelText::NovelText(std::vector<wchar_t *> list, sf::Font *font, sf::Vector2f pos,
 		     float offset, u8 font_size)
 {

@@ -6,6 +6,7 @@ namespace BulletSize
         constexpr float BIG_CIRCLE_RED = 12;
         constexpr float BULLET1 = 5.8;
         constexpr float JUNKO_CORE_BULLET = 9;
+        constexpr float SPECIAL_PANEL = 12;
 }
 
 namespace TextureSize
@@ -30,4 +31,5 @@ namespace Score {
         constexpr double MAX_POWER = 4.0;
         constexpr u64 MAX_SCORE = -1;
         constexpr u64 MAX_GRAZE = -1;
+        constexpr u64 MAX_HIT = -1;
 }

@@ -253,6 +253,7 @@ private:
         EnemyManager enemy_manager;
         MoveObject udon_marker;
         DrawingManager drawing_manager;
+        RaceStatus race_status;
 
 	void add_new_functional_bullets_to_schedule(void);
         void add_new_danmaku(void);

@@ -73,6 +73,7 @@ public:
         void draw(sf::RenderWindow &window);
         void set_font_size(u8 size);
         std::string get_text(void);
+        void change_text_status(GlyphInformation &info);
 };
 
 class NovelText : public DrawableComponent {

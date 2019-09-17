@@ -25,6 +25,7 @@ enum MacroID {
         JUNKO_SHOT_SLOW_LV2,
         JUNKO_SPELL1,
         NORMAL_ENEMY_SHOT1,
+        UDON_DELAY_CIRCLE,
 };
 
 inline MacroID str_to_macroid(const char *str)
@@ -57,6 +58,7 @@ inline MacroID str_to_macroid(const char *str)
         str_to_idx_sub(str, JUNKO_SPELL1);
         str_to_idx_sub(str, NORMAL_ENEMY_SHOT1);
         str_to_idx_sub(str, WINDER1);
+        str_to_idx_sub(str, UDON_DELAY_CIRCLE);
 
 	std::cout << "Unknown Macro ID: " << str << std::endl;
         
@@ -67,7 +69,8 @@ inline MacroID str_to_macroid(const char *str)
 namespace macro {
         std::vector<BulletData *> expand_macro(picojson::object &data);
         std::vector<BulletData *> expand_dynamic_macro(picojson::object &data,
-                                                       DrawableCharacter *running_char, BulletData *bullet_data);
+                                                       DrawableCharacter *running_char, DrawableCharacter *udon,
+                                                       BulletData *bullet_data);
         std::vector<BulletData *> circle(sf::Vector2f origin, float r, u8 num, u64 time, float phase);
         std::vector<BulletData *> delay_circle(TextureID txid, sf::Vector2f origin, float r,
                                                float speed, u8 num, u64 delay, u64 time, float phase);

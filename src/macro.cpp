@@ -176,7 +176,7 @@ namespace macro {
                 return ret;
         }
 
-	std::vector<BulletData *> udon_circle2(sf::Vector2f origin, float speed,
+        std::vector<BulletData *> udon_circle2(sf::Vector2f origin, float speed,
 					      float r, u16 num, u64 time,
                                                float phase, float unit_rad)
 	{
@@ -859,7 +859,8 @@ namespace macro {
         }
 
         std::vector<BulletData *> expand_dynamic_macro(picojson::object &data,
-                                                       DrawableCharacter *running_char, BulletData *bullet_data)
+                                                       DrawableCharacter *running_char, DrawableCharacter *udon,
+                                                       BulletData *bullet_data)
         {
                 switch(str_to_macroid(data["ID"].get<std::string>().c_str())){
                 case CIRCLE:
@@ -986,6 +987,17 @@ namespace macro {
                                       data["speed"].get<double>(),
                                       data["distance"].get<double>(),
                                       data["term"].get<double>());
+                case UDON_DELAY_CIRCLE:
+                        return delay_circle(
+                                str_to_txid(data["texture"].get<std::string>().data()),
+                                udon->get_origin(),
+                                data["r"].get<double>(),
+                                data["speed"].get<double>(),
+                                data["quantity"].get<double>(),
+                                data["delay"].get<double>(),
+                                data["time"].get<double>(),
+                                TAKE_DEFAULT_ARG(data, "phase", double, 0)
+                                );
 		default:
                         return std::vector<BulletData *>();
                 }

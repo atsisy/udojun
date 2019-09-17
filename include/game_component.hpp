@@ -69,6 +69,28 @@ public:
         }
 };
 
+class GlyphInformation {
+public:
+        sf::Color text_color;
+        sf::Color outline_color;
+        float thickness;
+        sf::Text::Style style;
+};
+
+inline GlyphInformation GLYPH_DESIGN1 = {
+        .text_color = sf::Color(sf::Color(0xa2, 0x93, 0xbd)),
+        .outline_color = sf::Color(0, 0, 0, 255),
+        .thickness = 2,
+        .style = sf::Text::Bold
+};
+
+inline GlyphInformation GLYPH_DESIGN2 = {
+        .text_color = sf::Color(sf::Color(0x4c, 0x6c, 0xb3)),
+        .outline_color = sf::Color(0, 0, 0, 255),
+        .thickness = 2,
+        .style = sf::Text::Bold
+};
+
 class Label : public DrawableComponent {
 protected:
         sf::Text text;
@@ -87,6 +109,8 @@ public:
         void set_text(const char *text);
         std::string get_text(void);
         sf::Vector2f get_place(void);
+
+        void change_status(GlyphInformation &info);
         
         void draw(sf::RenderWindow &window) override;
 };
@@ -290,6 +314,7 @@ constexpr SHOT_MASTER_ID NO_SHOT_MASTER = -1;
 constexpr SHOT_MASTER_ID SHOT_MASTER_UNDEFINED = -2;
 constexpr SHOT_MASTER_ID RUNNING_CHARACTER_SHOT = -3;
 constexpr SHOT_MASTER_ID MAIN_ENEMY_SHOT = -4;
+constexpr SHOT_MASTER_ID SPECIAL_ITEM = -5;
 
 class Bullet : public MoveObject, public Conflictable {
 private:
@@ -311,6 +336,7 @@ public:
         void rotate_with_func(u64 now) override;
         void draw(sf::RenderWindow &window) override;
         SHOT_MASTER_ID get_shot_master_id(void);
+        void set_shot_master_id(SHOT_MASTER_ID id);
 };
 
 class SpecialBulletAttribute {
@@ -349,6 +375,17 @@ public:
         util::FixedCounter<double> power;
         util::FixedCounter<u64> score;
         util::FixedCounter<u64> graze;
+        util::FixedCounter<u64> hit;
         
-        ScoreInformation(double power, u64 score, u64 graze);
+        ScoreInformation(double power, u64 score, u64 graze, u64 _hit);
+};
+
+class RaceStatus {
+private:
+        u64 hit_count;
+
+public:
+        void hit(void);
+        u64 get_hit_count(void);
+        RaceStatus(void);
 };

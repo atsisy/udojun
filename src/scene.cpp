@@ -286,7 +286,8 @@ void RaceSceneMaster::add_new_danmaku(void)
                                                  this, sf::Vector2f(0, 0), game_data,
                                                  ScoreInformation(power_counter.counter_method().get_score(),
                                                                   score_counter.counter_method().get_score(),
-                                                                  graze_counter.counter_method().get_score())));
+                                                                  graze_counter.counter_method().get_score(),
+                                                                  race_status.get_hit_count())));
         }
 }
 
@@ -627,6 +628,7 @@ void RaceSceneMaster::conflict_judge(void)
         for (auto &&bullet : bullet_pipeline.enemy_pipeline.actual_bullets) {
                 if (bullet->check_conflict(running_char)) {
                         bullet->hide();
+                        race_status.hit();
                         junko_param.add(10);
                 }
 	}
@@ -666,34 +668,36 @@ void RaceSceneMaster::generate_items_random(ItemOrder item, sf::Vector2f origin,
         i64 half = width >> 1;
         
         for(int i = 0;i < item.power;i++){
-                bullet_pipeline.special_pipeline.direct_insert_bullet(
-                        new SpecialBullet(
-                                GameMaster::texture_table[POWER_PANEL],
-                                origin + sf::Vector2f((util::generate_random() % width) - half, 0),
-                                mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
-                                get_count() + (util::generate_random() % 5),
-                                sf::Vector2f(0.04, 0.04), 7,
-                                true, false, 0, SpecialBulletAttribute(0.03, 0)
-                                ));
+                auto p = new SpecialBullet(
+                        GameMaster::texture_table[POWER_PANEL],
+                        origin + sf::Vector2f((util::generate_random() % width) - half, 0),
+                        mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
+                        get_count() + (util::generate_random() % 5),
+                        sf::Vector2f(0.04, 0.04), BulletSize::SPECIAL_PANEL,
+                        true, false, 0, SpecialBulletAttribute(0.03, 0)
+                        );
+                p->set_shot_master_id(SPECIAL_ITEM);
+                bullet_pipeline.special_pipeline.direct_insert_bullet(p);
         }
 
         for(int i = 0;i < item.score;i++){
-                bullet_pipeline.special_pipeline.direct_insert_bullet(
-                        new SpecialBullet(
-                                GameMaster::texture_table[SCORE_PANEL],
-                                origin + sf::Vector2f((util::generate_random() % width) - half, 0),
-                                mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
-                                get_count() + (util::generate_random() % 5),
-                                sf::Vector2f(0.04, 0.04), 7,
-                                true, false, 0, SpecialBulletAttribute(0, 10)
-                                ));
+                auto p = new SpecialBullet(
+                        GameMaster::texture_table[SCORE_PANEL],
+                        origin + sf::Vector2f((util::generate_random() % width) - half, 0),
+                        mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
+                        get_count() + (util::generate_random() % 5),
+                        sf::Vector2f(0.04, 0.04), BulletSize::SPECIAL_PANEL,
+                        true, false, 0, SpecialBulletAttribute(0, 10)
+                        );
+                p->set_shot_master_id(SPECIAL_ITEM);
+                bullet_pipeline.special_pipeline.direct_insert_bullet(p);
         }
 }
 
 void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 {
         add_new_functional_bullets_to_schedule();
-        bullet_pipeline.all_schedule_bullet(get_count(), running_char);
+        bullet_pipeline.all_schedule_bullet(get_count(), running_char, target_udon);
 
         random_mist();
         
@@ -761,10 +765,16 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
         remove_killed_shot(bullet_pipeline.enemy_pipeline);
         killed_shot_master_id.clear();
 
+        for (Bullet *b : bullet_pipeline.special_pipeline.actual_bullets) {
+                if(b->get_shot_master_id() == SPECIAL_ITEM && running_char.outer_distance(b) < b->get_radius() + 100){
+                        b->override_move_func(mf::active_homing(running_char.get_origin(), 5, running_char.get_homing_point()));
+                }       
+	}
+
         while(enemy_sched.size()){
 		if (enemy_sched.get_front().time == get_count()) {
 			enemy_container.push_front(new EnemyCharacter(
-				enemy_sched.get_front(), get_count()));
+                                                           enemy_sched.get_front(), get_count()));
 			enemy_sched.pop_front();
 		}else{
                         break;
@@ -1141,18 +1151,27 @@ RaceSceneMaster::ResultEvent::ResultEvent(RaceSceneMaster *rsm, sf::Vector2f pos
         this->rsm = rsm;
 
         objects.push_front(new DynamicText(
-                                   util::utf8_str_to_widechar_str(std::string("スコア")
+                                   util::utf8_str_to_widechar_str(std::string("スコア: ")
                                                                   +
                                                                   std::to_string(score_info.score.get_current()))->data(),
                                    game_data->get_font(JP_DEFAULT),
-                                           sf::Vector2f(300, 500),
-                                           mf::stop, rotate::stop, get_count(), 28));
-        objects.push_front(new DynamicText(util::utf8_str_to_widechar_str("グレイズ")->data(), game_data->get_font(JP_DEFAULT),
-                                           sf::Vector2f(300, 700),
-                                           mf::stop, rotate::stop, get_count(), 28));
-        objects.push_front(new DynamicText(util::utf8_str_to_widechar_str("被弾数")->data(), game_data->get_font(JP_DEFAULT),
-                                           sf::Vector2f(300, 900),
-                                           mf::stop, rotate::stop, get_count(), 28));
+                                   sf::Vector2f(300, 500),
+                                   mf::stop, rotate::stop, get_count(), 28));
+        dynamic_cast<DynamicText *>(objects.front())->change_text_status(GLYPH_DESIGN2);
+        objects.push_front(new DynamicText(
+                                   util::utf8_str_to_widechar_str(std::string("グレイズ: ")
+                                                                  +
+                                                                  std::to_string(score_info.graze.get_current()))->data(),
+                                   game_data->get_font(JP_DEFAULT),
+                                   sf::Vector2f(300, 550),
+                                   mf::stop, rotate::stop, get_count(), 28));
+        objects.push_front(new DynamicText(
+                                   util::utf8_str_to_widechar_str(std::string("被弾数: ")
+                                                                  +
+                                                                  std::to_string(score_info.hit.get_current()))->data(),
+                                   game_data->get_font(JP_DEFAULT),
+                                   sf::Vector2f(300, 600),
+                                   mf::stop, rotate::stop, get_count(), 28));
 }
 
 void RaceSceneMaster::ResultEvent::pre_process(sf::RenderWindow &window)

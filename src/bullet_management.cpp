@@ -42,7 +42,7 @@ void BulletPipeline::flush_called_function(u64 now, BulletFuncTable &func_table)
                 });
 }
 
-void BulletPipeline::schedule_bullet(u64 now, PlayerCharacter &player)
+void BulletPipeline::schedule_bullet(u64 now, PlayerCharacter &player, DrawableCharacter &udon)
 {
         bullet_sched.remove_if(
                 [&, this](BulletData *target){
@@ -55,7 +55,7 @@ void BulletPipeline::schedule_bullet(u64 now, PlayerCharacter &player)
                                         // 動的なマクロを展開
                                         // これにより、BulletDataのvectorが得られる
                                         auto &&gen = macro::expand_dynamic_macro(
-                                                target->original_data, &player, target);
+                                                target->original_data, &player, &udon, target);
                                         
                                         // 実体化し、表示する弾丸のグループに加える
                                         for (auto &elem : gen) {
@@ -105,6 +105,13 @@ void BulletPipeline::direct_insert_bullet(Bullet *bullet)
         actual_bullets.push_back(bullet);
 }
 
+void BulletPipeline::direct_insert_bullet_data(std::vector<BulletData *> data)
+{
+        for(BulletData *p : data){
+                bullet_sched.add(p);
+        }
+}
+
 void BulletPipelineContainer::draw(sf::RenderWindow &window)
 {
         player_pipeline.draw(window);
@@ -123,9 +130,9 @@ void BulletPipelineContainer::all_flush_called_function(
 
 void BulletPipelineContainer::all_schedule_bullet(
         u64 now,
-        PlayerCharacter &player)
+        PlayerCharacter &player, DrawableCharacter &udon)
 {
-        player_pipeline.schedule_bullet(now, player);
-        enemy_pipeline.schedule_bullet(now, player);
-        special_pipeline.schedule_bullet(now, player);
+        player_pipeline.schedule_bullet(now, player, udon);
+        enemy_pipeline.schedule_bullet(now, player, udon);
+        special_pipeline.schedule_bullet(now, player, udon);
 }

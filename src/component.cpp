@@ -104,6 +104,14 @@ void Label::draw(sf::RenderWindow &window)
 	window.draw(text);
 }
 
+void Label::change_status(GlyphInformation &info)
+{
+        set_color(info.text_color);
+        text.setOutlineColor(info.outline_color);
+	text.setOutlineThickness(info.thickness);
+	text.setStyle(info.style);
+}
+
 WindowFrame::WindowFrame(sf::IntRect window_rect, sf::IntRect hole)
 {
 	frames.emplace_back(sf::Vector2f(window_rect.width, hole.top));
@@ -613,6 +621,12 @@ SHOT_MASTER_ID Bullet::get_shot_master_id(void)
         return id;
 }
 
+void Bullet::set_shot_master_id(SHOT_MASTER_ID id)
+{
+        this->id = id;
+}
+
+
 SpecialBulletAttribute::SpecialBulletAttribute(float power, i64 score)
 {
         this->power = power;
@@ -639,9 +653,24 @@ ItemOrder::ItemOrder(u16 power, u16 score)
         this->score = score;
 }
 
-ScoreInformation::ScoreInformation(double power, u64 score, u64 graze)
+ScoreInformation::ScoreInformation(double power, u64 score, u64 graze, u64 _hit)
         : power(Score::MAX_POWER, power),
           score(Score::MAX_SCORE, score),
-          graze(Score::MAX_GRAZE, graze)
-          
+          graze(Score::MAX_GRAZE, graze),
+          hit(Score::MAX_HIT, _hit)
 {}
+
+RaceStatus::RaceStatus(void)
+{
+        hit_count = 0;
+}
+
+u64 RaceStatus::get_hit_count(void)
+{
+        return this->hit_count;
+}
+
+void RaceStatus::hit(void)
+{
+        hit_count++;
+}
