@@ -8,7 +8,7 @@
 
 DrawableComponent::DrawableComponent()
 {
-        this->draw_depth = 255;
+        this->draw_depth = 128;
 	hide_flag = false;
 }
 

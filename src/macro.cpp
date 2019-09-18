@@ -584,7 +584,7 @@ namespace macro {
                                               sf::Vector2f(0,
                                                            speed)),
                                       time,
-                                      center + sf::Vector2f(7, -12)
+                                      center + sf::Vector2f(7, -15)
                                       ));
 
                 return ret;

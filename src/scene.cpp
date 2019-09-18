@@ -20,21 +20,20 @@ SceneMaster::SceneMaster()
 SceneMaster::~SceneMaster()
 {}
 
-sf::View *SceneMaster::create_view(std::string key, sf::FloatRect area)
+void SceneMaster::create_view(std::string key, sf::FloatRect area, sf::FloatRect viewport)
 {
-        sf::View *p = new sf::View(area);
+        auto p = new GraphicBuffer(area, viewport);
         views.emplace(key, p);
-        return p;
 }
 
-sf::View *SceneMaster::get_view(std::string key)
+GraphicBuffer *SceneMaster::get_view(std::string key)
 {
         return views[key];
 }
 
 void SceneMaster::switch_view(std::string key, sf::RenderWindow &window)
 {
-        window.setView(*get_view(key));
+        window.setView(get_view(key)->get_buffer());
 }
 
 void SceneMaster::set_count_for_debug(u64 count)
@@ -146,26 +145,43 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
         power_label.set_place(0, 300);
         power_counter.set_place(150, 300);
 
-        running_char.set_drawing_depth(253);
-        target_udon.set_drawing_depth(253);
+        running_char.set_drawing_depth(126);
+        target_udon.set_drawing_depth(126);
 
-        create_view("background", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))->
-                setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
+        create_view("background", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f), sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
 
 	create_view("field",
-		    sf::FloatRect(32.0f, 32.0f, 960.f, 736.f - (32.f)))
-		->setViewport(sf::FloatRect(32.f / 1366.f, 32.f / 768.f,
-					    960.f / 1366.f,
-					    702.f / 768.f));
+		    sf::FloatRect(32.0f, 32.0f, 960.f, 736.f - (32.f)),
+                    sf::FloatRect(32.f / 1366.f, 32.f / 768.f,
+                                  960.f / 1366.f,
+                                  702.f / 768.f));
 
-	create_view("bullets", sf::FloatRect(32.0f, 32.0f, 960.f, 768.f - (32.f * 2)))->
-                setViewport(sf::FloatRect(32.f / 1366.f, 32.f / 768.f, 960.f / 1366.f, 702.f / 768.f));
+        create_view("character",
+		    sf::FloatRect(32.0f, 32.0f, 960.f, 736.f - (32.f)),
+                    sf::FloatRect(32.f / 1366.f, 32.f / 768.f,
+                                  960.f / 1366.f,
+                                  702.f / 768.f));
+
+        create_view("effect",
+		    sf::FloatRect(32.0f, 32.0f, 960.f, 736.f - (32.f)),
+                    sf::FloatRect(32.f / 1366.f, 32.f / 768.f,
+                                  960.f / 1366.f,
+                                  702.f / 768.f));
         
-        create_view("params", sf::FloatRect(0.0f, 0.0f, 420.f, 500.f))->
-                setViewport(sf::FloatRect(1010.f / 1366.f, 32.f / 768.f, 420.f / 1366.f, 500.f / 768.f));
+	create_view("bullets", sf::FloatRect(32.0f, 32.0f, 960.f, 768.f - (32.f * 2)),
+                    sf::FloatRect(32.f / 1366.f, 32.f / 768.f, 960.f / 1366.f, 702.f / 768.f));
+
+        create_view("conversation", sf::FloatRect(32.0f, 32.0f, 960.f, 768.f - (32.f * 2)),
+                    sf::FloatRect(32.f / 1366.f, 32.f / 768.f, 960.f / 1366.f, 702.f / 768.f));
+
+        create_view("game_info", sf::FloatRect(32.0f, 32.0f, 960.f, 768.f - (32.f * 2)),
+                    sf::FloatRect(32.f / 1366.f, 32.f / 768.f, 960.f / 1366.f, 702.f / 768.f));
         
-	create_view("tachie", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))
-		->setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
+        create_view("params", sf::FloatRect(0.0f, 0.0f, 420.f, 500.f),
+                    sf::FloatRect(1010.f / 1366.f, 32.f / 768.f, 420.f / 1366.f, 500.f / 768.f));
+        
+	create_view("tachie", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f),
+                    sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
 
         bullet_pipeline.enemy_pipeline.add_function(
                 new FunctionCallEssential("field1", 30, NO_SHOT_MASTER,
@@ -844,78 +860,83 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
         background_view.setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
 	game_view.setViewport(sf::FloatRect(32.f / 1366.f, 32.f / 768.f, 0.9f, 0.9f));
         */
-
-        switch_view("background", window);
-
-        game_background.draw(window);
+        post_draw_request_vargs("background", &game_background);
         
 	if (!effect_conroller.udon_marker_hide) {
-                udon_marker.draw(window);
+                post_draw_request_vargs("background", &udon_marker);
 	}
-
-	switch_view("field", window);
         
-	backgroundTile.draw(window);
-        for(DrawableObject3D *p : object3d_list){
-                p->draw(window);
-        }
-
+        post_draw_request_vargs("field", &backgroundTile);
+        post_draw_request("field", object3d_list);
+        
         for(SceneSubEvent *sse : sub_event_list){
                 sse->drawing_process(window);
         }
         
-	running_char.draw(window);
-        target_udon.draw(window);
+        post_draw_request_vargs("character", &running_char, &target_udon);
 
-        drawing_manager.add(&running_char);
-        drawing_manager.add(&target_udon);
+        post_draw_request("bullets", move_object_container);
+        post_draw_request("character", enemy_container);
 
-        drawing_manager.draw_and_clear(window);
+        post_draw_request_vargs("bullets",
+                                &bullet_pipeline,
+                                test_bullet,
+                                test_3d_object,
+                                test_laser,
+                                &timelimit_counter);
 
+	//window_frame.draw
+
+        post_draw_request_vargs("params",
+                                &score_counter,
+                                &game_score_counter,
+                                &game_score_label,
+                                &stamina,
+                                &junko_param,
+                                &stamina_label,
+                                &junko_param,
+                                &graze_counter,
+                                &graze_label,
+                                &power_label,
+                                &power_counter
+                );
+
+        post_draw_request_vargs("game_info",
+                                &udon_hp);
+
+        // 立ち絵の移動
+        post_draw_request("tachie", tachie_container);
+
+
+        /*
+         * それぞれのviewに貯められたリクエストを全て処理する
+         */
+        switch_view("background", window);
+        get_view("background")->flush_draw_requests(window);
+
+        switch_view("field", window);
+        get_view("field")->flush_draw_requests(window);
+
+        switch_view("effect", window);
+        get_view("effect")->flush_draw_requests(window);
+
+        switch_view("character", window);
+        get_view("character")->flush_draw_requests(window);
+        
         switch_view("bullets", window);
+        get_view("bullets")->flush_draw_requests(window);
 
-        for(auto p : move_object_container){
-                p->draw(window);
-        }
-        for(auto p : enemy_container){
-                p->draw(window);
-        }
+        switch_view("conversation", window);
+        get_view("conversation")->flush_draw_requests(window);
 
-        bullet_pipeline.draw(window);
-	test_bullet->draw(window);
-        test_3d_object->draw(window);
-        test_laser->draw(window);
-        //test_slaser->draw(window);
-
-        udon_hp.draw(window);
-        timelimit_counter.draw(window);
-
-	//window_frame.draw(window);
+        switch_view("game_info", window);
+        get_view("game_info")->flush_draw_requests(window);
 
         switch_view("params", window);
-	score_counter.draw(window);
+        get_view("params")->flush_draw_requests(window);
 
-        game_score_counter.draw(window);
-        game_score_label.draw(window);
-        
-	stamina.draw(window);
-	junko_param.draw(window);
-	stamina_label.draw(window);
-	junko_param_label.draw(window);
-
-        graze_counter.draw(window);
-        graze_label.draw(window);
-
-        power_label.draw(window);
-        power_counter.draw(window);
-
-	switch_view("tachie", window);
-        // 立ち絵の移動
-        for(auto &&p : tachie_container){
-                if(p->visible())
-                        p->draw(window);
-	}
-        
+        switch_view("tachie", window);
+        get_view("tachie")->flush_draw_requests(window);
 }
 
 GameState RaceSceneMaster::post_process(sf::RenderWindow &window)
@@ -932,6 +953,8 @@ RaceSceneMaster::ConversationEvent::ConversationEvent(RaceSceneMaster *rsm, sf::
           background(GameMaster::texture_table[SAMPLE_BACKGROUND1], sf::Vector2f(0, 450), mf::stop, rotate::stop, 0)
 {
         set_status(SUBEVE_CONTINUE);
+
+        this->rsm = rsm;
         
         auto udon = new Tachie(
                 GameMaster::texture_table[UDON_TACHIE],
@@ -988,14 +1011,9 @@ void RaceSceneMaster::ConversationEvent::pre_process(sf::RenderWindow &window)
 
 void RaceSceneMaster::ConversationEvent::drawing_process(sf::RenderWindow &window)
 {
-        background.draw(window);
-        
-        for(auto &&p : tachie_container){
-                if(p->visible())
-                        p->draw(window);
-	}
-
-        episode.get_current_page()->draw(window);
+        rsm->post_draw_request_vargs("conversation", &background);
+        rsm->post_draw_request("tachie", tachie_container);
+        rsm->post_draw_request_vargs("conversation", episode.get_current_page());
 }
 
 GameState RaceSceneMaster::ConversationEvent::post_process(sf::RenderWindow &window)
@@ -1019,7 +1037,7 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
                 get_count(), "udon");
         udon->set_scale(0.55, 0.55);
         udon->add_effect({ effect::fade_out(120) });
-        udon->set_drawing_depth(252);
+        udon->set_drawing_depth(125);
 
         tachie_container.push_front(udon);
 
@@ -1033,7 +1051,7 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
                 p->set_scale(sf::Vector2f(0.5, 0.5));
                 p->set_alpha(128);
                 p->add_effect({effect::fade_out(150)});
-                p->set_drawing_depth(254);
+                p->set_drawing_depth(127);
                 objects.push_front(p);
         }
 
@@ -1047,7 +1065,7 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
                 p->set_scale(sf::Vector2f(0.5, 0.5));
                 p->set_alpha(128);
                 p->add_effect({effect::fade_out(150)});
-                p->set_drawing_depth(254);
+                p->set_drawing_depth(127);
                 objects.push_front(p);
         }
         timer_list.add_timer([this](void){ this->set_status(SUBEVE_FINISH); }, danmaku_data.time_limit);
@@ -1060,7 +1078,7 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
         hexagram->set_scale(1, 1);
         hexagram->set_default_origin();
         hexagram->add_effect({ effect::fade_in(30) });
-        hexagram->set_drawing_depth(254);
+        hexagram->set_drawing_depth(127);
         objects.push_front(hexagram);
 
         if(danmaku_data.type == SPELL_CARD_DANMAKU){
@@ -1069,8 +1087,8 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
                         danmaku_data.danmaku_name->data(), data->get_font(JP_DEFAULT),
                         sf::Vector2f(x, 600), mf::ratio_step(sf::Vector2f(x, 80), 0.1),
                         rotate::stop, 0, 24);
-                text->set_drawing_depth(250);
-                objects.push_front(text);
+                text->set_drawing_depth(123);
+                info_objects.push_front(text);
         }
         
         background = new MoveObject(GameMaster::texture_table[BACKGROUND1],
@@ -1086,10 +1104,8 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
                                                p->move_sprite(sf::Vector2f(now - begin, 0));
                                                return p->get_place();
                                        });
-        background->set_drawing_depth(255);
-
-        create_view("general", sf::FloatRect(0.0f, 0.0f, 920.f, 768.f))->setViewport(sf::FloatRect(0.0f, 0.0f, 920.f / 1366, 1.0f));
-        create_view("background", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f))->setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
+        background->set_drawing_depth(128);
+        
 }
 
 void RaceSceneMaster::SpellCardEvent::pre_process(sf::RenderWindow &window)
@@ -1106,25 +1122,37 @@ void RaceSceneMaster::SpellCardEvent::pre_process(sf::RenderWindow &window)
                         p->move(get_count());
 	}
 
+        for(auto &&p : info_objects){
+                p->effect(get_count());
+                p->rotate_with_func(get_count());
+                if(p->visible())
+                        p->move(get_count());
+	}
+
+        background->move_sprite(sf::Vector2f(1, 0));
+        
         timer_list.check_and_call(get_count());
         update_count();
 }
 
 void RaceSceneMaster::SpellCardEvent::drawing_process(sf::RenderWindow &window)
 {
-        background->draw(window);
-        background->move_sprite(sf::Vector2f(1, 0));
+        rsm->post_draw_request_vargs("field", background);
 
         for(auto &&p : objects){
                 if(p->visible())
-                        rsm->drawing_manager.add(p);
+                        rsm->post_draw_request_vargs("effect", p);
+	}
+
+        for(auto &&p : info_objects){
+                if(p->visible())
+                        rsm->post_draw_request_vargs("game_info", p);
 	}
         
         for(auto &&p : tachie_container){
                 if(p->visible())
-                        rsm->drawing_manager.add(p);
-	}
-        
+                        rsm->post_draw_request_vargs("tachie", p);
+	}        
 }
 
 GameState RaceSceneMaster::SpellCardEvent::post_process(sf::RenderWindow &window)
@@ -1191,7 +1219,7 @@ void RaceSceneMaster::ResultEvent::drawing_process(sf::RenderWindow &window)
 {
         for(auto &&p : objects){
                 if(p->visible())
-                        rsm->drawing_manager.add(p);
+                        rsm->post_draw_request_vargs("field", p);
 	}
 }
 

@@ -33,17 +33,57 @@ enum GameState {
         SUBEVE_FINISH,
 };
 
+class GraphicBuffer {
+private:
+        sf::View buffer;
+        std::priority_queue<
+                DrawableComponent *,
+                std::vector<DrawableComponent *>,
+                std::function<bool(DrawableComponent *, DrawableComponent *)>> draw_requests;
+
+        static bool compare_depth(DrawableComponent *a, DrawableComponent *b)
+        {
+                return a->get_drawing_depth() < b->get_drawing_depth();
+        }
+
+public:
+        GraphicBuffer(sf::FloatRect window, sf::FloatRect viewport);
+        sf::View &get_buffer(void);
+        void add_draw_request(DrawableComponent *p);
+        void flush_draw_requests(sf::RenderWindow &window);
+};
+
 class SceneMaster {
 private:
         u64 t;
-
+        
 protected:
-        util::str_hash<sf::View *> views;
+        util::str_hash<GraphicBuffer *> views;
         util::SimpleTimerList timer_list;
-	sf::View *create_view(std::string key, sf::FloatRect area);
-	sf::View *get_view(std::string key);
+	void create_view(std::string key, sf::FloatRect area, sf::FloatRect viewport);
+	GraphicBuffer *get_view(std::string key);
         void switch_view(std::string key, sf::RenderWindow &window);
 
+        template <class List>
+        void post_draw_request(std::string key, List &&buf)
+        {
+                GraphicBuffer *gb = get_view(key);
+                std::for_each(std::begin(buf), std::end(buf),
+                              [&](DrawableComponent *p){
+                                      gb->add_draw_request(p);
+                              });
+        }
+
+        template<class... A>
+        void post_draw_request_vargs(std::string key, A... args)
+        {
+                GraphicBuffer *gb = get_view(key);
+                
+                for(DrawableComponent *p : std::initializer_list<DrawableComponent *>{args...}){
+                        gb->add_draw_request(p);
+                }
+        }
+        
         void set_count_for_debug(u64 count);
         
 public:
@@ -175,6 +215,7 @@ class RaceSceneMaster : public SceneMaster {
                 EpisodeController episode;
                 key::KeyboardListener key_listener;
                 MoveObject background;
+                RaceSceneMaster *rsm;
                 
         public:
                 ConversationEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *data);
@@ -188,6 +229,8 @@ class RaceSceneMaster : public SceneMaster {
         private:
                 std::forward_list<Tachie *> tachie_container;
                 std::forward_list<MoveObject *> objects;
+                std::forward_list<MoveObject *> info_objects;
+                
                 MoveObject *background;
                 RaceSceneMaster *rsm;
                 
@@ -252,7 +295,6 @@ private:
         RaceSceneEffectController effect_conroller;
         EnemyManager enemy_manager;
         MoveObject udon_marker;
-        DrawingManager drawing_manager;
         RaceStatus race_status;
 
 	void add_new_functional_bullets_to_schedule(void);

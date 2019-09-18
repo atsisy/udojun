@@ -25,7 +25,7 @@ class BulletPipeline {
         void clear_killed_shot(SHOT_MASTER_ID id);
 };
 
-class BulletPipelineContainer {
+class BulletPipelineContainer : public DrawableComponent {
     public:
         BulletPipeline player_pipeline;
 	BulletPipeline enemy_pipeline;
@@ -33,5 +33,5 @@ class BulletPipelineContainer {
 
 	void all_flush_called_function(u64 now, BulletFuncTable &func_table);
         void all_schedule_bullet(u64 now, PlayerCharacter &player, DrawableCharacter &udon);
-	void draw(sf::RenderWindow &window);
+	void draw(sf::RenderWindow &window) override;
 };

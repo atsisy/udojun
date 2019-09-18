@@ -24,6 +24,30 @@ EnemyCharacterMaterial *GameData::get_enemy_material(std::string name)
         return this->enemy_table.get(name);
 }
 
+GraphicBuffer::GraphicBuffer(sf::FloatRect window, sf::FloatRect viewport)
+        : buffer(window), draw_requests(compare_depth)
+{
+        buffer.setViewport(viewport);
+}
+
+sf::View &GraphicBuffer::get_buffer(void)
+{
+        return buffer;
+}
+
+void GraphicBuffer::add_draw_request(DrawableComponent *p)
+{
+        draw_requests.push(p);
+}
+
+void GraphicBuffer::flush_draw_requests(sf::RenderWindow &window)
+{
+        while(draw_requests.size()){
+                draw_requests.top()->draw(window);
+                draw_requests.pop();
+        }
+}
+
 GameMaster::GameMaster()
         : window(sf::VideoMode(1366, 768), "udjn")
 {
