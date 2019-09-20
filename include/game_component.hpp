@@ -85,8 +85,8 @@ inline GlyphInformation GLYPH_DESIGN1 = {
 };
 
 inline GlyphInformation GLYPH_DESIGN2 = {
-        .text_color = sf::Color(sf::Color(0x4c, 0x6c, 0xb3)),
-        .outline_color = sf::Color(0, 0, 0, 255),
+        .text_color = sf::Color(sf::Color(0xff, 0xff, 0xff)),
+        .outline_color = sf::Color(0x4c, 0x6c, 0xb3, 255),
         .thickness = 2,
         .style = sf::Text::Bold
 };
@@ -214,6 +214,8 @@ public:
         void set_repeat_flag(bool flag);
         void move_sprite(sf::Vector2f offset);
         void set_place(sf::Vector2f np);
+        void change_texture(sf::Texture *t, sf::Vector2f scale);
+        void change_texture(sf::Texture *t);
 };
 
 class BackgroundTile : public DrawableObject {

@@ -81,6 +81,11 @@ enum TextureID {
         HEXAGRAM_RED,
         POWER_PANEL,
         SCORE_PANEL,
+        GHOST_ENEMY_TX1,
+        GHOST_ENEMY_TX2,
+        GHOST_ENEMY_TX3,
+        GHOST_ENEMY_TX4,
+        GHOST_ENEMY_TX5,
 };
 
 enum LaserTextureID {
@@ -178,6 +183,12 @@ inline TextureID str_to_txid(const char *str)
 
         str_to_idx_sub(str, SCORE_PANEL);
         str_to_idx_sub(str, POWER_PANEL);
+
+        str_to_idx_sub(str, GHOST_ENEMY_TX1);
+        str_to_idx_sub(str, GHOST_ENEMY_TX2);
+        str_to_idx_sub(str, GHOST_ENEMY_TX2);
+        str_to_idx_sub(str, GHOST_ENEMY_TX3);
+        str_to_idx_sub(str, GHOST_ENEMY_TX4);
 
 	std::cout << "Unknown texture: " << str << std::endl;
 

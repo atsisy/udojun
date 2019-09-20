@@ -18,11 +18,13 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 	choice_label_set.emplace(
 		"Start",
 		new DynamicText(L"Start", game_data->get_font(JP_DEFAULT),
+                                GLYPH_DESIGN1,
 				sf::Vector2f(WindowInformation::HALF_WIDTH, 100),
                                 mf::stop, rotate::stop, get_count(), 40));
         choice_label_set.emplace(
 		"Exit",
 		new DynamicText(L"Exit", game_data->get_font(JP_DEFAULT),
+                                GLYPH_DESIGN1,
 				sf::Vector2f(WindowInformation::HALF_WIDTH, 500),
                                 mf::stop, rotate::stop, get_count(), 28)
                 );

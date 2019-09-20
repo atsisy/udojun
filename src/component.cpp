@@ -228,10 +228,8 @@ DrawableObject::DrawableObject(sf::Texture *t, sf::Vector2f p,
 			       sf::Vector2f texture_scale)
 	: place(p)
 {
-        this->texture = t;
-	sprite.setTexture(*texture);
+        change_texture(t, texture_scale);
 	sprite.setPosition(place);
-	sprite.setScale(texture_scale);
 }
 
 sf::Vector2f DrawableObject::get_scale(void)
@@ -313,6 +311,19 @@ sf::Vector2f DrawableObject::displaying_size()
 void DrawableObject::set_repeat_flag(bool flag)
 {
         texture->setRepeated(flag);
+}
+
+void DrawableObject::change_texture(sf::Texture *t)
+{
+        this->texture = t;
+	sprite.setTexture(*texture);
+}
+
+void DrawableObject::change_texture(sf::Texture *t, sf::Vector2f scale)
+{
+        this->texture = t;
+	sprite.setTexture(*texture);
+        sprite.setScale(scale);
 }
 
 BackgroundTile::BackgroundTile(sf::Texture *t, sf::Vector2f p,

@@ -190,6 +190,8 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
         backgroundTile.set_scroll_speed(5);
         udon_marker.set_scale(0.4, 0.4);
 
+        target_udon.add_effect({ effect::animation_effect({ UDON1, UDON2, UDON3, UDON4, UDON5 }, 5) });
+
 }
 
 void RaceSceneMaster::player_spellcard_effect(void)
@@ -301,7 +303,7 @@ void RaceSceneMaster::add_new_danmaku(void)
                 sub_event_list.push_back(new ResultEvent(
                                                  this, sf::Vector2f(0, 0), game_data,
                                                  ScoreInformation(power_counter.counter_method().get_score(),
-                                                                  score_counter.counter_method().get_score(),
+                                                                  game_score_counter.counter_method().get_score(),
                                                                   graze_counter.counter_method().get_score(),
                                                                   race_status.get_hit_count())));
         }
@@ -356,22 +358,10 @@ void RaceSceneMaster::player_move()
 
         target_udon.move_diff(sf::Vector2f(((float)(util::generate_random() % 10) / 10.0) * std::sin((float)((float)get_count() / (float)60)), 0));
         target_udon.move(get_count());
+        target_udon.effect(get_count());
         sf::Vector2f udon_place = target_udon.get_place();
         udon_marker.set_place(sf::Vector2f(udon_place.x, 725));
         
-/*
-  if (get_count() % 20 == 16) {
-  running_char.change_textures(GameMaster::texture_table[UDON5]);
-  } else if (get_count() % 20 == 12) {
-  running_char.change_textures(GameMaster::texture_table[UDON4]);
-  } else if (get_count() % 20 == 8) {
-  running_char.change_textures(GameMaster::texture_table[UDON3]);
-  } else if (get_count() % 20 == 4) {
-  running_char.change_textures(GameMaster::texture_table[UDON2]);
-  } else if (get_count() % 20 == 0) {
-  running_char.change_textures(GameMaster::texture_table[UDON1]);
-  }
-*/
         if(running_char.get_origin().y < 250){
                 current_item_collect();
         }
@@ -612,24 +602,7 @@ void RaceSceneMaster::conflict_judge(void)
                                 auto bomb = enemy_manager.kill_enemy_with_normal_effect(p, get_count());
                                 move_object_container.emplace_front(bomb);
 
-                                bullet_pipeline.special_pipeline.direct_insert_bullet(
-                                        new SpecialBullet(
-                                                GameMaster::texture_table[POWER_PANEL],
-                                                p->get_place() + sf::Vector2f(util::generate_random() % 100, 0),
-                                                mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
-                                                get_count(),
-                                                sf::Vector2f(0.04, 0.04), 7,
-                                                true, false, 0, SpecialBulletAttribute(0.03, 0)
-                                                ));
-                                bullet_pipeline.special_pipeline.direct_insert_bullet(
-                                        new SpecialBullet(
-                                                GameMaster::texture_table[SCORE_PANEL],
-                                                p->get_place() + sf::Vector2f(util::generate_random() % 100, 0),
-                                                mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
-                                                get_count(),
-                                                sf::Vector2f(0.04, 0.04), 7,
-                                                true, false, 0, SpecialBulletAttribute(0, 10)
-                                                ));
+                                generate_items_random(ItemOrder(2, 2), p->get_origin(), 50);
                                 
                                 killed_shot_master_id.push_back(p->get_shot_master_id());
                         }
@@ -882,13 +855,11 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
                                 &bullet_pipeline,
                                 test_bullet,
                                 test_3d_object,
-                                test_laser,
-                                &timelimit_counter);
+                                test_laser);
 
 	//window_frame.draw
 
         post_draw_request_vargs("params",
-                                &score_counter,
                                 &game_score_counter,
                                 &game_score_label,
                                 &stamina,
@@ -902,7 +873,9 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
                 );
 
         post_draw_request_vargs("game_info",
-                                &udon_hp);
+                                &udon_hp,
+                                &score_counter,
+                                &timelimit_counter);
 
         // 立ち絵の移動
         post_draw_request("tachie", tachie_container);
@@ -1085,6 +1058,7 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
                 float x = 980 - (24 * util::wstrlen(danmaku_data.danmaku_name->data()));
                 auto text = new DynamicText(
                         danmaku_data.danmaku_name->data(), data->get_font(JP_DEFAULT),
+                        GLYPH_DESIGN1,
                         sf::Vector2f(x, 600), mf::ratio_step(sf::Vector2f(x, 80), 0.1),
                         rotate::stop, 0, 24);
                 text->set_drawing_depth(123);
@@ -1137,7 +1111,7 @@ void RaceSceneMaster::SpellCardEvent::pre_process(sf::RenderWindow &window)
 
 void RaceSceneMaster::SpellCardEvent::drawing_process(sf::RenderWindow &window)
 {
-        rsm->post_draw_request_vargs("field", background);
+        rsm->post_draw_request_vargs("effect", background);
 
         for(auto &&p : objects){
                 if(p->visible())
@@ -1177,29 +1151,40 @@ RaceSceneMaster::ResultEvent::ResultEvent(RaceSceneMaster *rsm, sf::Vector2f pos
         set_status(SUBEVE_CONTINUE);
         
         this->rsm = rsm;
-
+        
+        objects.push_front(
+                new DynamicText(
+                        util::utf8_str_to_widechar_str(
+                                std::string("スコア: ")
+                                +
+                                std::to_string(score_info.score.get_current()))->data(),
+                        game_data->get_font(JP_DEFAULT),
+                        GLYPH_DESIGN2,
+                        sf::Vector2f(400, 500),
+                        mf::ratio_step(sf::Vector2f(300, 500), 0.1),
+                        rotate::stop, get_count(), 28));
+        
         objects.push_front(new DynamicText(
-                                   util::utf8_str_to_widechar_str(std::string("スコア: ")
-                                                                  +
-                                                                  std::to_string(score_info.score.get_current()))->data(),
+                                   util::utf8_str_to_widechar_str(
+                                           std::string("グレイズ: ")
+                                           +
+                                           std::to_string(score_info.graze.get_current()))->data(),
                                    game_data->get_font(JP_DEFAULT),
-                                   sf::Vector2f(300, 500),
-                                   mf::stop, rotate::stop, get_count(), 28));
-        dynamic_cast<DynamicText *>(objects.front())->change_text_status(GLYPH_DESIGN2);
+                                   GLYPH_DESIGN2,
+                                   sf::Vector2f(400, 550),
+                                   mf::ratio_step(sf::Vector2f(300, 550), 0.1),
+                                   rotate::stop, get_count(), 28));
+        
         objects.push_front(new DynamicText(
-                                   util::utf8_str_to_widechar_str(std::string("グレイズ: ")
-                                                                  +
-                                                                  std::to_string(score_info.graze.get_current()))->data(),
+                                   util::utf8_str_to_widechar_str(
+                                           std::string("被弾数: ")
+                                           +
+                                           std::to_string(score_info.hit.get_current()))->data(),
                                    game_data->get_font(JP_DEFAULT),
-                                   sf::Vector2f(300, 550),
-                                   mf::stop, rotate::stop, get_count(), 28));
-        objects.push_front(new DynamicText(
-                                   util::utf8_str_to_widechar_str(std::string("被弾数: ")
-                                                                  +
-                                                                  std::to_string(score_info.hit.get_current()))->data(),
-                                   game_data->get_font(JP_DEFAULT),
-                                   sf::Vector2f(300, 600),
-                                   mf::stop, rotate::stop, get_count(), 28));
+                                   GLYPH_DESIGN2,
+                                   sf::Vector2f(400, 600),
+                                   mf::ratio_step(sf::Vector2f(300, 600), 0.1),
+                                   rotate::stop, get_count(), 28));
 }
 
 void RaceSceneMaster::ResultEvent::pre_process(sf::RenderWindow &window)

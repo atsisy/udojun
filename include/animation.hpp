@@ -64,7 +64,7 @@ private:
         Label label;
         
 public:
-        DynamicText(const wchar_t *str, sf::Font *font, sf::Vector2f init,
+        DynamicText(const wchar_t *str, sf::Font *font, GlyphInformation &g_info, sf::Vector2f init,
                     std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
                     std::function<float(Rotatable *, u64, u64)> r_fn,
                     u64 begin_count, u8 font_size);

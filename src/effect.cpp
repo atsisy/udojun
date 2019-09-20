@@ -1,5 +1,5 @@
 #include "effect.hpp"
-
+#include "gm.hpp"
 #include <iostream>
 
 std::function<void(MoveObject *, u64, u64)> effect::fade_in(u64 distance)
@@ -91,5 +91,17 @@ std::function<void(MoveObject *, u64, u64)> effect::scale_effect(sf::Vector2f in
                                sf::Vector2f next_scale = init_scale + sf::Vector2f(unit_x * past, unit_y * past);
                                obj->set_scale(next_scale);
                        }
+               };
+}
+
+std::function<void(MoveObject *, u64, u64)> effect::animation_effect(std::vector<TextureID> frames, u64 frame_time)
+{
+        return [=](MoveObject *obj, u64 now, u64 begin) {
+                       u64 past = now - begin;
+		       if ((past % frame_time) == 0) {
+			       obj->change_texture(
+                                       GameMaster::texture_table[frames[(past / frame_time) % (frames.size())]]
+                                       );
+		       }
                };
 }

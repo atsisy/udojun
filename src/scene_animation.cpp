@@ -22,14 +22,15 @@ void SceneAnimation::draw_animation(sf::RenderWindow &window)
         }
 }
 
-DynamicText::DynamicText(const wchar_t *str, sf::Font *font, sf::Vector2f init,
-            std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
-            std::function<float(Rotatable *, u64, u64)> r_fn,
-            u64 begin_count, u8 font_size)
+DynamicText::DynamicText(const wchar_t *str, sf::Font *font, GlyphInformation &g_info,
+                         sf::Vector2f init, std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
+                         std::function<float(Rotatable *, u64, u64)> r_fn,
+                         u64 begin_count, u8 font_size)
         : MoveObject(GameMaster::texture_table[EMPTY_TEXTURE], init, f, r_fn, begin_count), label(str, font)
 {
         label.set_place(init.x, init.y);
         label.set_font_size(font_size);
+        label.change_status(g_info);
 }
 
 void DynamicText::move(u64 current_count)
@@ -63,7 +64,9 @@ NovelText::NovelText(std::vector<wchar_t *> list, sf::Font *font, sf::Vector2f p
 {
         sf::Vector2f text_pos = pos;
         for(wchar_t *line : list){
-                text_lines.push_back(new DynamicText(line, font, text_pos, mf::stop, rotate::stop, 0, font_size));
+                text_lines.push_back(
+                        new DynamicText(line, font, GLYPH_DESIGN1,
+                                        text_pos, mf::stop, rotate::stop, 0, font_size));
                 text_pos.y += (offset + font_size);
         }
 }
