@@ -27,6 +27,8 @@
                 "type": "unit",
                 "ID": "STOP"
             },
+            "effect_description": [
+            ],
             "max_hp": 100,
             "init_hp": 100,
             "radius": 10
@@ -71,6 +73,9 @@ Y座標のスケール
 typeとIDは必ず記述することになる。
 **** rot_func_description
 敵キャラクターの回転方法の定義を行う。
+**** effect_description
+キャラクターに掛けたいエフェクトを指定する。
+引数はeffect.hppのcall_interface関数を参照
 **** max_hp
 敵キャラクターの最大HP
 **** init_hp
