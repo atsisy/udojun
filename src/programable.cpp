@@ -1,6 +1,7 @@
 #include "programable.hpp"
 #include <fstream>
 #include <regex>
+#include "effect.hpp"
 
 
 GeneralJSONFunctionArgs::GeneralJSONFunctionArgs(void)
@@ -334,6 +335,8 @@ std::pair<std::string, EnemyCharacterMaterial *> EnemyCharacterTable::parse_obje
 {
         EnemyCharacterMaterial *material = new EnemyCharacterMaterial;
         material->name = obj["name"].get<std::string>();
+        std::cout << "Parsing enemy: " << material->name << std::endl;
+        
         material->txid = str_to_txid(obj["TextureID"].get<std::string>().data());
 
         picojson::object &point_data = obj["point"].get<picojson::object>();
@@ -349,11 +352,16 @@ std::pair<std::string, EnemyCharacterMaterial *> EnemyCharacterTable::parse_obje
         material->rot_func = rotate::select_rotation_function(
                 rotate::str_to_rotf_id(rotf_data["ID"].get<std::string>().data()), rotf_data);
 
+        picojson::array &effects_array = obj["effect_description"].get<picojson::array>();
+        parse_enemy_effect_sub(material, effects_array);
+        
+
         material->max_hp = obj["max_hp"].get<double>();
         material->init_hp = obj["init_hp"].get<double>();
         material->radius = obj["radius"].get<double>();
         
         picojson::array &shot_array = obj["shot"].get<picojson::array>();
+        
         for(auto &array_element : shot_array){
                 picojson::object &shot = array_element.get<picojson::object>();
                 material->shot_data.emplace_back(parse_shot_field(shot));
@@ -364,7 +372,21 @@ std::pair<std::string, EnemyCharacterMaterial *> EnemyCharacterTable::parse_obje
          */
         material->time = 0;
 
+        std::cout << std::endl << "Parsing is done" << std::endl;
+
         return std::make_pair(obj["name"].get<std::string>(), material);
+}
+
+void EnemyCharacterTable::parse_enemy_effect_sub(EnemyCharacterMaterial *material, picojson::array &json_data)
+{
+        std::cout << "\tParsing effect description...";
+        for(auto &effect_element : json_data){
+                picojson::object &effect = effect_element.get<picojson::object>();
+                std::cout << "\t\t" << effect["ID"].get<std::string>() << std::endl;
+                material->effects.push_back(effect::call_interface(
+                        str_to_effectid(effect["ID"].get<std::string>().data()),
+                        effect));
+        }
 }
 
 bool EnemyCharacterTable::check_magic(std::string magic)

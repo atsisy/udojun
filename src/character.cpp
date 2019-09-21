@@ -292,6 +292,7 @@ EnemyCharacter::EnemyCharacter(EnemyCharacterMaterial material, u64 time)
         this->hp_max = material.max_hp;
         this->dead_flag = false;
         set_radius(material.radius);
+        this->add_effect(material.effects);
         damage_on();
         for(FunctionCallEssential &f : shot_data){
                 f.time += time;

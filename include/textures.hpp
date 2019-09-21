@@ -186,9 +186,9 @@ inline TextureID str_to_txid(const char *str)
 
         str_to_idx_sub(str, GHOST_ENEMY_TX1);
         str_to_idx_sub(str, GHOST_ENEMY_TX2);
-        str_to_idx_sub(str, GHOST_ENEMY_TX2);
         str_to_idx_sub(str, GHOST_ENEMY_TX3);
         str_to_idx_sub(str, GHOST_ENEMY_TX4);
+        str_to_idx_sub(str, GHOST_ENEMY_TX5);
 
 	std::cout << "Unknown texture: " << str << std::endl;
 

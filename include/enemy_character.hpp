@@ -14,6 +14,7 @@ public:
         sf::Vector2f scale;
         std::function<sf::Vector2f(MoveObject *, u64, u64)> move_func;
         std::function<float(Rotatable *, u64, u64)> rot_func;
+        std::vector<std::function<void(MoveObject *, u64, u64)> > effects;
         float max_hp;
         float init_hp;
         std::vector<FunctionCallEssential> shot_data;

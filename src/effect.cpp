@@ -2,6 +2,12 @@
 #include "gm.hpp"
 #include <iostream>
 
+std::function<void(MoveObject *, u64, u64)> effect::none(void)
+{
+        return [=](MoveObject *obj, u64 now, u64 begin){
+               };
+}
+
 std::function<void(MoveObject *, u64, u64)> effect::fade_in(u64 distance)
 {
 	return [=](MoveObject *obj, u64 now, u64 begin){
@@ -104,4 +110,49 @@ std::function<void(MoveObject *, u64, u64)> effect::animation_effect(std::vector
                                        );
 		       }
                };
+}
+
+
+std::function<void(MoveObject *, u64, u64)> effect::call_interface(EffectID id, picojson::object &obj)
+{
+        switch(id){
+        case EID_FADE_IN:
+                return effect::fade_in(obj["distance"].get<double>());
+        case EID_FADE_IN_REL:
+                return effect::fade_in(
+                        obj["distance"].get<double>(), obj["called"].get<double>());
+        case EID_FADE_OUT:
+                return effect::fade_out(obj["distance"].get<double>());
+        case EID_FADE_OUT_REL:
+                return effect::fade_out(
+                        obj["distance"].get<double>(), obj["called"].get<double>());
+        case EID_KILL_AT:
+                return effect::kill_at(obj["time"].get<double>());
+        case EID_KILL_AT_REL:
+                return effect::kill_at(obj["time"].get<double>(), obj["called"].get<double>());
+        case EID_SCALE_EFFECT:
+        {
+                auto &init_scale = obj["init_scale"].get<picojson::object>();
+                auto &end_scale = obj["end_scale"].get<picojson::object>();
+                return effect::scale_effect(
+                        sf::Vector2f(init_scale["x"].get<double>(), init_scale["y"].get<double>()),
+                        sf::Vector2f(end_scale["x"].get<double>(), end_scale["y"].get<double>()),
+                        obj["time"].get<double>());
+        }
+        case EID_ANIMATION_EFFECT:
+        {
+                std::vector<TextureID> txid_data;
+                auto &frames = obj["frames"].get<picojson::array>();
+                for(auto &frame_element : frames){
+                        std::string &txid = frame_element.get<std::string>();
+                        txid_data.push_back(str_to_txid(txid.data()));
+                }
+                return effect::animation_effect(
+                        txid_data,
+                        obj["frame_time"].get<double>());
+        }
+        case UNKNOWN_EFFECTID:
+        default:
+                return effect::none();
+        }
 }

@@ -64,6 +64,7 @@ private:
         bool check_magic(std::string magic);
         void parse_file(std::string json_path);
         std::pair<std::string, EnemyCharacterMaterial *> parse_object(picojson::object &obj);
+        void parse_enemy_effect_sub(EnemyCharacterMaterial *material, picojson::array &json_data);
         FunctionCallEssential parse_shot_field(picojson::object &obj);
 
 
