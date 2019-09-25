@@ -109,6 +109,7 @@ public:
         void set_text(const char *text);
         std::string get_text(void);
         sf::Vector2f get_place(void);
+        void set_alpha(u8 alpha);
 
         void change_status(GlyphInformation &info);
         
@@ -192,6 +193,17 @@ inline void DrawableScoreCounter<double>::draw(sf::RenderWindow &window)
         label.draw(window);
 }
 
+class ElapsedCounter : public DrawableScoreCounter<u64> {
+private:
+        u64 last_set;
+
+public:
+        ElapsedCounter(u64 initial, sf::Font *f, float rate = 1);
+        u64 get_elapsed(void);
+        u64 get_last_set(void);
+        void reset_counter(float value);
+};
+
 class DrawableObject : public DrawableComponent {
 protected:
         sf::Texture *texture;
@@ -207,7 +219,7 @@ public:
         void set_scale(float x, float y);
         sf::Vector2f get_scale(void);
         void set_color(sf::Color color);
-        void set_alpha(u8 alpha);
+        virtual void set_alpha(u8 alpha);
         sf::Vector2f displaying_size();
         void rotate(float rad);
         void set_default_origin(void);

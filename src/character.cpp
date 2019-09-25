@@ -179,6 +179,10 @@ void PlayerCharacter::draw(sf::RenderWindow &window)
         if(enable_core){
                 window.draw(core_sprite);
         }
+
+        for(MoveObject *p : slaves){
+                p->draw(window);
+        }
 }
 
 void PlayerCharacter::set_core_place()
@@ -187,6 +191,40 @@ void PlayerCharacter::set_core_place()
         core_sprite.setPosition(
                 center.x - ((core_sprite.getTextureRect().width * scale.x) / 2),
                 center.y - ((core_sprite.getTextureRect().height * scale.y) / 2));
+}
+
+void PlayerCharacter::move_shinrei_slaves(u64 time)
+{
+        for(MoveObject *p : slaves){
+                p->move(time);
+                p->effect(time);
+        }
+}
+
+void PlayerCharacter::update_slaves(u64 time, float power)
+{
+        update_shinrei_slaves(time, power);
+        move_shinrei_slaves(time);
+}
+
+void PlayerCharacter::update_shinrei_slaves(u64 time, float power)
+{
+        i32 num = (i32)(power / 0.02);
+        while(num != slaves.size()){
+                if(num < slaves.size()){
+                        slaves.pop_back();
+                }else{
+                        auto p = new MoveObject(
+                                GameMaster::texture_table[SHINREI1_TX1],
+                                sf::Vector2f(0, 0),
+                                mf::random_turning(this->get_homing_point(), 0.09, 120, 8),
+                                rotate::stop,
+                                time);
+                        p->set_scale(0.12, 0.12);
+                        slaves.push_back(p);
+
+                }
+        }
 }
 
 EnemyCharacterSchedule::EnemyCharacterSchedule(GameData *game_data, const char *path)

@@ -1,6 +1,10 @@
 #pragma once
 
 #include "game_component.hpp"
+#include "animation.hpp"
+#include "move_func.hpp"
+#include "rotate_func.hpp"
+#include "key_input.hpp"
 
 class Tachie : public MoveObject {
 private:
@@ -12,4 +16,37 @@ public:
                u64 begin_count, std::string name);
         void move(u64 count);
         bool are_you(std::string name);
+};
+
+class DrawableKeyboard : public DrawableComponent {
+private:
+        key::KeyboardListener listener;
+        std::vector<std::vector<DynamicText *>> keymap;
+        MoveObject *cursor_object;
+        sf::Vector2f position;
+        sf::Vector2i cursor;
+        sf::Vector2i map_size;
+        std::string buffer;
+        util::str_hash<std::vector<std::function<void(key::KeyStatus)>>> user_handler_func;
+
+        void arrow_right_handler(key::KeyStatus status);
+        void arrow_left_handler(key::KeyStatus status);
+        void arrow_up_handler(key::KeyStatus status);
+        void arrow_down_handler(key::KeyStatus status);
+
+        void typed_handler(key::KeyStatus status);
+
+        void realloc_cursor(void);
+
+public:
+        DrawableKeyboard(sf::Vector2f pos, sf::Font *font, u64 count);
+        
+        void draw(sf::RenderWindow &window) override;
+        void move(u64 count);
+        void check(void);
+
+        std::string get_buffer(void);
+        void clear_buffer(void);
+        
+        void register_handler_function(std::string key, std::function<void(key::KeyStatus)> fn);
 };

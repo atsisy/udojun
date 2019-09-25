@@ -11,6 +11,9 @@
 #include "value.hpp"
 #include "effect.hpp"
 #include "rotate_func.hpp"
+#include <sstream>
+#include <iomanip>
+#include <limits>
 
 SceneMaster::SceneMaster()
 {
@@ -98,14 +101,14 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           enemy_sched(game_data, "stage1_enemy_schedule.json"),
           udon_marker(GameMaster::texture_table[UDON_MARKER], sf::Vector2f(0, 725), mf::stop, rotate::stop, 0)
 {
-        set_count_for_debug(0);
+        set_count_for_debug(4400);
         
         this->game_data = game_data;
-	test_bullet = new Bullet(GameMaster::texture_table[BULLET1],
+	test_bullet = new Bullet(GameMaster::texture_table[SHINREI1_TX1],
 				 sf::Vector2f(400, 400),
-                                 mf::stop,
+                                 mf::random_turning(running_char.get_homing_point(), 0.12, 120, 8),
                                  0, sf::Vector2f(0.12, 0.12), BulletSize::BULLET1,
-                                 true, true, M_PI_4);
+                                 true, true, 0);
         test_3d_object = new DrawableObject3D(GameMaster::texture_table[TAKE1],
                                               sf::Vector3f(-3000, 100, 150),
                                               [](DrawableObject3D *p, u64 n, u64 b){
@@ -291,11 +294,13 @@ void RaceSceneMaster::add_new_danmaku(void)
 			get_count(), danmaku_sched.top().time_limit);
                 
 		// タイマの実行時間は、弾幕発生 + 弾幕タイムリミット
-                timelimit_counter.counter_method().set_score(danmaku_sched.top().time_limit);
-                
+                timelimit_counter.reset_counter(danmaku_sched.top().time_limit);
                 
                 // 先頭の弾幕を捨てる
                 danmaku_sched.drop_top();
+
+                // タイムリミット表示
+                effect_conroller.timelimit_on = true;
 	}else{
                 /*
                  * 全てのスペルカードを撃ち終わった
@@ -306,6 +311,7 @@ void RaceSceneMaster::add_new_danmaku(void)
                                                                   game_score_counter.counter_method().get_score(),
                                                                   graze_counter.counter_method().get_score(),
                                                                   race_status.get_hit_count())));
+                effect_conroller.timelimit_on = false;
         }
 }
 
@@ -352,6 +358,9 @@ void RaceSceneMaster::player_move()
                         player_spellcard();
                 }
         }
+
+
+        running_char.update_slaves(get_count(), power_counter.counter_method().get_score());
 
         running_char.move_diff(sf::Vector2f(0, 0));
 	stamina.add(1);
@@ -473,6 +482,48 @@ void RaceSceneMaster::convert_bullet_to_small_crystal(BulletPipeline &pipeline)
         pipeline.clear_all_bullets();
 }
 
+void RaceSceneMaster::spellcard_result(u64 elapsed_time, u64 remaining_time)
+{
+        std::ostringstream oss;
+        
+        // 追加得点. 消費時間
+        auto text = new DynamicText(
+                L"Get Spell Card Bonus!!", game_data->get_font(JP_DEFAULT),
+                GLYPH_DESIGN1,
+                sf::Vector2f(400, 200), mf::stop,
+                rotate::stop, get_count(), 36);
+        text->add_effect({
+                        effect::fade_in(30),
+                        effect::kill_at(150),
+                        effect::fade_out_later(30, 120) });
+        game_info_container.push_front(text);
+
+        auto additonal = new DynamicText(
+                L"+8000", game_data->get_font(JP_DEFAULT),
+                GLYPH_DESIGN1,
+                sf::Vector2f(500, 260), mf::stop,
+                rotate::stop, get_count(), 36);
+        additonal->add_effect({
+                        effect::fade_in(30),
+                        effect::kill_at(150),
+                        effect::fade_out_later(30, 120) });
+        game_info_container.push_front(additonal);
+
+        oss << std::fixed << std::setprecision(4) << (double)elapsed_time / (double)60.0;
+
+        auto elapsed = new DynamicText(
+                util::utf8_str_to_widechar_str(std::string("撃破時間: ") + oss.str())->data(),
+                game_data->get_font(JP_DEFAULT),
+                GLYPH_DESIGN1,
+                sf::Vector2f(500, 320), mf::stop,
+                rotate::stop, get_count(), 36);
+        elapsed->add_effect({
+                        effect::fade_in(30),
+                        effect::kill_at(150),
+                        effect::fade_out_later(30, 120) });
+        game_info_container.push_front(elapsed);       
+}
+
 void RaceSceneMaster::next_danmaku_forced(void)
 {
         convert_bullet_to_small_crystal(bullet_pipeline.enemy_pipeline);
@@ -489,6 +540,10 @@ void RaceSceneMaster::next_danmaku_forced(void)
                                                  for(auto effect : bomb){
                                                          move_object_container.push_front(effect);
                                                  }
+                                                 spellcard_result(
+                                                         timelimit_counter.get_elapsed(),
+                                                         timelimit_counter.get_last_set());
+
                                                  return true;
                                          }
                                          return false;
@@ -504,7 +559,7 @@ void RaceSceneMaster::kill_out_of_filed_bullet(std::list<Bullet *> &bullets)
         bullets.remove_if([this](Bullet *b){
                                   if (b->is_finish(
                                               sf::IntRect(-1368, -768, 1368 * 2, 768 * 2)) ||
-                                      !b->visible() ||
+                                      !b->visible() |
                                       std::find(std::begin(killed_shot_master_id),
                                                 std::end(killed_shot_master_id),
                                                 b->get_shot_master_id()) != std::end(killed_shot_master_id)) {
@@ -771,6 +826,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 	}
 
         if(get_count() == 4500){
+                
                 timer_list.cancel(danmaku_timer_id);
                 convert_bullet_to_small_crystal(bullet_pipeline.enemy_pipeline);
                 this->target_udon.set_hp_max();
@@ -782,9 +838,11 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
                                 sub_event_list.push_back(new ConversationEvent(this, sf::Vector2f(0, 0), game_data));
                         }, 240, get_count());
                 effect_conroller.udon_marker_hide = false;
+
+                sub_event_list.push_back(new SaveEvent(this, sf::Vector2f(0, 0), game_data, ScoreInformation(0, 0, 0, 0)));
                         
         }
-        
+
 	tachie_container.remove_if([](Tachie *p) { return !p->visible(); });
         // 立ち絵の移動
         for(auto &&p : tachie_container){
@@ -799,6 +857,16 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 	}
 
         move_object_container.remove_if(
+                [this](MoveObject *p){
+                        if(p->visible()){
+                                p->move(get_count());
+                                p->effect(get_count());
+                                return false;
+                        }else{
+                                return true;
+                        }
+                });
+        game_info_container.remove_if(
                 [this](MoveObject *p){
                         if(p->visible()){
                                 p->move(get_count());
@@ -849,6 +917,7 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
         post_draw_request_vargs("character", &running_char, &target_udon);
 
         post_draw_request("bullets", move_object_container);
+        post_draw_request("game_info", game_info_container);
         post_draw_request("character", enemy_container);
 
         post_draw_request_vargs("bullets",
@@ -874,12 +943,14 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
 
         post_draw_request_vargs("game_info",
                                 &udon_hp,
-                                &score_counter,
-                                &timelimit_counter);
+                                &score_counter);
+        if(effect_conroller.timelimit_on){
+                post_draw_request_vargs("game_info",
+                                        &timelimit_counter);
+        }
 
         // 立ち絵の移動
         post_draw_request("tachie", tachie_container);
-
 
         /*
          * それぞれのviewに貯められたリクエストを全て処理する
@@ -1052,6 +1123,14 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
         hexagram->set_default_origin();
         hexagram->add_effect({ effect::fade_in(30) });
         hexagram->set_drawing_depth(127);
+        hexagram->add_effect(
+                { [](MoveObject *p, u64 now, u64 begin)
+                                     {
+                                             u64 past = now - begin;
+                                             p->set_scale(
+                                                     (std::sin((float)past / 40.f) * 0.15) + 1.1,
+                                                     (std::sin((float)past / 40.f) * 0.15) + 1.1);
+                                     } });
         objects.push_front(hexagram);
 
         if(danmaku_data.type == SPELL_CARD_DANMAKU){
@@ -1142,6 +1221,7 @@ RaceSceneMaster::RaceSceneEffectController::RaceSceneEffectController(void)
         enemy_force_hide = false;
         time_limit_hide = true;
         udon_marker_hide = true;
+        timelimit_on = false;
 }
 
 RaceSceneMaster::ResultEvent::ResultEvent(RaceSceneMaster *rsm, sf::Vector2f pos,
@@ -1211,4 +1291,80 @@ void RaceSceneMaster::ResultEvent::drawing_process(sf::RenderWindow &window)
 GameState RaceSceneMaster::ResultEvent::post_process(sf::RenderWindow &window)
 {
         return SceneSubEvent::post_process(window);
+}
+
+
+RaceSceneMaster::SaveEvent::SaveEvent(RaceSceneMaster *rsm, sf::Vector2f pos,
+                                      GameData *game_data, ScoreInformation score_info)
+        : SceneSubEvent(pos, "save"),
+          keyboard(sf::Vector2f(200, 400), game_data->get_font(JP_DEFAULT), 0),
+          save_data(score_info)
+{
+        set_status(SUBEVE_CONTINUE);
+        this->rsm = rsm;
+
+        keyboard.register_handler_function("OK",
+                                           [&, this](key::KeyStatus status){
+                                                   if(status & key::KEY_FIRST_PRESSED){
+                                                           std::cout << keyboard.get_buffer() << std::endl;
+                                                           this->save_to_json("test_out.json", keyboard.get_buffer(), save_data);
+                                                           keyboard.clear_buffer();
+                                                   }
+                                           });
+}
+
+void RaceSceneMaster::SaveEvent::pre_process(sf::RenderWindow &window)
+{
+        keyboard.check();
+        keyboard.move(get_count());
+
+        update_count();
+}
+
+void RaceSceneMaster::SaveEvent::drawing_process(sf::RenderWindow &window)
+{
+        rsm->post_draw_request_vargs("game_info", &keyboard);
+}
+
+GameState RaceSceneMaster::SaveEvent::post_process(sf::RenderWindow &window)
+{
+        return SceneSubEvent::post_process(window);        
+}
+
+void RaceSceneMaster::SaveEvent::save_to_json(std::string out_file, std::string name, ScoreInformation info)
+{
+        std::ifstream ifs(out_file, std::ios::in);
+        picojson::value v;
+
+        std::cout << "Saving result data to " << out_file << "..." << std::endl;
+
+        if (ifs.fail()) {
+                std::cerr << "failed to open json file" << std::endl;
+                exit(1);
+        }
+
+        const std::string json((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+        ifs.close();
+
+        const std::string err = picojson::parse(v, json);
+        if (err.empty() == false) {
+                std::cerr << err << std::endl;
+                exit(1);
+        }
+
+        auto &obj = v.get<picojson::object>();
+        picojson::array &data_array = obj["save_data"].get<picojson::array>();
+
+        picojson::object save_object;
+        save_object.insert(std::make_pair("score", picojson::value((double)info.score.get_current())));
+        save_object.insert(std::make_pair("name", picojson::value(name)));
+
+        data_array.push_back(picojson::value(save_object));
+
+        std::ofstream ofs(out_file, std::ios::out);
+        ofs << v.serialize();
+        ofs.close();
+
+        std::cout << "Saving is done." << std::endl;
+        
 }

@@ -37,6 +37,7 @@ public:
         void rotate(float a) override;
         void call_rotate_func(u64 now, u64 begin) override;
         void rotate_with_func(u64 now) override;
+        
 };
 
 class PlayerCharacter : public DrawableCharacter {
@@ -45,8 +46,11 @@ private:
         sf::Sprite core_sprite;
         bool enable_core;
         bool enable_shot;
+        std::vector<MoveObject *> slaves;
 
         void set_core_place();
+        void update_shinrei_slaves(u64 time, float power);
+        void move_shinrei_slaves(u64 time);
 
 public:
         PlayerCharacter(CharacterAttribute attribute, sf::Texture *character,
@@ -61,4 +65,5 @@ public:
         void core_off(void);
         void move_diff(sf::Vector2f diff);
         void draw(sf::RenderWindow &window);
+        void update_slaves(u64 time, float power);
 };

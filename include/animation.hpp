@@ -69,11 +69,12 @@ public:
                     std::function<float(Rotatable *, u64, u64)> r_fn,
                     u64 begin_count, u8 font_size);
 
-        void move(u64 count);
-        void draw(sf::RenderWindow &window);
+        void move(u64 count) override;
+        void draw(sf::RenderWindow &window) override;
         void set_font_size(u8 size);
         std::string get_text(void);
         void change_text_status(GlyphInformation &info);
+        void set_alpha(u8 alpha) override;
 };
 
 class NovelText : public DrawableComponent {

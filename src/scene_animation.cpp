@@ -44,6 +44,11 @@ void DynamicText::draw(sf::RenderWindow &window)
         label.draw(window);
 }
 
+void DynamicText::set_alpha(u8 alpha)
+{
+        label.set_alpha(alpha);
+}
+
 void DynamicText::set_font_size(u8 size)
 {
         label.set_font_size(size);

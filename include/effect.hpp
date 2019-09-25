@@ -46,6 +46,7 @@ namespace effect {
         std::function<void(MoveObject *, u64, u64)> fade_out(u64 distance);
         std::function<void(MoveObject *, u64, u64)> fade_in(u64 distance, u64 called);
         std::function<void(MoveObject *, u64, u64)> fade_out(u64 distance, u64 called);
+        std::function<void(MoveObject *, u64, u64)> fade_out_later(u64 distance, u64 later);
         std::function<void(MoveObject *, u64, u64)> kill_at(u64 time);
         std::function<void(MoveObject *, u64, u64)> kill_at(u64 time, u64 called);
         std::function<void(MoveObject *, u64, u64)> scale_effect(sf::Vector2f begin, sf::Vector2f end, u64 time);

@@ -86,6 +86,9 @@ enum TextureID {
         GHOST_ENEMY_TX3,
         GHOST_ENEMY_TX4,
         GHOST_ENEMY_TX5,
+        SHINREI1_TX1,
+        SHINREI1_TX2,
+        SHINREI1_TX3,
 };
 
 enum LaserTextureID {
@@ -189,6 +192,10 @@ inline TextureID str_to_txid(const char *str)
         str_to_idx_sub(str, GHOST_ENEMY_TX3);
         str_to_idx_sub(str, GHOST_ENEMY_TX4);
         str_to_idx_sub(str, GHOST_ENEMY_TX5);
+
+        str_to_idx_sub(str, SHINREI1_TX1);
+        str_to_idx_sub(str, SHINREI1_TX2);
+        str_to_idx_sub(str, SHINREI1_TX3);
 
 	std::cout << "Unknown texture: " << str << std::endl;
 

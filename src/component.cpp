@@ -112,6 +112,18 @@ void Label::change_status(GlyphInformation &info)
 	text.setStyle(info.style);
 }
 
+void Label::set_alpha(u8 alpha)
+{
+        sf::Color fill_color = text.getFillColor();
+        sf::Color outline_color = text.getOutlineColor();
+
+        fill_color.a = alpha;
+        outline_color.a = alpha;
+
+        set_color(fill_color);
+        text.setOutlineColor(outline_color);
+}
+
 WindowFrame::WindowFrame(sf::IntRect window_rect, sf::IntRect hole)
 {
 	frames.emplace_back(sf::Vector2f(window_rect.width, hole.top));
@@ -222,6 +234,28 @@ sf::Vector2f Meter::get_size()
 float Meter::get_value()
 {
 	return value;
+}
+
+ElapsedCounter::ElapsedCounter(u64 initial, sf::Font *f, float rate)
+        : DrawableScoreCounter<u64>(initial, f, rate)
+{
+        reset_counter(initial);
+}
+
+u64 ElapsedCounter::get_elapsed(void)
+{
+        return last_set - this->counter_method().get_raw_score();
+}
+
+u64 ElapsedCounter::get_last_set(void)
+{
+        return this->last_set;
+}
+
+void ElapsedCounter::reset_counter(float value)
+{
+        this->last_set = value;
+        this->counter_method().set_score(value);
 }
 
 DrawableObject::DrawableObject(sf::Texture *t, sf::Vector2f p,

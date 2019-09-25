@@ -51,6 +51,29 @@ std::function<void(MoveObject *, u64, u64)> effect::fade_out(u64 distance)
                };
 }
 
+std::function<void(MoveObject *, u64, u64)> effect::fade_out_later(u64 distance, u64 later)
+{
+	return [=](MoveObject *obj, u64 now, u64 begin) {
+                       u64 past = now - begin;
+                       u64 after_enabled = 0;
+                       float r;
+
+                       if(past < later){
+                               return;
+                       }
+
+                       after_enabled = past - later;
+                       
+                       if (after_enabled > distance) {
+                               r = 0;
+                       } else {
+                               r = 255.0 *
+                                       (1 - (float)((float)(after_enabled) / (float)distance));
+                       }
+                       obj->set_alpha(r);
+               };
+}
+
 std::function<void(MoveObject *, u64, u64)> effect::fade_out(u64 distance, u64 called)
 {
 	return [=](MoveObject *obj, u64 now, u64 begin) {

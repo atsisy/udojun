@@ -205,6 +205,7 @@ class RaceSceneMaster : public SceneMaster {
                 bool enemy_force_hide: 1;
                 bool time_limit_hide: 1;
                 bool udon_marker_hide: 1;
+                bool timelimit_on: 1;
 
                 RaceSceneEffectController(void);
         };
@@ -257,6 +258,24 @@ class RaceSceneMaster : public SceneMaster {
                 void drawing_process(sf::RenderWindow &window) override;
                 GameState post_process(sf::RenderWindow &window) override;
         };
+
+        class SaveEvent : public SceneSubEvent {
+        private:
+                std::forward_list<MoveObject *> objects;
+                RaceSceneMaster *rsm;
+                DrawableKeyboard keyboard;
+                ScoreInformation save_data;
+
+                void save_to_json(std::string out_file, std::string name, ScoreInformation info);
+                
+        public:
+                SaveEvent(RaceSceneMaster *rsm, sf::Vector2f pos,
+                            GameData *game_data, ScoreInformation score_info);
+
+                void pre_process(sf::RenderWindow &window) override;
+                void drawing_process(sf::RenderWindow &window) override;
+                GameState post_process(sf::RenderWindow &window) override;
+        };
         
 private:
         std::forward_list<Tachie *> tachie_container;
@@ -264,6 +283,7 @@ private:
         std::forward_list<EnemyCharacter *> enemy_container;
         std::list<SceneSubEvent *> sub_event_list;
         std::list<DrawableObject3D *> object3d_list;
+        std::forward_list<MoveObject *> game_info_container;
         std::vector<SHOT_MASTER_ID> killed_shot_master_id;
         
         GameData *game_data;
@@ -273,7 +293,7 @@ private:
         BackgroundTile game_background;
         DrawableScoreCounter<i64> game_score_counter;
         DrawableScoreCounter<i64> score_counter;
-	DrawableScoreCounter<i64> timelimit_counter;
+	ElapsedCounter timelimit_counter;
         DrawableScoreCounter<double> power_counter;
         BulletFuncTable func_table;
         Meter stamina;
@@ -315,6 +335,7 @@ private:
         void player_shot(void);
         void generate_items_random(ItemOrder item, sf::Vector2f origin, i64 width);
         void convert_bullet_to_small_crystal(BulletPipeline &pipeline);
+        void spellcard_result(u64 elapsed_time, u64 remaining_time);
 
     public:
         RaceSceneMaster(GameData *game_data);

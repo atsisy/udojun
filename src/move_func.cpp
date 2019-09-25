@@ -349,6 +349,32 @@ namespace mf {
                                return now + offset;
                        };
 	}
+
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
+        random_vibration(sf::Vector2f origin, u64 r)
+        {
+                return [=](MoveObject *p, u64 now_lmd, u64 begin_lmd) {
+                               return origin + sf::Vector2f(
+                                       util::generate_random() % r,
+                                       util::generate_random() % r);
+                       };
+        }
+
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
+        random_turning(sf::Vector2f *origin, float speed, u64 r, u64 width)
+        {
+                float phase = geometry::convert_to_radian(util::generate_random() % 360);
+                r += (util::generate_random() % 32);
+                
+                return [=](MoveObject *p, u64 now_lmd, u64 begin_lmd) {
+                               u64 past = now_lmd - begin_lmd;
+                               u64 random_r = r + (util::generate_random() % width);
+                               return sf::Vector2f(
+                                       origin->x + (random_r * std::sin((past * speed) + phase)),
+                                       origin->y + (random_r * std::cos((past * speed) + phase))
+                                       );
+                       };
+        }
 }
 
 BulletData::BulletData(picojson::object &json_data)

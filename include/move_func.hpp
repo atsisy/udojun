@@ -38,6 +38,9 @@ namespace mf {
         DEF_MOVE_FUNC(ratio_step, sf::Vector2f goal, float ratio);
         DEF_MOVE_FUNC(accelerating, sf::Vector2f init_speed, sf::Vector2f accel, sf::Vector2f x_speed_range, sf::Vector2f y_speed_range);
         DEF_MOVE_FUNC(udon_double_step_getting_slower, float init_speed, float angle, u64 change_course_time, float sub_angle);
+        DEF_MOVE_FUNC(random_vibration, sf::Vector2f origin, u64 r);
+
+        DEF_MOVE_FUNC(random_turning, sf::Vector2f *origin, float speed, u64 r, u64 width);
 }
 
 
