@@ -195,6 +195,35 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 
         target_udon.add_effect({ effect::animation_effect({ UDON1, UDON2, UDON3, UDON4, UDON5 }, 5) });
 
+        game_state = RACE;
+
+}
+
+RaceSceneMaster::~RaceSceneMaster(void)
+{
+        for(auto p : tachie_container){
+                delete p;
+        }
+
+        for(auto p : move_object_container){
+                delete p;
+        }
+
+        for(auto p : enemy_container){
+                delete p;
+        }
+
+        for(auto p : sub_event_list){
+                delete p;
+        }
+
+        for(auto p : object3d_list){
+                delete p;
+        }
+
+	for (auto p : game_info_container) {
+		delete p;
+	}
 }
 
 void RaceSceneMaster::player_spellcard_effect(void)
@@ -305,13 +334,17 @@ void RaceSceneMaster::add_new_danmaku(void)
                 /*
                  * 全てのスペルカードを撃ち終わった
                  */
+                ScoreInformation current_score_info = export_score_information();
                 sub_event_list.push_back(new ResultEvent(
                                                  this, sf::Vector2f(0, 0), game_data,
-                                                 ScoreInformation(power_counter.counter_method().get_score(),
-                                                                  game_score_counter.counter_method().get_score(),
-                                                                  graze_counter.counter_method().get_score(),
-                                                                  race_status.get_hit_count())));
-                effect_conroller.timelimit_on = false;
+                                                 current_score_info));
+
+                timer_list.add_timer(
+                        [this](void){
+                                this->game_state = SAVE;
+                        },
+                        320, get_count());
+                        effect_conroller.timelimit_on = false;
         }
 }
 
@@ -838,9 +871,6 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
                                 sub_event_list.push_back(new ConversationEvent(this, sf::Vector2f(0, 0), game_data));
                         }, 240, get_count());
                 effect_conroller.udon_marker_hide = false;
-
-                sub_event_list.push_back(new SaveEvent(this, sf::Vector2f(0, 0), game_data, ScoreInformation(0, 0, 0, 0)));
-                        
         }
 
 	tachie_container.remove_if([](Tachie *p) { return !p->visible(); });
@@ -989,7 +1019,15 @@ GameState RaceSceneMaster::post_process(sf::RenderWindow &window)
                 .remove_if([&](SceneSubEvent *sse)
                                    { return sse->post_process(window) == SUBEVE_FINISH; });
 
-	return RACE;
+	return game_state;
+}
+
+ScoreInformation RaceSceneMaster::export_score_information(void)
+{
+        return  ScoreInformation(power_counter.counter_method().get_score(),
+                                 game_score_counter.counter_method().get_score(),
+                                 graze_counter.counter_method().get_score(),
+                                 race_status.get_hit_count());
 }
 
 RaceSceneMaster::ConversationEvent::ConversationEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *data)
@@ -1291,80 +1329,4 @@ void RaceSceneMaster::ResultEvent::drawing_process(sf::RenderWindow &window)
 GameState RaceSceneMaster::ResultEvent::post_process(sf::RenderWindow &window)
 {
         return SceneSubEvent::post_process(window);
-}
-
-
-RaceSceneMaster::SaveEvent::SaveEvent(RaceSceneMaster *rsm, sf::Vector2f pos,
-                                      GameData *game_data, ScoreInformation score_info)
-        : SceneSubEvent(pos, "save"),
-          keyboard(sf::Vector2f(200, 400), game_data->get_font(JP_DEFAULT), 0),
-          save_data(score_info)
-{
-        set_status(SUBEVE_CONTINUE);
-        this->rsm = rsm;
-
-        keyboard.register_handler_function("OK",
-                                           [&, this](key::KeyStatus status){
-                                                   if(status & key::KEY_FIRST_PRESSED){
-                                                           std::cout << keyboard.get_buffer() << std::endl;
-                                                           this->save_to_json("test_out.json", keyboard.get_buffer(), save_data);
-                                                           keyboard.clear_buffer();
-                                                   }
-                                           });
-}
-
-void RaceSceneMaster::SaveEvent::pre_process(sf::RenderWindow &window)
-{
-        keyboard.check();
-        keyboard.move(get_count());
-
-        update_count();
-}
-
-void RaceSceneMaster::SaveEvent::drawing_process(sf::RenderWindow &window)
-{
-        rsm->post_draw_request_vargs("game_info", &keyboard);
-}
-
-GameState RaceSceneMaster::SaveEvent::post_process(sf::RenderWindow &window)
-{
-        return SceneSubEvent::post_process(window);        
-}
-
-void RaceSceneMaster::SaveEvent::save_to_json(std::string out_file, std::string name, ScoreInformation info)
-{
-        std::ifstream ifs(out_file, std::ios::in);
-        picojson::value v;
-
-        std::cout << "Saving result data to " << out_file << "..." << std::endl;
-
-        if (ifs.fail()) {
-                std::cerr << "failed to open json file" << std::endl;
-                exit(1);
-        }
-
-        const std::string json((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-        ifs.close();
-
-        const std::string err = picojson::parse(v, json);
-        if (err.empty() == false) {
-                std::cerr << err << std::endl;
-                exit(1);
-        }
-
-        auto &obj = v.get<picojson::object>();
-        picojson::array &data_array = obj["save_data"].get<picojson::array>();
-
-        picojson::object save_object;
-        save_object.insert(std::make_pair("score", picojson::value((double)info.score.get_current())));
-        save_object.insert(std::make_pair("name", picojson::value(name)));
-
-        data_array.push_back(picojson::value(save_object));
-
-        std::ofstream ofs(out_file, std::ios::out);
-        ofs << v.serialize();
-        ofs.close();
-
-        std::cout << "Saving is done." << std::endl;
-        
 }

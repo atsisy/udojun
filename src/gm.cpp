@@ -115,6 +115,10 @@ SceneMaster *GameMaster::create_new_scene(GameState req)
 		return new RaceSceneMaster(this->game_data);
         case OPENING_EPISODE:
 		return new OpeningEpisodeSceneMaster(this->game_data);
+        case SAVE:
+                return new SaveSceneMaster(
+                        this->game_data,
+                        dynamic_cast<RaceSceneMaster *>(current_scene)->export_score_information());
 	case END:
                 return nullptr;
         default:
@@ -127,9 +131,10 @@ SceneMaster *GameMaster::create_new_scene(GameState req)
 void GameMaster::switch_scene(GameState res)
 {
         if(current_state != res){
-                delete current_scene;
+                SceneMaster *old_scene = current_scene;
                 current_state = res;
                 current_scene = create_new_scene(res);
+                delete old_scene;
         }
 }
 

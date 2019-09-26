@@ -31,6 +31,7 @@ enum GameState {
         END,
         SUBEVE_CONTINUE,
         SUBEVE_FINISH,
+        SAVE,
 };
 
 class GraphicBuffer {
@@ -167,6 +168,23 @@ public:
         GameState post_process(sf::RenderWindow &window) override;
 };
 
+class SaveSceneMaster : public SceneMaster, public SceneAnimation {
+private:
+        std::forward_list<MoveObject *> objects;
+        DrawableKeyboard keyboard;
+        ScoreInformation save_data;
+        GameState game_state;
+
+        void save_as_json(std::string out_file, std::string name, ScoreInformation info);
+
+public:
+        SaveSceneMaster(GameData *game_data, ScoreInformation info);
+        
+        void pre_process(sf::RenderWindow &window) override;
+        void drawing_process(sf::RenderWindow &window) override;
+        GameState post_process(sf::RenderWindow &window) override;
+};
+
 class EnemyManager {
 public:
         EnemyManager(void);
@@ -258,24 +276,6 @@ class RaceSceneMaster : public SceneMaster {
                 void drawing_process(sf::RenderWindow &window) override;
                 GameState post_process(sf::RenderWindow &window) override;
         };
-
-        class SaveEvent : public SceneSubEvent {
-        private:
-                std::forward_list<MoveObject *> objects;
-                RaceSceneMaster *rsm;
-                DrawableKeyboard keyboard;
-                ScoreInformation save_data;
-
-                void save_to_json(std::string out_file, std::string name, ScoreInformation info);
-                
-        public:
-                SaveEvent(RaceSceneMaster *rsm, sf::Vector2f pos,
-                            GameData *game_data, ScoreInformation score_info);
-
-                void pre_process(sf::RenderWindow &window) override;
-                void drawing_process(sf::RenderWindow &window) override;
-                GameState post_process(sf::RenderWindow &window) override;
-        };
         
 private:
         std::forward_list<Tachie *> tachie_container;
@@ -316,6 +316,7 @@ private:
         EnemyManager enemy_manager;
         MoveObject udon_marker;
         RaceStatus race_status;
+        GameState game_state;
 
 	void add_new_functional_bullets_to_schedule(void);
         void add_new_danmaku(void);
@@ -339,11 +340,14 @@ private:
 
     public:
         RaceSceneMaster(GameData *game_data);
+        ~RaceSceneMaster(void);
 
         void player_move();
         void pre_process(sf::RenderWindow &window) override;
         void drawing_process(sf::RenderWindow &window) override;
         GameState post_process(sf::RenderWindow &window) override;
+
+        ScoreInformation export_score_information(void);
 };
 
 
