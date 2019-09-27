@@ -171,11 +171,13 @@ public:
 class SaveSceneMaster : public SceneMaster, public SceneAnimation {
 private:
         std::forward_list<MoveObject *> objects;
+        DynamicText *display;
         DrawableKeyboard keyboard;
         ScoreInformation save_data;
         GameState game_state;
 
         void save_as_json(std::string out_file, std::string name, ScoreInformation info);
+        void prepare_for_next_scene(void);
 
 public:
         SaveSceneMaster(GameData *game_data, ScoreInformation info);
@@ -213,7 +215,7 @@ public:
         void draw_and_clear(sf::RenderWindow &window);
 };
 
-class RaceSceneMaster : public SceneMaster {
+class RaceSceneMaster : public SceneMaster, public SceneAnimation {
 
         class RaceSceneEffectController {
         public:
@@ -337,6 +339,7 @@ private:
         void generate_items_random(ItemOrder item, sf::Vector2f origin, i64 width);
         void convert_bullet_to_small_crystal(BulletPipeline &pipeline);
         void spellcard_result(u64 elapsed_time, u64 remaining_time);
+        void prepare_for_next_scene(void);
 
     public:
         RaceSceneMaster(GameData *game_data);

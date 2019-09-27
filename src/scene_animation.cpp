@@ -54,6 +54,16 @@ void DynamicText::set_font_size(u8 size)
         label.set_font_size(size);
 }
 
+void DynamicText::set_text(const wchar_t *str)
+{
+        label.set_text(str);
+}
+
+void DynamicText::set_text(const char *str)
+{
+        label.set_text(str);
+}
+
 std::string DynamicText::get_text(void)
 {
         return label.get_text();

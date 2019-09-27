@@ -99,6 +99,11 @@ void Label::set_text(const char *text)
 	this->text.setString(text);
 }
 
+void Label::set_text(const wchar_t *text)
+{
+	this->text.setString(text);
+}
+
 void Label::draw(sf::RenderWindow &window)
 {
 	window.draw(text);

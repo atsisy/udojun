@@ -186,6 +186,10 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 	create_view("tachie", sf::FloatRect(0.0f, 0.0f, 1366.f, 768.f),
                     sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
 
+        create_view("loading",
+		    sf::FloatRect(0.f, 0.f, 1366.f, 768.f),
+                    sf::FloatRect(0.f, 0.f, 1.f, 1.f));
+
         bullet_pipeline.enemy_pipeline.add_function(
                 new FunctionCallEssential("field1", 30, NO_SHOT_MASTER,
                                           sf::Vector2f(0, 0)));
@@ -334,18 +338,38 @@ void RaceSceneMaster::add_new_danmaku(void)
                 /*
                  * 全てのスペルカードを撃ち終わった
                  */
-                ScoreInformation current_score_info = export_score_information();
-                sub_event_list.push_back(new ResultEvent(
-                                                 this, sf::Vector2f(0, 0), game_data,
-                                                 current_score_info));
-
-                timer_list.add_timer(
-                        [this](void){
-                                this->game_state = SAVE;
-                        },
-                        320, get_count());
-                        effect_conroller.timelimit_on = false;
+                prepare_for_next_scene();
         }
+}
+
+void RaceSceneMaster::prepare_for_next_scene(void)
+{
+        timer_list.add_timer(
+                [this](void){
+                        ScoreInformation current_score_info = export_score_information();
+                        sub_event_list.push_back(new ResultEvent(
+                                                         this, sf::Vector2f(0, 0), game_data,
+                                                         current_score_info));
+                },
+                180, get_count());
+
+        timer_list.add_timer(
+                [this](void){
+                        auto p = new MoveObject(GameMaster::texture_table[BLACK_ANTEN],
+                                                sf::Vector2f(0, 0),
+                                                mf::stop,
+                                                rotate::stop,
+                                                get_count());
+                        add_animation_object(p);
+                        p->add_effect({ effect::fade_in(100) });
+                },
+                500, get_count());
+        timer_list.add_timer(
+                [this](void){
+                        this->game_state = SAVE;
+                },
+                620, get_count());
+        effect_conroller.timelimit_on = false;
 }
 
 void RaceSceneMaster::random_mist(void)
@@ -914,6 +938,8 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
         for(SceneSubEvent *sse : sub_event_list){
                 sse->pre_process(window);
         }
+
+        flush_effect_buffer(get_count());
         
 	update_count();
 }
@@ -1011,6 +1037,9 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
 
         switch_view("tachie", window);
         get_view("tachie")->flush_draw_requests(window);
+
+        switch_view("loading", window);
+        draw_animation(window);
 }
 
 GameState RaceSceneMaster::post_process(sf::RenderWindow &window)
@@ -1322,7 +1351,7 @@ void RaceSceneMaster::ResultEvent::drawing_process(sf::RenderWindow &window)
 {
         for(auto &&p : objects){
                 if(p->visible())
-                        rsm->post_draw_request_vargs("field", p);
+                        rsm->post_draw_request_vargs("game_info", p);
 	}
 }
 

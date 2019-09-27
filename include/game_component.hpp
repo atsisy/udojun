@@ -107,6 +107,7 @@ public:
         void set_color(sf::Color color);
         void set_font_size(u8 size);
         void set_text(const char *text);
+        void set_text(const wchar_t *text);
         std::string get_text(void);
         sf::Vector2f get_place(void);
         void set_alpha(u8 alpha);

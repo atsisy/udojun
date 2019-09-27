@@ -75,6 +75,8 @@ public:
         std::string get_text(void);
         void change_text_status(GlyphInformation &info);
         void set_alpha(u8 alpha) override;
+        void set_text(const wchar_t *str);
+        void set_text(const char *str);
 };
 
 class NovelText : public DrawableComponent {
