@@ -219,6 +219,7 @@ public:
         void set_scale(sf::Vector2f scale);
         void set_scale(float x, float y);
         sf::Vector2f get_scale(void);
+        sf::Vector2u get_texture_size(void);
         void set_color(sf::Color color);
         virtual void set_alpha(u8 alpha);
         sf::Vector2f displaying_size();
@@ -393,6 +394,18 @@ public:
         util::FixedCounter<u64> hit;
         
         ScoreInformation(double power, u64 score, u64 graze, u64 _hit);
+};
+
+class SaveData {
+private:
+        std::string name;
+        ScoreInformation score_info;
+
+public:
+        SaveData(std::string _name, ScoreInformation _si);
+        ScoreInformation get_score_information(void);
+        std::string get_name(void);
+        void reset_name(std::string _name);
 };
 
 class RaceStatus {

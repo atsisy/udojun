@@ -51,6 +51,7 @@ namespace effect {
         std::function<void(MoveObject *, u64, u64)> kill_at(u64 time, u64 called);
         std::function<void(MoveObject *, u64, u64)> scale_effect(sf::Vector2f begin, sf::Vector2f end, u64 time);
         std::function<void(MoveObject *, u64, u64)> animation_effect(std::vector<TextureID> frames, u64 frame_time);
+        std::function<void(MoveObject *, u64, u64)> keep_origin(sf::Vector2f origin);
 
         std::function<void(MoveObject *, u64, u64)> call_interface(EffectID id, picojson::object &obj);
 } // namespace effect

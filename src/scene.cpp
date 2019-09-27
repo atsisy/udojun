@@ -1302,7 +1302,7 @@ RaceSceneMaster::ResultEvent::ResultEvent(RaceSceneMaster *rsm, sf::Vector2f pos
         objects.push_front(
                 new DynamicText(
                         util::utf8_str_to_widechar_str(
-                                std::string("スコア: ")
+                                std::string("得点: ")
                                 +
                                 std::to_string(score_info.score.get_current()))->data(),
                         game_data->get_font(JP_DEFAULT),

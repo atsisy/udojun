@@ -22,6 +22,13 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 				sf::Vector2f(WindowInformation::HALF_WIDTH, 100),
                                 mf::stop, rotate::stop, get_count(), 40));
         choice_label_set.emplace(
+		"Ranking",
+		new DynamicText(L"Ranking", game_data->get_font(JP_DEFAULT),
+                                GLYPH_DESIGN1,
+				sf::Vector2f(WindowInformation::HALF_WIDTH, 250),
+                                mf::stop, rotate::stop, get_count(), 28)
+                );
+        choice_label_set.emplace(
 		"Exit",
 		new DynamicText(L"Exit", game_data->get_font(JP_DEFAULT),
                                 GLYPH_DESIGN1,
@@ -30,9 +37,16 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
                 );
 
         selecter.add_item("Start");
+        selecter.add_item("Ranking");
 	selecter.add_item("Exit");
-
+        
         choice_label_set.at("Start")->override_move_func(
+                [](MoveObject *p, u64 current, u64 begin) {
+                        auto &&init = p->get_initial_position();
+                        float width = 5 * std::sin((float)(current - begin) / 20.0);
+                        return sf::Vector2f(init.x, init.y + width);
+		});
+        choice_label_set.at("Ranking")->override_move_func(
                 [](MoveObject *p, u64 current, u64 begin) {
                         auto &&init = p->get_initial_position();
                         float width = 5 * std::sin((float)(current - begin) / 20.0);
@@ -70,6 +84,14 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 						[this](void) {
 							this->game_state =
 								OPENING_EPISODE;
+						},
+						180, get_count());
+				} else if (command == "Ranking") {
+					start_handler();
+					timer_list.add_timer(
+						[this](void) {
+							this->game_state =
+								RANKING;
 						},
 						180, get_count());
 				}

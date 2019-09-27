@@ -276,6 +276,11 @@ sf::Vector2f DrawableObject::get_scale(void)
         return this->sprite.getScale();
 }
 
+sf::Vector2u DrawableObject::get_texture_size(void)
+{
+        return this->texture->getSize();
+}
+
 void DrawableObject::rotate(float rad)
 {
 	sprite.rotate(rad);
@@ -723,4 +728,23 @@ u64 RaceStatus::get_hit_count(void)
 void RaceStatus::hit(void)
 {
         hit_count++;
+}
+
+SaveData::SaveData(std::string _name, ScoreInformation _si)
+        : name(_name), score_info(_si)
+{}
+
+std::string SaveData::get_name(void)
+{
+        return name;
+}
+
+ScoreInformation SaveData::get_score_information(void)
+{
+        return score_info;
+}
+
+void SaveData::reset_name(std::string _name)
+{
+        this->name = _name;
 }

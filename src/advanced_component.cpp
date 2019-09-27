@@ -1,5 +1,6 @@
 #include "advanced_component.hpp"
 #include "gm.hpp"
+#include "effect.hpp"
 
 Tachie::Tachie(sf::Texture *t, sf::Vector2f p,
 	       std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
@@ -64,6 +65,14 @@ DrawableKeyboard::DrawableKeyboard(sf::Vector2f pos, sf::Font *font, u64 count)
                 rotate::stop,
                 count);
         cursor_object->set_scale(0.03, 0.03);
+        cursor_object->add_effect({ effect::animation_effect({ GHOST_ENEMY_TX1,
+                                                               GHOST_ENEMY_TX2,
+                                                               GHOST_ENEMY_TX3,
+                                                               GHOST_ENEMY_TX2,
+                                                               GHOST_ENEMY_TX1,
+                                                               GHOST_ENEMY_TX4,
+                                                               GHOST_ENEMY_TX5,
+                                                               GHOST_ENEMY_TX4 }, 4) });
 
         listener.add_key_event(key::ARROW_KEY_RIGHT,
                                [this](key::KeyStatus status){
@@ -102,6 +111,7 @@ void DrawableKeyboard::draw(sf::RenderWindow &window)
 void DrawableKeyboard::move(u64 count)
 {
         cursor_object->move(count);
+        cursor_object->effect(count);
         
         for(auto &text_vec : keymap){
                 for(DynamicText *p : text_vec){
@@ -192,6 +202,8 @@ void DrawableKeyboard::typed_handler(key::KeyStatus status)
                         if(key == "BS"){
                                 if(buffer.size())
                                         buffer.pop_back();
+                        }else if(key == "SPC"){
+                                buffer.append(" ");
                         }else{
                                 buffer.append(p->get_text());
                         }
@@ -217,4 +229,32 @@ std::string DrawableKeyboard::get_buffer(void)
 void DrawableKeyboard::clear_buffer(void)
 {
         buffer.clear();
+}
+
+RainWave::RainWave(sf::Vector2f pos, u64 count)
+{
+        auto p = new MoveObject(GameMaster::texture_table[CIRCLE_WHITE_STROKE1],
+                                pos, mf::stop, rotate::stop, count);
+        p->add_effect({
+                        effect::scale_effect(sf::Vector2f(0.01, 0.01), sf::Vector2f(0.3, 0.3), 40),
+                        effect::fade_out_later(20, 20),
+                        effect::kill_at(40),
+                        effect::keep_origin(pos)
+                });
+	waves.push_back(p);
+}
+
+void RainWave::draw(sf::RenderWindow &window)
+{
+        for(auto p : waves){
+                p->draw(window);
+        }
+}
+
+void RainWave::effect(u64 count)
+{
+        for(auto p : waves){
+                p->move(count);
+                p->effect(count);
+        }
 }

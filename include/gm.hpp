@@ -32,6 +32,7 @@ enum GameState {
         SUBEVE_CONTINUE,
         SUBEVE_FINISH,
         SAVE,
+        RANKING,
 };
 
 class GraphicBuffer {
@@ -171,12 +172,13 @@ public:
 class SaveSceneMaster : public SceneMaster, public SceneAnimation {
 private:
         std::forward_list<MoveObject *> objects;
+        std::forward_list<EffectableGroup *> effect_objects;
         DynamicText *display;
         DrawableKeyboard keyboard;
-        ScoreInformation save_data;
+        SaveData save_data;
         GameState game_state;
 
-        void save_as_json(std::string out_file, std::string name, ScoreInformation info);
+        void save_as_json(std::string out_file, SaveData data);
         void prepare_for_next_scene(void);
 
 public:
@@ -186,6 +188,25 @@ public:
         void drawing_process(sf::RenderWindow &window) override;
         GameState post_process(sf::RenderWindow &window) override;
 };
+
+
+class RankingSceneMaster : public SceneMaster, public SceneAnimation {
+private:
+        std::forward_list<DynamicText *> text_objects;
+        MoveObject *background;
+        GameState game_state;
+        key::KeyboardListener key_listener;
+
+        void prepare_for_next_scene(void);
+
+public:
+        RankingSceneMaster(GameData *game_data);
+        
+        void pre_process(sf::RenderWindow &window) override;
+        void drawing_process(sf::RenderWindow &window) override;
+        GameState post_process(sf::RenderWindow &window) override;
+};
+
 
 class EnemyManager {
 public:
