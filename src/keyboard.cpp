@@ -28,7 +28,8 @@ void key::KeyboardListener::add_key_event(
 void key::KeyboardListener::key_update(void)
 {
         for (auto &[sym, prev_key_state] : listening) {
-                bool current = KeyboardTypeCoordinator::is_pressed(GENERAL_KEYBOARD, sym);
+                bool current = KeyboardTypeCoordinator::is_pressed(GENERAL_KEYBOARD, sym) ||
+                        KeyboardTypeCoordinator::is_pressed(PS3_JOYSTICK, sym);
 
                 /*
                  * 前回とキーの状態が異なる

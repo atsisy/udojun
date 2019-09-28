@@ -47,6 +47,7 @@ private:
         bool enable_core;
         bool enable_shot;
         std::vector<MoveObject *> slaves;
+        float move_speed;
 
         void set_core_place();
         void update_shinrei_slaves(u64 time, float power);
@@ -66,4 +67,6 @@ public:
         void move_diff(sf::Vector2f diff);
         void draw(sf::RenderWindow &window);
         void update_slaves(u64 time, float power);
+        void set_move_speed(float speed);
+        float get_move_speed(void);
 };

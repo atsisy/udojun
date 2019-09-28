@@ -123,6 +123,7 @@ PlayerCharacter::PlayerCharacter(CharacterAttribute attribute,
         set_radius(6);
         core_off();
         this->enable_shot = true;
+        this->move_speed = 0;
 }
 
 void PlayerCharacter::shot_on(void)
@@ -225,6 +226,16 @@ void PlayerCharacter::update_shinrei_slaves(u64 time, float power)
 
                 }
         }
+}
+
+void PlayerCharacter::set_move_speed(float speed)
+{
+        this->move_speed = speed;
+}
+
+float PlayerCharacter::get_move_speed(void)
+{
+        return this->move_speed;
 }
 
 EnemyCharacterSchedule::EnemyCharacterSchedule(GameData *game_data, const char *path)

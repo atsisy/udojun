@@ -4,9 +4,13 @@
 #include <functional>
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include <SFML/Window/Joystick.hpp>
 #include "types.hpp"
 
 namespace key {
+
+        using JSButtonID = u32;
+        
         enum KeySymbol {
                 VKEY_1 = 0,
                 VKEY_2,
@@ -23,6 +27,7 @@ namespace key {
 
         enum KeyboardType {
                 GENERAL_KEYBOARD = 0,
+                PS3_JOYSTICK,
         };
 
         using KeyStatus = u8;
@@ -87,7 +92,7 @@ namespace key {
                                 return { sf::Keyboard::Z };
                         }
                 }
-
+                
                 static bool is_pressed_general_keyboard(sf::Keyboard::Key key)
                 {
                         return sf::Keyboard::isKeyPressed(key);
@@ -103,15 +108,50 @@ namespace key {
                         return false;
                 }
 
-                static bool is_pressed(KeyboardType type, KeySymbol sym)
+                static bool judge_ps3_js_key_pressed(KeySymbol symbol)
+		{
+                        switch(symbol){
+                        case VKEY_1:
+                                return sf::Joystick::isButtonPressed(0, 1);
+                        case VKEY_2:
+                                return sf::Joystick::isButtonPressed(0, 2);
+                        case VKEY_3:
+                                return sf::Joystick::isButtonPressed(0, 0);
+                        case ARROW_KEY_UP:
+                                return sf::Joystick::getAxisPosition(0, sf::Joystick::Y) < -50;
+                        case ARROW_KEY_RIGHT:
+                                return sf::Joystick::getAxisPosition(0, sf::Joystick::X) > 50;
+                        case ARROW_KEY_DOWN:
+                                return sf::Joystick::getAxisPosition(0, sf::Joystick::Y) > 50;
+                        case ARROW_KEY_LEFT:
+                                return sf::Joystick::getAxisPosition(0, sf::Joystick::X) < -50;
+                        case MOD_VKEY_1:
+                                return sf::Joystick::isButtonPressed(0, 5);
+                        case MOD_VKEY_2:
+                                return sf::Joystick::isButtonPressed(0, 6);
+                        default:
+                                return false;
+                        }
+		}
+
+		static bool is_pressed(KeyboardType type, KeySymbol sym)
                 {
                         switch(type){
                         case GENERAL_KEYBOARD:
                                 return is_pressed_general_keyboard_vector(
                                         symbol_to_general_keyboard(sym));
+                        case PS3_JOYSTICK:
+                                return judge_ps3_js_key_pressed(sym);
                         default:
                                 return false;
                         }
+                }
+
+                static bool simple_pressed_check(KeySymbol sym)
+                {
+                        return is_pressed_general_keyboard_vector(
+                                symbol_to_general_keyboard(sym)) || judge_ps3_js_key_pressed(sym);
+                                
                 }
         };
 

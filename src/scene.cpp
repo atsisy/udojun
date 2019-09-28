@@ -199,6 +199,8 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 
         target_udon.add_effect({ effect::animation_effect({ UDON1, UDON2, UDON3, UDON4, UDON5 }, 5) });
 
+        running_char.set_move_speed(4.5);
+
         game_state = RACE;
 
 }
@@ -387,30 +389,31 @@ void RaceSceneMaster::random_mist(void)
 
 void RaceSceneMaster::player_move()
 {
-	static float speed;
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) {
+	if (key::KeyboardTypeCoordinator::simple_pressed_check(key::MOD_VKEY_1)) {
 		running_char.core_on();
-		speed = 1.9;
+		running_char.set_move_speed(1.9);
 	} else {
 		running_char.core_off();
-		speed = 4.5;
+                running_char.set_move_speed(4.5);
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+
+        float speed = running_char.get_move_speed();
+	if (key::KeyboardTypeCoordinator::simple_pressed_check(key::ARROW_KEY_LEFT)) {
 		running_char.move_diff(sf::Vector2f(-speed, 0));
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+	if (key::KeyboardTypeCoordinator::simple_pressed_check(key::ARROW_KEY_RIGHT)) {
 		running_char.move_diff(sf::Vector2f(speed, 0));
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+	if (key::KeyboardTypeCoordinator::simple_pressed_check(key::ARROW_KEY_DOWN)) {
 		running_char.move_diff(sf::Vector2f(0, speed));
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+	if (key::KeyboardTypeCoordinator::simple_pressed_check(key::ARROW_KEY_UP)) {
 		running_char.move_diff(sf::Vector2f(0, -speed));
 		stamina.add(-2.0);
         }
 	
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::X)){
+        if(key::KeyboardTypeCoordinator::simple_pressed_check(key::VKEY_2)){
                 if(graze_counter.counter_method().get_score() >= 200){
                         player_spellcard();
                 }
@@ -481,7 +484,7 @@ void RaceSceneMaster::player_shot(void)
 {
         FunctionCallEssential *f;
         
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) {
+        if (key::KeyboardTypeCoordinator::simple_pressed_check(key::MOD_VKEY_1)) {
                 f = player_slow_shot();
         }else{
                 f = player_fast_shot();
@@ -499,7 +502,7 @@ void RaceSceneMaster::player_shot(void)
 void RaceSceneMaster::add_new_functional_bullets_to_schedule(void)
 {
         if(running_char.shot_is_enable()){
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) {
+                if (key::KeyboardTypeCoordinator::simple_pressed_check(key::VKEY_1)) {
                         player_shot();
                 } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::K)) {
                         bullet_pipeline.enemy_pipeline.clear_all_bullets();

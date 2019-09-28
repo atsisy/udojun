@@ -4,6 +4,9 @@
 #include "character.hpp"
 #include "picojson.h"
 
+
+#include <SFML/Window/Joystick.hpp>
+
 TextureTable GameMaster::texture_table;
 sound::SoundPlayer *GameMaster::sound_player;
 util::xor128 util::generate_random;
@@ -141,7 +144,12 @@ void GameMaster::switch_scene(GameState res)
 }
 
 void GameMaster::main_loop()
-{       
+{
+
+        if(sf::Joystick::isConnected(0)){
+                puts("OK!!!!!!!!!!!!");
+        }
+        
         while(window.isOpen()){
                 sf::Event event;
                 while(window.pollEvent(event)){
