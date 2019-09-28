@@ -147,7 +147,7 @@ void GameMaster::main_loop()
 {
 
         if(sf::Joystick::isConnected(0)){
-                puts("OK!!!!!!!!!!!!");
+                puts("input: Joystick 0 is connected.");
         }
         
         while(window.isOpen()){

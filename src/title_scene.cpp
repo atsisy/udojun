@@ -9,10 +9,10 @@
 #include "value.hpp"
 #include "effect.hpp"
 #include "rotate_func.hpp"
+#include "geometry.hpp"
 
 TitleSceneMaster::TitleSceneMaster(GameData *game_data)
-	: background(GameMaster::texture_table[ICHIMATSU3], sf::Vector2f(-128, -128),
-		     sf::IntRect(0, 0, 1366 + 128, 768 + 128), sf::Vector2f(0.2, 0.2)),
+	: background(GameMaster::texture_table[TITLE_BLUE], sf::Vector2f(0, 0), mf::stop, rotate::stop, 0),
           game_state(START)
 {
 	choice_label_set.emplace(
@@ -97,6 +97,32 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 				}
 			}
 		});
+
+        effect_group.push_back(new ScreenSaver({
+                                new ConflictableObject(
+                                        GameMaster::texture_table[LOTUS_PINK],
+                                        geometry::random_screen_vertex(),
+                                        mf::vector_linear(sf::Vector2f(1, 1)),
+                                        rotate::constant(0.01),
+                                        get_count(),
+                                        sf::Vector2f(0.3, 0.3),
+                                        30),
+                                new ConflictableObject(
+                                        GameMaster::texture_table[LOTUS_BLUE],
+                                        geometry::random_screen_vertex(),
+                                        mf::vector_linear(sf::Vector2f(1, 1)),
+                                        rotate::constant(0.01),
+                                        get_count(),
+                                        sf::Vector2f(0.3, 0.3),
+                                        30),
+                                new ConflictableObject(
+                                        GameMaster::texture_table[LOTUS_YELLOW],
+                                        geometry::random_screen_vertex(),
+                                        mf::vector_linear(sf::Vector2f(1, 1)),
+                                        rotate::constant(0.01),
+                                        get_count(),
+                                        sf::Vector2f(0.3, 0.3),
+                                        30)}));
 }
 
 void TitleSceneMaster::start_handler(void)
@@ -119,15 +145,9 @@ void TitleSceneMaster::pre_process(sf::RenderWindow &window)
 			label->set_font_size(40);
 	}
 
-	background.scroll([&](sf::Vector2f init, sf::Vector2f current) {
-                                  sf::Vector2f next = current;
-				  if(next.x - init.x > background.displaying_size().x){
-                                          return init;
-                                  }
-                                  next.x += 0.5;
-                                  next.y += 0.5;
-				  return next;
-	});
+        for(auto p : effect_group){
+                p->effect(get_count());
+        }
 
         for(auto &[hash, label] : choice_label_set){
 		label->move(get_count());
@@ -140,6 +160,10 @@ void TitleSceneMaster::pre_process(sf::RenderWindow &window)
 void TitleSceneMaster::drawing_process(sf::RenderWindow &window)
 {
         background.draw(window);
+
+        for(auto p : effect_group){
+                p->draw(window);
+        }
         
 	for(auto &[hash, label] : choice_label_set){
 		label->draw(window);

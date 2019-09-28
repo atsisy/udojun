@@ -26,4 +26,5 @@ namespace geometry {
         float convert_to_radian(float angle);
         sf::Vector2f spline_curve(sf::Vector2f p1, sf::Vector2f p2, sf::Vector2f v1, sf::Vector2f v2, float t);
         sf::Vector2f vector_translate(sf::Vector3f position, float distance);
+        sf::Vector2f random_screen_vertex(void);
 }

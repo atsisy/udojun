@@ -1,4 +1,5 @@
 #include "geometry.hpp"
+#include "utility.hpp"
 #include <boost/numeric/ublas/matrix.hpp>
 
 using namespace boost::numeric::ublas;
@@ -57,5 +58,8 @@ namespace geometry {
                 return sf::Vector2f(x, y);
         }
 
-
+        sf::Vector2f random_screen_vertex(void)
+        {
+                return sf::Vector2f(util::generate_random(0, 1366), util::generate_random(0, 768));
+        }
 }

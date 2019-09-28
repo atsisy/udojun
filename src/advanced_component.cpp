@@ -293,3 +293,37 @@ sf::Vector2f FallingLeaf::get_position(void)
 {
         return move_obj->get_place();
 }
+
+ConflictableObject::ConflictableObject(sf::Texture *t, sf::Vector2f p,
+                                       std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
+                                       std::function<float(Rotatable *, u64, u64)> r_fn,
+                                       u64 begin_count, sf::Vector2f scale, float radius)
+        : MoveObject(t, p, f, r_fn, begin_count),
+          Conflictable(true)
+{
+        set_radius(radius);
+        set_scale(scale);
+}
+
+ScreenSaver::ScreenSaver(std::vector<ConflictableObject *> objs)
+        : obj_group(objs)
+{}
+
+void ScreenSaver::effect(u64 count)
+{
+        for(auto p : obj_group){
+                p->move(count);
+        }
+}
+
+void ScreenSaver::draw(sf::RenderWindow &window)
+{
+        for(auto p : obj_group){
+                p->draw(window);
+        }
+}
+
+sf::Vector2f ScreenSaver::get_position(void)
+{
+        return sf::Vector2f(0, 0);
+}

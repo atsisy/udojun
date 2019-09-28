@@ -120,10 +120,11 @@ public:
 class TitleSceneMaster : public SceneMaster, public SceneAnimation {
 private:
         util::str_hash<DynamicText *> choice_label_set;
-	BackgroundTile background;
+	MoveObject background;
 	util::SelecterImplements<std::string> selecter;
         GameState game_state;
         key::KeyboardListener key_listener;
+        std::vector<EffectableGroup *> effect_group;
 
         bool keyboard_function(void);
         void start_handler(void);

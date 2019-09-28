@@ -83,3 +83,21 @@ public:
         sf::Vector2f get_position(void) override;
 };
 
+class ConflictableObject : public MoveObject, public Conflictable {
+public:
+        ConflictableObject(sf::Texture *t, sf::Vector2f p,
+                           std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
+                           std::function<float(Rotatable *, u64, u64)> r_fn,
+                           u64 begin_count, sf::Vector2f scale, float radius);
+};
+
+class ScreenSaver : public EffectableGroup {
+private:
+        std::vector<ConflictableObject *> obj_group;
+
+public:
+        ScreenSaver(std::vector<ConflictableObject *> objs);
+        void effect(u64 count) override;
+        void draw(sf::RenderWindow &window) override;
+        sf::Vector2f get_position(void) override;
+};
