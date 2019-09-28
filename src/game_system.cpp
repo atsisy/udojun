@@ -3,7 +3,6 @@
 #include <fstream>
 
 namespace game_system {
-
         
         std::vector<SaveData> load_save_data(std::string json_file)
         {
@@ -32,12 +31,21 @@ namespace game_system {
 
                 for(auto elem : data_array){
                         auto &&elem_obj = elem.get<picojson::object>();
+                        auto &&date = elem_obj["date"].get<picojson::object>();
                         ret.emplace_back(
                                 elem_obj["name"].get<std::string>(),
                                 ScoreInformation(-1.f,
                                                  elem_obj["score"].get<double>(),
                                                  -1,
-                                                 elem_obj["hit"].get<double>()));
+                                                 elem_obj["hit"].get<double>()),
+                                util::Date(
+                                        date["year"].get<double>(),
+                                        date["month"].get<double>(),
+                                        date["day"].get<double>(),
+                                        date["hour"].get<double>(),
+                                        date["minute"].get<double>(),
+                                        date["second"].get<double>()
+                                        ));
                 }
 
                 std::cout << "Loading is done." << std::endl;
@@ -74,6 +82,17 @@ namespace game_system {
                 save_object.insert(std::make_pair("score", picojson::value((double)info.score.get_current())));
                 save_object.insert(std::make_pair("name", picojson::value(save_data.get_name())));
                 save_object.insert(std::make_pair("hit", picojson::value((double)info.hit.get_current())));
+
+                picojson::object date_object;
+                auto &&date = save_data.get_date();
+                date_object.insert(std::make_pair("year", picojson::value((double)date.year)));
+                date_object.insert(std::make_pair("month", picojson::value((double)date.month)));
+                date_object.insert(std::make_pair("day", picojson::value((double)date.day)));
+                date_object.insert(std::make_pair("hour", picojson::value((double)date.hour)));
+                date_object.insert(std::make_pair("minute", picojson::value((double)date.minute)));
+                date_object.insert(std::make_pair("second", picojson::value((double)date.second)));
+
+                save_object.insert(std::make_pair("date", picojson::value(date_object)));
 
                 data_array.push_back(picojson::value(save_object));
 

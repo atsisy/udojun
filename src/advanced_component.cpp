@@ -232,6 +232,7 @@ void DrawableKeyboard::clear_buffer(void)
 }
 
 RainWave::RainWave(sf::Vector2f pos, u64 count)
+        : position(pos)
 {
         auto p = new MoveObject(GameMaster::texture_table[CIRCLE_WHITE_STROKE1],
                                 pos, mf::stop, rotate::stop, count);
@@ -257,4 +258,38 @@ void RainWave::effect(u64 count)
                 p->move(count);
                 p->effect(count);
         }
+}
+
+sf::Vector2f RainWave::get_position(void)
+{
+        return this->position;
+}
+
+FallingLeaf::FallingLeaf(sf::Vector2f pos, u64 count)
+{
+        move_obj = new MoveObject(
+                GameMaster::texture_table[((util::generate_random() & 1) == 0) ? LEAF1 : LEAF2],
+                pos,
+                mf::vector_linear(sf::Vector2f(1, -1)),
+                rotate::pendulum(util::generate_random.floating(0.38, 0.42), 70, util::generate_random.floating(-0.1, 0.1)),
+                count
+                );
+        move_obj->set_scale(util::generate_random.floating((float)0.15, (float)0.2), util::generate_random.floating(0.15, 0.2));
+}
+
+void FallingLeaf::draw(sf::RenderWindow &window)
+{
+        move_obj->draw(window);
+}
+
+void FallingLeaf::effect(u64 count)
+{
+        move_obj->move(count);
+        move_obj->effect(count);
+        move_obj->rotate_with_func(count);
+}
+
+sf::Vector2f FallingLeaf::get_position(void)
+{
+        return move_obj->get_place();
 }

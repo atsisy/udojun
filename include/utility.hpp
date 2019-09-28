@@ -10,6 +10,8 @@
 #include <cstring>
 #include <functional>
 #include <forward_list>
+#include <chrono>
+#include <ctime>
 #include "types.hpp"
 
 namespace util {
@@ -44,6 +46,12 @@ namespace util {
 			std::uniform_int_distribution<u32> range(min, max);
                         return range(*this);
 		}
+
+                float floating(float min, float max)
+                {
+                        std::uniform_real_distribution<float> range(min, max);
+                        return range(*this);
+                }
                 
 		xor128()
                 {
@@ -59,6 +67,78 @@ namespace util {
 	};
 
 	extern xor128 generate_random;
+
+        template <typename ... Args>
+        std::string format_string(const std::string &format, Args ... args )
+        {
+                char *buf = new char[1024];
+                std::snprintf(buf, 1024, format.c_str(), args ...);
+                std::string ret(buf);
+                delete[] buf;
+                
+                return ret;
+        }
+
+        class Date {
+        public:
+                u16 year;
+                u8 month;
+                u8 day;
+                u8 hour;
+                u8 minute;
+                u8 second;
+
+                Date(void)
+                {
+                        this->year = 0;
+                        this->month = 0;
+                        this->day = 0;
+                        this->hour = 0;
+                        this->minute = 0;
+                        this->second = 0;
+                }
+                
+                Date(void *p)
+                {
+                        auto now = std::chrono::system_clock::now();
+                        auto legacy = std::chrono::system_clock::to_time_t(now);
+                        struct tm *c_time = std::localtime(&legacy);
+
+                        this->year = c_time->tm_year + 1900;
+                        this->month = c_time->tm_mon + 1;
+                        this->day = c_time->tm_mday;
+                        this->hour = c_time->tm_hour;
+                        this->minute = c_time->tm_min;
+                        this->second = c_time->tm_sec;
+                }
+                
+                Date(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second)
+                {
+                        this->year = year;
+                        this->month = month;
+                        this->day = day;
+                        this->hour = hour;
+                        this->minute = minute;
+                        this->second = second;
+                }
+
+                std::string to_string(void)
+                {
+                        return std::string(
+                                format_string("%04d", (int)year) +
+                                "/" +
+                                format_string("%02d", (int)month) +
+                                "/" +
+                                format_string("%02d", (int)day) +
+                                " " +
+                                format_string("%02d", (int)hour) +
+                                ":" +
+                                format_string("%02d", (int)minute) +
+                                ":" +
+                                format_string("%02d", (int)second)
+                                );
+                }
+        };
 
 	template<class T>
         inline void concat_container(T &c1, T &&c2)

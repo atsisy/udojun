@@ -193,6 +193,8 @@ public:
 class RankingSceneMaster : public SceneMaster, public SceneAnimation {
 private:
         std::forward_list<DynamicText *> text_objects;
+        std::forward_list<EffectableGroup *> effect_objects;
+        
         MoveObject *background;
         GameState game_state;
         key::KeyboardListener key_listener;

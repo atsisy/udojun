@@ -400,12 +400,14 @@ class SaveData {
 private:
         std::string name;
         ScoreInformation score_info;
+        util::Date date;
 
 public:
-        SaveData(std::string _name, ScoreInformation _si);
+        SaveData(std::string _name, ScoreInformation _si, util::Date date);
         ScoreInformation get_score_information(void);
         std::string get_name(void);
         void reset_name(std::string _name);
+        util::Date get_date(void);
 };
 
 class RaceStatus {

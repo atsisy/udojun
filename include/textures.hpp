@@ -92,6 +92,8 @@ enum TextureID {
         NAVY_BACKGROUND1,
         CIRCLE_WHITE_STROKE1,
         LIGHT_GLASS_BACKGROUND1,
+        LEAF1,
+        LEAF2,
 };
 
 enum LaserTextureID {
@@ -204,6 +206,9 @@ inline TextureID str_to_txid(const char *str)
         str_to_idx_sub(str, CIRCLE_WHITE_STROKE1);
 
         str_to_idx_sub(str, LIGHT_GLASS_BACKGROUND1);
+
+        str_to_idx_sub(str, LEAF1);
+        str_to_idx_sub(str, LEAF2);
 
 	std::cout << "Unknown texture: " << str << std::endl;
 

@@ -55,15 +55,31 @@ class EffectableGroup : public DrawableComponent {
 public:
         virtual void draw(sf::RenderWindow &window) = 0;
         virtual void effect(u64 count) = 0;
+        virtual sf::Vector2f get_position(void) = 0;
 };
 
 class RainWave : public EffectableGroup {
 private:
         std::vector<MoveObject *> waves;
+        sf::Vector2f position;
         
 public:
         RainWave(sf::Vector2f pos, u64 count);
         
         void effect(u64 count) override;
         void draw(sf::RenderWindow &window) override;
+        sf::Vector2f get_position(void) override;
 };
+
+class FallingLeaf : public EffectableGroup {
+private:
+        MoveObject *move_obj;
+        
+public:
+        FallingLeaf(sf::Vector2f pos, u64 count);
+        
+        void effect(u64 count) override;
+        void draw(sf::RenderWindow &window) override;
+        sf::Vector2f get_position(void) override;
+};
+

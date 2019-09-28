@@ -730,8 +730,8 @@ void RaceStatus::hit(void)
         hit_count++;
 }
 
-SaveData::SaveData(std::string _name, ScoreInformation _si)
-        : name(_name), score_info(_si)
+SaveData::SaveData(std::string _name, ScoreInformation _si, util::Date _date)
+        : name(_name), score_info(_si), date(_date)
 {}
 
 std::string SaveData::get_name(void)
@@ -747,4 +747,9 @@ ScoreInformation SaveData::get_score_information(void)
 void SaveData::reset_name(std::string _name)
 {
         this->name = _name;
+}
+
+util::Date SaveData::get_date(void)
+{
+        return date;
 }

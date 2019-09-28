@@ -6,7 +6,7 @@
 
 SaveSceneMaster::SaveSceneMaster(GameData *game_data, ScoreInformation info)
         : keyboard(sf::Vector2f(200, 400), game_data->get_font(JP_DEFAULT), 0),
-          save_data("", info)
+          save_data("", info, util::Date(nullptr))
 {
         keyboard.register_handler_function("OK",
                                            [&, this](key::KeyStatus status){
@@ -40,18 +40,22 @@ SaveSceneMaster::SaveSceneMaster(GameData *game_data, ScoreInformation info)
                                      GLYPH_DESIGN1,
                                      sf::Vector2f(300, 100),
                                           mf::stop, rotate::stop, get_count(), 40));
-
+;
         objects.push_front(
                 new DynamicText(
                         util::utf8_str_to_widechar_str(
-                                std::string("得点: ")
+                                "結果 " +
+                                std::string("\t")
                                 +
-                                std::to_string(info.score.get_current()))->data(),
+                                std::to_string(save_data.get_score_information().score.get_current())
+                                +
+                                std::string("\t") +
+                                save_data.get_date().to_string())->data(),
                         game_data->get_font(JP_DEFAULT),
                         GLYPH_DESIGN2,
-                        sf::Vector2f(700, 400),
-                        mf::stop,
-                        rotate::stop, get_count(), 28));
+                        sf::Vector2f(800, 200),
+                        mf::ratio_step(sf::Vector2f(500, 200), 0.1),
+                        rotate::stop, get_count(), 24));
 
 
         objects.push_front(new MoveObject(
