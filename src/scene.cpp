@@ -101,7 +101,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           enemy_sched(game_data, "stage1_enemy_schedule.json"),
           udon_marker(GameMaster::texture_table[UDON_MARKER], sf::Vector2f(0, 725), mf::stop, rotate::stop, 0)
 {
-        set_count_for_debug(4400);
+        set_count_for_debug(0);
         
         this->game_data = game_data;
 	test_bullet = new Bullet(GameMaster::texture_table[SHINREI1_TX1],

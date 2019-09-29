@@ -27,4 +27,6 @@ namespace geometry {
         sf::Vector2f spline_curve(sf::Vector2f p1, sf::Vector2f p2, sf::Vector2f v1, sf::Vector2f v2, float t);
         sf::Vector2f vector_translate(sf::Vector3f position, float distance);
         sf::Vector2f random_screen_vertex(void);
+        sf::Vector2f random_screen_vertex(sf::FloatRect rect);
+        sf::Vector2f calc_conflict_speed(sf::Vector2f speed1, sf::Vector2f spped2, float elast);
 }

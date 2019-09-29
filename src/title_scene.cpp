@@ -19,20 +19,20 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 		"Start",
 		new DynamicText(L"Start", game_data->get_font(JP_DEFAULT),
                                 GLYPH_DESIGN1,
-				sf::Vector2f(WindowInformation::HALF_WIDTH, 100),
+				sf::Vector2f(400, 300),
                                 mf::stop, rotate::stop, get_count(), 40));
         choice_label_set.emplace(
 		"Ranking",
 		new DynamicText(L"Ranking", game_data->get_font(JP_DEFAULT),
                                 GLYPH_DESIGN1,
-				sf::Vector2f(WindowInformation::HALF_WIDTH, 250),
+				sf::Vector2f(400, 350),
                                 mf::stop, rotate::stop, get_count(), 28)
                 );
         choice_label_set.emplace(
 		"Exit",
 		new DynamicText(L"Exit", game_data->get_font(JP_DEFAULT),
                                 GLYPH_DESIGN1,
-				sf::Vector2f(WindowInformation::HALF_WIDTH, 500),
+				sf::Vector2f(400, 400),
                                 mf::stop, rotate::stop, get_count(), 28)
                 );
 
@@ -98,31 +98,35 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 			}
 		});
 
+        sf::FloatRect scsv_rect(100, 100, 800, 300);
         effect_group.push_back(new ScreenSaver({
-                                new ConflictableObject(
+                                new ScreenSaverElement(
                                         GameMaster::texture_table[LOTUS_PINK],
-                                        geometry::random_screen_vertex(),
-                                        mf::vector_linear(sf::Vector2f(1, 1)),
+                                        geometry::random_screen_vertex(scsv_rect),
                                         rotate::constant(0.01),
                                         get_count(),
                                         sf::Vector2f(0.3, 0.3),
-                                        30),
-                                new ConflictableObject(
+                                        60,
+                                        sf::Vector2f(1, 1),
+                                        0),
+                                new ScreenSaverElement(
                                         GameMaster::texture_table[LOTUS_BLUE],
-                                        geometry::random_screen_vertex(),
-                                        mf::vector_linear(sf::Vector2f(1, 1)),
+                                        geometry::random_screen_vertex(scsv_rect),
                                         rotate::constant(0.01),
                                         get_count(),
                                         sf::Vector2f(0.3, 0.3),
-                                        30),
-                                new ConflictableObject(
+                                        60,
+                                        sf::Vector2f(1, 1),
+                                        0),
+                                new ScreenSaverElement(
                                         GameMaster::texture_table[LOTUS_YELLOW],
-                                        geometry::random_screen_vertex(),
-                                        mf::vector_linear(sf::Vector2f(1, 1)),
+                                        geometry::random_screen_vertex(scsv_rect),
                                         rotate::constant(0.01),
                                         get_count(),
                                         sf::Vector2f(0.3, 0.3),
-                                        30)}));
+                                        60,
+                                        sf::Vector2f(1, 1),
+                                        0)}));
 }
 
 void TitleSceneMaster::start_handler(void)

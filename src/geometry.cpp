@@ -62,4 +62,23 @@ namespace geometry {
         {
                 return sf::Vector2f(util::generate_random(0, 1366), util::generate_random(0, 768));
         }
+
+        sf::Vector2f random_screen_vertex(sf::FloatRect rect)
+        {
+                return sf::Vector2f(util::generate_random(rect.left, rect.left + rect.width),
+                                    util::generate_random(rect.top, rect.top + rect.height));
+        }
+
+        static float __calc_conflict_speed(float speed1, float speed2, float elast)
+        {
+                return ((speed1 * (1 - elast)) + (speed2 * (1 + elast))) / 2.f;
+        }
+
+        sf::Vector2f calc_conflict_speed(sf::Vector2f speed1, sf::Vector2f speed2, float elast)
+        {
+                return sf::Vector2f(
+                        __calc_conflict_speed(speed1.x, speed2.x, elast),
+                        __calc_conflict_speed(speed1.y, speed2.y, elast)
+                        );
+        }
 }

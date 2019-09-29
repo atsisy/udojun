@@ -375,6 +375,17 @@ namespace mf {
                                        );
                        };
         }
+
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
+        vector_linear_with_noise(sf::Vector2f speed)
+        {
+                return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd){
+                               const sf::Vector2f &&now = bullet->get_place();
+                               return sf::Vector2f(
+                                       now.x + speed.x + util::generate_random.floating(-0.2, 0.2),
+                                       now.y - speed.y + util::generate_random.floating(-0.2, 0.2));
+                       };
+        }
 }
 
 BulletData::BulletData(picojson::object &json_data)

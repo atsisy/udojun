@@ -204,12 +204,12 @@ namespace util {
 
 		void down(void)
 		{
-			move_index_offset(-1);
+			move_index_offset(1);
 		}
 
 		void up(void)
 		{
-			move_index_offset(1);
+			move_index_offset(-1);
 		}
 
                 T get(void)

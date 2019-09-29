@@ -1,6 +1,7 @@
 #include "advanced_component.hpp"
 #include "gm.hpp"
 #include "effect.hpp"
+#include "geometry.hpp"
 
 Tachie::Tachie(sf::Texture *t, sf::Vector2f p,
 	       std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
@@ -305,14 +306,108 @@ ConflictableObject::ConflictableObject(sf::Texture *t, sf::Vector2f p,
         set_scale(scale);
 }
 
-ScreenSaver::ScreenSaver(std::vector<ConflictableObject *> objs)
+void ConflictableObject::move(u64 count)
+{
+        MoveObject::move(count);
+        update_center(get_place());
+}
+
+ScreenSaverElement::ScreenSaverElement(sf::Texture *t, sf::Vector2f p,
+                                       std::function<float(Rotatable *, u64, u64)> r_fn,
+                                       u64 begin_count, sf::Vector2f scale, float radius,
+                                       sf::Vector2f init_move_speed, float init_rotate_speed)
+        : ConflictableObject(t, p, mf::vector_linear_with_noise(init_move_speed), rotate::constant(init_rotate_speed),
+                             begin_count, scale, radius),
+          move_speed(init_move_speed), next_move_speed(init_move_speed), rotate_speed(init_rotate_speed)
+{}
+
+sf::Vector2f ScreenSaverElement::get_move_speed(void)
+{
+        return move_speed;
+}
+
+void ScreenSaverElement::set_next_move_speed(sf::Vector2f speed)
+{
+        this->next_move_speed = speed;
+}
+
+void ScreenSaverElement::apply_next_speed(void)
+{
+        this->set_move_speed(next_move_speed);
+}
+
+void ScreenSaverElement::set_move_speed(sf::Vector2f speed)
+{
+        this->move_speed = speed;
+        this->override_move_func(mf::vector_linear_with_noise(move_speed));
+}
+
+float ScreenSaverElement::get_rotate_speed(void)
+{
+        return rotate_speed;
+}
+
+void ScreenSaverElement::set_rotate_speed(float speed)
+{
+        this->rotate_speed = speed;
+}
+
+ScreenSaver::ScreenSaver(std::vector<ScreenSaverElement *> objs)
         : obj_group(objs)
 {}
 
-void ScreenSaver::effect(u64 count)
+void ScreenSaver::judge_conflict_window_edge(ScreenSaverElement *p)
 {
+        sf::Vector2f origin = p->get_origin();
+        sf::Vector2f move_speed = p->get_move_speed();
+        
+        if(origin.x > 1366 || origin.x < 0){
+                move_speed.x *= -1;
+                p->set_next_move_speed(move_speed);
+        }
+
+        if(origin.y > 768 || origin.y < 0){
+                move_speed.y *= -1;
+                p->set_next_move_speed(move_speed);
+        }
+}
+
+void ScreenSaver::judge_conflict_each_object(void)
+{
+        for(size_t i = 0;i < obj_group.size();i++){
+                for(size_t j = 0;j < obj_group.size();j++){
+                        if(i == j)
+                                break;
+                        if(obj_group[i]->check_conflict(*obj_group[j])){
+                                judge_conflict_each_object_sub(obj_group[i], obj_group[j]);
+                        }
+                }
+        }
+}
+
+void ScreenSaver::judge_conflict_each_object_sub(ScreenSaverElement *p1, ScreenSaverElement *p2)
+{
+        sf::Vector2f p1_speed = p1->get_move_speed();
+        sf::Vector2f p2_speed = p2->get_move_speed();
+
+        sf::Vector2f p1_next_speed = geometry::calc_conflict_speed(p1_speed, p2_speed, 0.9);
+        sf::Vector2f p2_next_speed = geometry::calc_conflict_speed(p2_speed, p1_speed, 0.9);
+
+        p1->set_next_move_speed(p1_next_speed);
+        p2->set_next_move_speed(p2_next_speed);
+}
+
+void ScreenSaver::effect(u64 count)
+{       
         for(auto p : obj_group){
                 p->move(count);
+        }
+
+        judge_conflict_each_object();
+        
+        for(auto p : obj_group){
+                judge_conflict_window_edge(p);
+                p->apply_next_speed();
         }
 }
 

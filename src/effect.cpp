@@ -140,11 +140,12 @@ std::function<void(MoveObject *, u64, u64)> effect::keep_origin(sf::Vector2f ori
         return [=](MoveObject *obj, u64 now, u64 begin) {
                        sf::Vector2u texture_size = obj->get_texture_size();
                        sf::Vector2f scale = obj->get_scale();
+
                        sf::Vector2f diff(
-                               (float)texture_size.x * (1.0 - scale.x) / 2.f,
-                               (float)texture_size.y * (1.0 - scale.y) / 2.f);
+                               (float)texture_size.x * scale.x / 2.f,
+                               (float)texture_size.y * scale.y / 2.f);
                        
-                       obj->set_place(origin + diff);
+                       obj->set_place(origin - diff);
                };
 }
 

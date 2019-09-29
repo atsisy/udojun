@@ -89,14 +89,42 @@ public:
                            std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
                            std::function<float(Rotatable *, u64, u64)> r_fn,
                            u64 begin_count, sf::Vector2f scale, float radius);
+
+        void move(u64 count) override;
+};
+
+class ScreenSaverElement : public ConflictableObject {
+private:
+        sf::Vector2f move_speed;
+        sf::Vector2f next_move_speed;
+        float rotate_speed;
+
+public:
+        ScreenSaverElement(sf::Texture *t, sf::Vector2f p,
+                           std::function<float(Rotatable *, u64, u64)> r_fn,
+                           u64 begin_count, sf::Vector2f scale, float radius,
+                           sf::Vector2f init_move_speed, float init_rotate_speed);
+
+        sf::Vector2f get_move_speed(void);
+        void set_next_move_speed(sf::Vector2f speed);
+        void apply_next_speed(void);
+        
+        float get_rotate_speed(void);
+
+        void set_move_speed(sf::Vector2f speed);
+        void set_rotate_speed(float speed);
 };
 
 class ScreenSaver : public EffectableGroup {
 private:
-        std::vector<ConflictableObject *> obj_group;
+        std::vector<ScreenSaverElement *> obj_group;
+
+        void judge_conflict_window_edge(ScreenSaverElement *p);
+        void judge_conflict_each_object(void);
+        void judge_conflict_each_object_sub(ScreenSaverElement *p1, ScreenSaverElement *p2);
 
 public:
-        ScreenSaver(std::vector<ConflictableObject *> objs);
+        ScreenSaver(std::vector<ScreenSaverElement *> objs);
         void effect(u64 count) override;
         void draw(sf::RenderWindow &window) override;
         sf::Vector2f get_position(void) override;

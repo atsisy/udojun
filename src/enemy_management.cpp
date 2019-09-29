@@ -7,13 +7,14 @@ EnemyManager::EnemyManager(void)
 MoveObject *EnemyManager::kill_enemy_with_normal_effect(EnemyCharacter *p, u64 now)
 {
         auto bomb = new MoveObject(
-                GameMaster::texture_table[MIST1],
+                GameMaster::texture_table[HEXAGRAM2],
                 p->get_place(),
                 mf::stop,
                 rotate::stop,
                 now);
-        bomb->add_effect({ effect::kill_at(60), effect::fade_out(60),
-                           effect::scale_effect(sf::Vector2f(0.03, 0.03), sf::Vector2f(0.2, 0.2), 60) });
+        bomb->add_effect({ effect::kill_at(30), effect::fade_out(30),
+                           effect::scale_effect(sf::Vector2f(0.03, 0.03), sf::Vector2f(0.2, 0.2), 30),
+                           effect::keep_origin(p->get_origin())});
         puts("dead");
         p->add_effect({ effect::fade_out(3, now), effect::kill_at(3, now) });
         p->make_dead();
