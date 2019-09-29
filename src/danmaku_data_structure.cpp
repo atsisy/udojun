@@ -3,7 +3,7 @@
 DanmakuCallEssential::DanmakuCallEssential(FunctionCallEssential fe,
                                            u64 sec, DanmakuType type, std::wstring *name,
                                            std::string enemy_sched_json, GameData *game_data)
-        : func_essential(fe), time_limit(sec), enemy_sched(game_data, enemy_sched_json.data())
+        : func_essential(fe), time_limit(sec), enemy_sched(game_data, { enemy_sched_json.data() })
 {
         this->type = type;
         this->danmaku_name = name;

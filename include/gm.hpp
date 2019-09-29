@@ -412,3 +412,9 @@ public:
         void switch_scene(GameState res);
         void load_textures(const char *json_path);
 };
+
+namespace builtin_enemy {
+        std::vector<EnemyCharacterMaterial> ghost_group1(GameData *);
+}
+
+extern std::vector<std::function<std::vector<EnemyCharacterMaterial>(GameData *)>> builtin_enemy_funcs;

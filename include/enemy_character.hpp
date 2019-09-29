@@ -27,9 +27,10 @@ private:
         std::vector<EnemyCharacterMaterial> data_list;
 
 public:
-        EnemyCharacterSchedule(GameData *game_data, const char *path);
+        EnemyCharacterSchedule(GameData *game_data, std::vector<const char *> path_vec);
 
         void push_back(EnemyCharacterMaterial enemy_material);
+        void push_back(std::vector<EnemyCharacterMaterial> materials);
         EnemyCharacterMaterial get_front(void);
         void pop_front(void);
         size_t size(void);

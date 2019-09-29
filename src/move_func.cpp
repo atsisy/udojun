@@ -13,13 +13,14 @@ namespace mf {
         }
 
         std::function<sf::Vector2f(MoveObject *, u64, u64)>
-        sin(float bias, float dx)
+        sin(float bias, float y_origin, float dx)
         {
+                
                 return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd){
                                const sf::Vector2f &&now = bullet->get_place();
                                return sf::Vector2f(
-                                       now.x + (bias * std::sin(util::count_to_second(now_lmd, begin_lmd, 60))),
-                                       now.y - dx);
+                                       now.x + dx,
+                                       y_origin + (bias * std::sin(util::count_to_second(now_lmd, begin_lmd, 60))));
                        };
         }
 

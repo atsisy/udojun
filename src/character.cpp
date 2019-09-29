@@ -238,50 +238,61 @@ float PlayerCharacter::get_move_speed(void)
         return this->move_speed;
 }
 
-EnemyCharacterSchedule::EnemyCharacterSchedule(GameData *game_data, const char *path)
+EnemyCharacterSchedule::EnemyCharacterSchedule(GameData *game_data, std::vector<const char *> path_vec)
 {
-        std::ifstream ifs(path, std::ios::in);
+        for(const char *path : path_vec){
+                std::ifstream ifs(path, std::ios::in);
                 
-        std::cout << "Loading Enemy Schedule listed in " << path << "..." << std::endl;
+                std::cout << "Loading Enemy Schedule listed in " << path << "..." << std::endl;
 
-        if (ifs.fail()) {
-                DEBUG_PRINT_HERE();
-                std::cerr << "failed to read json file" << std::endl;
-                exit(1);
-        }
+                if (ifs.fail()) {
+                        DEBUG_PRINT_HERE();
+                        std::cerr << "failed to read json file" << std::endl;
+                        exit(1);
+                }
 
-        const std::string json((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-        ifs.close();
+                const std::string json((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+                ifs.close();
 
-        picojson::value v;
-        const std::string err = picojson::parse(v, json);
-        if (err.empty() == false) {
-                DEBUG_PRINT_HERE();
-                std::cerr << err << std::endl;
-                exit(1);
-        }
+                picojson::value v;
+                const std::string err = picojson::parse(v, json);
+                if (err.empty() == false) {
+                        DEBUG_PRINT_HERE();
+                        std::cerr << err << std::endl;
+                        exit(1);
+                }
         
-        picojson::object &obj = v.get<picojson::object>();
-        picojson::array &array = obj["enemy_list"].get<picojson::array>();
+                picojson::object &obj = v.get<picojson::object>();
+                picojson::array &array = obj["enemy_list"].get<picojson::array>();
 
-        for(auto &array_element : array){
-                picojson::object &elem = array_element.get<picojson::object>();
-                picojson::object &point = elem["point"].get<picojson::object>();
-                
-                sf::Vector2f relative_point(point["x"].get<double>(), point["y"].get<double>());
+                for (auto &array_element : array) {
+                        picojson::object &elem = array_element.get<picojson::object>();
+                        picojson::object &point = elem["point"].get<picojson::object>();
 
-                EnemyCharacterMaterial material(*game_data->get_enemy_material(elem["name"].get<std::string>()));
-                material.time = elem["time"].get<double>();
-                material.point += relative_point;
-                data_list.emplace_back(material);
-        }
+                        sf::Vector2f relative_point(point["x"].get<double>(),
+                                                    point["y"].get<double>());
 
-        sort();
+                        EnemyCharacterMaterial material(*game_data->get_enemy_material(
+                                                                elem["name"].get<std::string>()));
+                        material.time = elem["time"].get<double>();
+                        material.point += relative_point;
+                        data_list.emplace_back(material);
+                }
+	}
+
+	sort();
 }
 
 void EnemyCharacterSchedule::push_back(EnemyCharacterMaterial enemy_material)
 {
         data_list.emplace_back(enemy_material);
+}
+
+void EnemyCharacterSchedule::push_back(std::vector<EnemyCharacterMaterial> materials)
+{
+        for(auto &&m : materials){
+                push_back(m);
+        }
 }
 
 EnemyCharacterMaterial EnemyCharacterSchedule::get_front(void)

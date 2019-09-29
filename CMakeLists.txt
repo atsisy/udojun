@@ -33,6 +33,7 @@ set(udjn_src
   src/sound.cpp
   src/save_scene.cpp
   src/ranking_scene.cpp
+  src/builtin_enemy.cpp
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

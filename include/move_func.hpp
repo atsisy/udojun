@@ -15,7 +15,7 @@
 namespace mf {
         
         sf::Vector2f stop(MoveObject *, u64 now, u64 begin);
-        DEF_MOVE_FUNC(sin, float bias, float dx);
+        DEF_MOVE_FUNC(sin, float bias, float y_origin, float dx);
         DEF_MOVE_FUNC(cos, float bias, float dx);
         DEF_MOVE_FUNC(linear, float bias, float dx, float c);
 	DEF_MOVE_FUNC(getting_slower, float init_speed, float angle, u64 limit);
@@ -164,7 +164,7 @@ select_bullet_function(BulletFunctionID id, picojson::object &data)
         case STOP:
                 return mf::stop;
         case SIN_1:
-                return mf::sin(data["bias"].get<double>(), data["dx"].get<double>());
+                return mf::sin(data["bias"].get<double>(), data["y_origin"].get<double>(), data["dx"].get<double>());
         case COS_1:
                 return mf::cos(data["bias"].get<double>(), data["dx"].get<double>());
         case LINEAR:

@@ -98,7 +98,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 		       sf::IntRect(32, 32, 960, 704)),
 	  danmaku_sched({}),
           abs_danmaku_sched({ "stage1_danmaku.json" }),
-          enemy_sched(game_data, "stage1_enemy_schedule.json"),
+          enemy_sched(game_data, { "stage1_enemy_schedule.json", "stage1_enemy_schedule2.json" }),
           udon_marker(GameMaster::texture_table[UDON_MARKER], sf::Vector2f(0, 725), mf::stop, rotate::stop, 0)
 {
         set_count_for_debug(0);
@@ -202,6 +202,12 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
         running_char.set_move_speed(4.5);
 
         game_state = RACE;
+
+        for(auto fn : builtin_enemy_funcs){
+                enemy_sched.push_back(fn(game_data));
+        }
+        
+        enemy_sched.sort();
 
 }
 
@@ -997,7 +1003,8 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
                                 &graze_counter,
                                 &graze_label,
                                 &power_label,
-                                &power_counter
+                                &power_counter,
+                                &score_counter
                 );
 
         post_draw_request_vargs("game_info",
