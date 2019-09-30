@@ -8,6 +8,7 @@
 #include "move_func.hpp"
 #include "rotate_func.hpp"
 #include "geometry.hpp"
+#include "effect.hpp"
 
 SHOT_MASTER_ID EnemyCharacter::NEXT_SHOT_MASTER_ID;
 
@@ -202,29 +203,57 @@ void PlayerCharacter::move_shinrei_slaves(u64 time)
         }
 }
 
-void PlayerCharacter::update_slaves(u64 time, float power)
+void PlayerCharacter::update_slaves(u64 time)
 {
-        update_shinrei_slaves(time, power);
         move_shinrei_slaves(time);
 }
 
-void PlayerCharacter::update_shinrei_slaves(u64 time, float power)
+std::vector<MoveObject *> PlayerCharacter::shinrei_flush(u64 time)
 {
-        i32 num = (i32)(power / 0.02);
-        while(num != slaves.size()){
-                if(num < slaves.size()){
-                        slaves.pop_back();
-                }else{
-                        auto p = new MoveObject(
-                                GameMaster::texture_table[SHINREI1_TX1],
-                                sf::Vector2f(0, 0),
-                                mf::random_turning(this->get_homing_point(), 0.09, 120, 8),
-                                rotate::stop,
-                                time);
-                        p->set_scale(0.12, 0.12);
-                        slaves.push_back(p);
+        if(slaves.size() > 64){
+                return __shinrei_flush(time);
+        }
 
-                }
+        return {};
+}
+
+std::vector<MoveObject *> PlayerCharacter::__shinrei_flush(u64 time)
+{
+        std::vector<MoveObject *> ret;
+        sf::Vector2f g_point = this->get_origin();
+        g_point.y -= 300;
+
+        for(auto p : slaves){
+                p->override_move_func(mf::ratio_step(g_point, 0.1));
+                p->add_effect({
+                                effect::override_move_func(mf::vector_linear(
+                                                                   sf::Vector2f(util::generate_random(-7, 7),
+                                                                                util::generate_random(-7, 7))),
+                                                           time,
+                                                           50),
+                                effect::fade_out_later(50, 100),
+                                effect::kill_at(150)
+                        });
+                ret.push_back(p);
+        }
+
+        slaves.clear();
+
+        return ret;
+}
+
+void PlayerCharacter::add_shinrei(u64 time, float additional_power)
+{
+        i32 num = (i32)(additional_power / 0.02);
+        for(int i = 0;i < num;i++){
+                auto p = new MoveObject(
+                        GameMaster::texture_table[SHINREI1_TX1],
+                        sf::Vector2f(0, 0),
+                        mf::random_turning(this->get_homing_point(), 0.09, 150, 8),
+                        rotate::stop,
+                        time);
+                p->set_scale(0.12, 0.12);
+                slaves.push_back(p);
         }
 }
 

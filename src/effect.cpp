@@ -149,6 +149,18 @@ std::function<void(MoveObject *, u64, u64)> effect::keep_origin(sf::Vector2f ori
                };
 }
 
+std::function<void(MoveObject *, u64, u64)> effect::override_move_func(
+        std::function<sf::Vector2f(MoveObject *, u64, u64)> fn,
+        u64 effect_begin, u64 call_offset)
+{
+        return [=](MoveObject *obj, u64 now, u64 begin) {
+                       u64 past = now - effect_begin;
+                       if(past == call_offset){
+                               obj->override_move_func(fn);
+                       }
+               };
+}
+
 std::function<void(MoveObject *, u64, u64)> effect::call_interface(EffectID id, picojson::object &obj)
 {
         switch(id){

@@ -244,6 +244,16 @@ RainWave::RainWave(sf::Vector2f pos, u64 count)
                         effect::keep_origin(pos)
                 });
 	waves.push_back(p);
+
+        p = new MoveObject(GameMaster::texture_table[CIRCLE_WHITE_STROKE1],
+                                pos, mf::stop, rotate::stop, count);
+        p->add_effect({
+                        effect::scale_effect(sf::Vector2f(0.005, 0.005), sf::Vector2f(0.295, 0.295), 40),
+                        effect::fade_out_later(20, 20),
+                        effect::kill_at(40),
+                        effect::keep_origin(pos)
+                });
+	waves.push_back(p);
 }
 
 void RainWave::draw(sf::RenderWindow &window)

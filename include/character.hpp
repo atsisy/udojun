@@ -50,8 +50,8 @@ private:
         float move_speed;
 
         void set_core_place();
-        void update_shinrei_slaves(u64 time, float power);
         void move_shinrei_slaves(u64 time);
+        std::vector<MoveObject *> __shinrei_flush(u64 time);
 
 public:
         PlayerCharacter(CharacterAttribute attribute, sf::Texture *character,
@@ -66,7 +66,9 @@ public:
         void core_off(void);
         void move_diff(sf::Vector2f diff);
         void draw(sf::RenderWindow &window);
-        void update_slaves(u64 time, float power);
+        void update_slaves(u64 time);
         void set_move_speed(float speed);
         float get_move_speed(void);
+        void add_shinrei(u64 count, float additional_power);
+        std::vector<MoveObject *> shinrei_flush(u64 time);
 };

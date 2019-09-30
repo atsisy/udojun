@@ -286,7 +286,7 @@ void RaceSceneMaster::player_spellcard(void)
                                                                           b->get_place(),
                                                                           mf::active_homing(sf::Vector2f(300, 300), 10, running_char.get_homing_point()),
                                                                           get_count(),
-                                                                          sf::Vector2f(0.7, 0.7), 7,
+                                                                          sf::Vector2f(0.7, 0.7), 15,
                                                                           true, false, 0, SpecialBulletAttribute(0, 10)
                                                                           ));
                                                           delete b;
@@ -389,6 +389,7 @@ void RaceSceneMaster::random_mist(void)
                         mf::up(-4),
                         rotate::stop,
                         get_count());
+                p->set_drawing_depth(180);
                 move_object_container.emplace_front(p);
         }
 }
@@ -426,7 +427,7 @@ void RaceSceneMaster::player_move()
         }
 
 
-        running_char.update_slaves(get_count(), power_counter.counter_method().get_score());
+        running_char.update_slaves(get_count());
 
         running_char.move_diff(sf::Vector2f(0, 0));
 	stamina.add(1);
@@ -440,6 +441,35 @@ void RaceSceneMaster::player_move()
         if(running_char.get_origin().y < 250){
                 current_item_collect();
         }
+
+        std::vector<MoveObject *> shinrei = running_char.shinrei_flush(get_count());
+        if(shinrei.size()){
+		for (auto p : shinrei) {
+			move_object_container.push_front(p);
+		}
+                sf::Texture *t;
+                u32 i = util::generate_random(0, 2);
+                if(i == 0)
+                        t = GameMaster::texture_table[LOTUS_PINK];
+                else if(i == 1)
+                        t = GameMaster::texture_table[LOTUS_BLUE];
+                else
+                        t = GameMaster::texture_table[LOTUS_YELLOW];
+                
+                bullet_pipeline.special_pipeline.direct_insert_bullet(
+                        new SpecialBullet(
+                                t,
+                                sf::Vector2f(running_char.get_place().x, running_char.get_origin().y - 300),
+                                mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
+                                get_count(),
+                                sf::Vector2f(0.06, 0.06),
+                                8,
+                                true,
+                                false,
+                                0,
+                                SpecialBulletAttribute(0.0, 1500)
+                                ));
+	}
 }
 
 FunctionCallEssential *RaceSceneMaster::player_slow_shot(void)
@@ -750,6 +780,7 @@ void RaceSceneMaster::conflict_judge(void)
 			sp_bullet->hide();
                         game_score_counter.counter_method().add(a.score);
                         power_counter.counter_method().add(a.power);
+                        running_char.add_shinrei(get_count(), a.power);
 		}
 	}
 
@@ -877,7 +908,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 
         for (Bullet *b : bullet_pipeline.special_pipeline.actual_bullets) {
                 if(b->get_shot_master_id() == SPECIAL_ITEM && running_char.outer_distance(b) < b->get_radius() + 100){
-                        b->override_move_func(mf::active_homing(running_char.get_origin(), 5, running_char.get_homing_point()));
+                        b->override_move_func(mf::active_homing(running_char.get_origin(), 5.5, running_char.get_homing_point()));
                 }       
 	}
 

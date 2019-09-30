@@ -296,13 +296,16 @@ namespace mf {
 	active_homing(sf::Vector2f origin, float speed, sf::Vector2f *target)
 	{
 		return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd) {
-			const sf::Vector2f &&now = bullet->get_place();
-                        float angle = geometry::calc_angle(*target, now);
-                        
-			float x = speed * std::cos(angle);
-			float y = speed * std::sin(angle);
-			return sf::Vector2f(now.x + x, now.y + y);
-		};
+                               const sf::Vector2f &&now = bullet->get_place();
+                               const sf::Vector2f &&origin = bullet->get_origin();
+                               
+                               float angle = geometry::calc_angle(*target, origin);
+                               
+                               float x = speed * std::cos(angle);
+                               float y = speed * std::sin(angle);
+                               
+                               return sf::Vector2f(now.x + x, now.y + y);
+                       };
 	}
 
         std::function<sf::Vector2f(MoveObject *, u64, u64)>
