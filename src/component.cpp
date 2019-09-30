@@ -551,8 +551,7 @@ void Conflictable::move_center(sf::Vector2f d)
 
 float Conflictable::distance(Conflictable *c)
 {
-        return std::sqrt(std::pow(this->center.x - c->center.x, 2)
-                         + std::pow(this->center.y - c->center.y, 2));
+        return geometry::distance(this->center, c->center);
 }
 
 float Conflictable::outer_distance(Conflictable *c)

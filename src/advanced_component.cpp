@@ -397,14 +397,19 @@ void ScreenSaver::judge_conflict_each_object(void)
 
 void ScreenSaver::judge_conflict_each_object_sub(ScreenSaverElement *p1, ScreenSaverElement *p2)
 {
+        sf::Vector2f p1_origin = p1->get_origin();
+        sf::Vector2f p2_origin = p2->get_origin();
+        
         sf::Vector2f p1_speed = p1->get_move_speed();
         sf::Vector2f p2_speed = p2->get_move_speed();
 
         sf::Vector2f p1_next_speed = geometry::calc_conflict_speed(p1_speed, p2_speed, 0.9);
         sf::Vector2f p2_next_speed = geometry::calc_conflict_speed(p2_speed, p1_speed, 0.9);
 
-        p1->set_next_move_speed(p1_next_speed);
-        p2->set_next_move_speed(p2_next_speed);
+        if(geometry::distance(p1_origin + p1_next_speed, p2_origin + p2_next_speed) > geometry::distance(p1_origin, p2_origin)){
+                p1->set_next_move_speed(p1_next_speed);
+                p2->set_next_move_speed(p2_next_speed);       
+        }
 }
 
 void ScreenSaver::effect(u64 count)

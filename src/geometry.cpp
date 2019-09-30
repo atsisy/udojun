@@ -81,4 +81,10 @@ namespace geometry {
                         __calc_conflict_speed(speed1.y, speed2.y, elast)
                         );
         }
+
+        float distance(sf::Vector2f p1, sf::Vector2f p2)
+        {
+                return std::sqrt(std::pow(p1.x - p2.x, 2)
+                                 + std::pow(p1.y - p2.y, 2));
+        }
 }
