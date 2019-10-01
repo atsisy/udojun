@@ -67,6 +67,12 @@ void BulletPipeline::schedule_bullet(u64 now, PlayerCharacter &player, DrawableC
                                                         std::end(generated),
                                                         std::back_inserter(actual_bullets));
                                         }
+                                } else if (target->flags & LASER_BULLET) {
+                                        /*
+                                         * レーザーか？
+                                         */
+                                        actual_lasers.push_back(BulletGenerator::generate_laser(target->original_data,
+                                                                                                target, udon, now));
                                 } else {
                                         // 実体化し、表示する弾丸のグループに加える
                                         auto generated = BulletGenerator::generate(
@@ -89,7 +95,11 @@ void BulletPipeline::clear_all_bullets(void)
 	for (Bullet *b : actual_bullets) {
 		delete b;
 	}
+        for (Laser *l : actual_lasers) {
+		delete l;
+	}
         actual_bullets.clear();
+        actual_lasers.clear();
 	bullet_sched.clear();
 }
 
@@ -97,6 +107,10 @@ void BulletPipeline::draw(sf::RenderWindow &window)
 {
         for(Bullet *b : actual_bullets){
                 b->draw(window);
+        }
+
+        for(Laser *p : actual_lasers){
+                p->draw(window);
         }
 }
 

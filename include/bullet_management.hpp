@@ -4,6 +4,7 @@
 #include "sched.hpp"
 #include "programable.hpp"
 #include "character.hpp"
+#include "laser.hpp"
 
 class BulletPipeline {
     private:
@@ -11,6 +12,7 @@ class BulletPipeline {
 	FunctionScheduler func_sched;
 	BulletScheduler bullet_sched;
 	std::list<Bullet *> actual_bullets;
+        std::list<Laser *> actual_lasers;
 
 	void add_function(FunctionCallEssential *e);
 	void flush_called_function(u64 now, BulletFuncTable &func_table);

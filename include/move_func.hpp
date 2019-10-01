@@ -42,6 +42,8 @@ namespace mf {
         DEF_MOVE_FUNC(random_vibration, sf::Vector2f origin, u64 r);
 
         DEF_MOVE_FUNC(random_turning, sf::Vector2f *origin, float speed, u64 r, u64 width);
+
+	DEF_MOVE_FUNC(nokogiri, sf::Vector2f v1, sf::Vector2f v2, u64 time_offset);
 }
 
 
@@ -50,6 +52,7 @@ enum BulletFunctionID {
         STOP,
         COS_1,
         LINEAR,
+        NOKOGIRI,
         VECTOR_LINEAR,
         AIM_SELF_LINEAR,
         UP,
@@ -88,6 +91,7 @@ inline BulletFunctionID str_to_bfid(const char *str)
         str_to_idx_sub(str, SHADOW_VECTOR_LINEAR);
         str_to_idx_sub(str, ACCELERATING);
         str_to_idx_sub(str, UDON_SLOWER);
+        str_to_idx_sub(str, NOKOGIRI);
 
 	std::cout << "Unknown Bullet Function ID: " << str << std::endl;
         
@@ -103,6 +107,10 @@ constexpr u64 LASER_BULLET = 0x10;
 class BulletData {
 private:
         void init_texture_data(TextureID id);
+
+        void __constructor_for_dynamic_macro(picojson::object &json_data, u64 flg);
+        void __constructor_for_laser(picojson::object &json_data, u64 flg);
+        
         
 public:
         BulletFunctionID id;
@@ -135,14 +143,16 @@ public:
         void set_appear_time(u64 current);
 };
 
+class Laser;
+
 class BulletGenerator {
 
 private:
-        static std::vector<Bullet *> generate_laser(BulletData *data, DrawableCharacter &running_char, u64 count);
         static std::vector<Bullet *> generate_bullet(BulletData *data, DrawableCharacter &running_char, u64 count);
         
 public:
         static std::vector<Bullet *> generate(BulletData *data, DrawableCharacter &running_char, u64 count);
+        static Laser *generate_laser(picojson::object &original_data, BulletData *data, DrawableCharacter &running_char, u64 count);
 };
 
 class FunctionCallEssential {
@@ -222,6 +232,17 @@ select_bullet_function(BulletFunctionID id, picojson::object &data)
                 sf::Vector2f y_speed_range(y_range_object["min"].get<double>(), y_range_object["max"].get<double>());
                 return mf::accelerating(init, accel, x_speed_range, y_speed_range);
         }
+        case NOKOGIRI:
+        {
+                auto &v_vec1 = data["v_vec1"].get<picojson::object>();
+                auto &v_vec2 = data["v_vec2"].get<picojson::object>();
+                
+                return mf::nokogiri(
+                        sf::Vector2f(v_vec1["x"].get<double>(), v_vec1["y"].get<double>()),
+                        sf::Vector2f(v_vec2["x"].get<double>(), v_vec2["y"].get<double>()),
+                        data["time_offset"].get<double>());
+        }
+        
 	default:
                 return mf::stop;
         }

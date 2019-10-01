@@ -349,6 +349,7 @@ private:
         void next_danmaku_forced(void);
         void conflict_judge(void);
         void kill_out_of_filed_bullet(std::list<Bullet *> &bullets);
+        void kill_out_of_filed_laser(std::list<Laser *> &lasers);
         void check_graze(std::list<Bullet *> &bullets);
         void player_spellcard(void);
         void player_spellcard_effect(void);
@@ -364,6 +365,7 @@ private:
         void convert_bullet_to_small_crystal(BulletPipeline &pipeline);
         void spellcard_result(u64 elapsed_time, u64 remaining_time);
         void prepare_for_next_scene(void);
+        void try_enemy_kill_check(EnemyCharacter *p);
 
     public:
         RaceSceneMaster(GameData *game_data);

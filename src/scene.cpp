@@ -56,7 +56,6 @@ void SceneMaster::update_count()
 
 Bullet *test_bullet;
 DrawableObject3D *test_3d_object;
-Laser *test_laser;
 StraightLaser *test_slaser;
 
 RaceSceneMaster::RaceSceneMaster(GameData *game_data)
@@ -117,15 +116,6 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
                                               rotate::stop,
                                               0);
         //test_3d_object->set_scale(0.1, 0.1);
-        test_laser = new Laser(GameMaster::texture_table[LASER_TAIL3],
-                               GameMaster::texture_table[LASER_BODY3],
-                               GameMaster::texture_table[LASER_HEAD3],
-                               sf::Vector2f(140, 40),
-                               mf::curve(sf::Vector2f(100, 30),
-                                         sf::Vector2f(-150, 400),
-                                         sf::Vector2f(700, 650),
-                                         200),
-                               0, sf::Vector2f(0.3, 0.3), BulletSize::BULLET1, 128);
         test_slaser = new StraightLaser(GameMaster::texture_table[LASER_BODY3],
                                         sf::Vector2f(500, 100), sf::Vector2f(100, 500),
                                         [](MoveObject *p, u64 n, u64 b){
@@ -255,8 +245,10 @@ void RaceSceneMaster::player_spellcard_effect(void)
         }
         for(EnemyCharacter *e : enemy_container){
                 e->damage(400);
+                try_enemy_kill_check(e);
         }
         target_udon.damage(400);
+        udon_hp.set_value(target_udon.get_hp());
 }
 
 void RaceSceneMaster::player_spellcard(void)
@@ -650,6 +642,20 @@ void RaceSceneMaster::next_danmaku_forced(void)
         this->add_new_danmaku();
 }
 
+void RaceSceneMaster::kill_out_of_filed_laser(std::list<Laser *> &lasers)
+{
+        lasers.remove_if([](Laser *p){
+                                  if (!p->visible()) {
+                                          delete p;
+                                          return true;
+                                  }
+                                  return false;
+                          });
+	for (Laser *p : lasers) {
+                p->move(get_count());
+	}
+}
+
 void RaceSceneMaster::kill_out_of_filed_bullet(std::list<Bullet *> &bullets)
 {
         bullets.remove_if([this](Bullet *b){
@@ -675,7 +681,7 @@ void RaceSceneMaster::check_graze(std::list<Bullet *> &bullets)
 {
         for (Bullet *b : bullets) {
                 if (b->is_grazable()){
-                        if(running_char.outer_distance(b) < b->get_radius() + 5){
+                        if(running_char.distance(b) > 15){
 				graze_counter.counter_method().add(5);
                                 b->disable_graze();
                         }
@@ -714,6 +720,18 @@ void RaceSceneMaster::cleanup_enemy_container(void)
         
 }
 
+void RaceSceneMaster::try_enemy_kill_check(EnemyCharacter *p)
+{
+        if(!p->dead() && p->hp_zero()){
+                auto bomb = enemy_manager.kill_enemy_with_normal_effect(p, get_count());
+                move_object_container.emplace_front(bomb);
+
+                generate_items_random(ItemOrder(2, 2), p->get_origin(), 50);
+                                
+                killed_shot_master_id.push_back(p->get_shot_master_id());
+        }
+}
+
 void RaceSceneMaster::conflict_judge(void)
 {
 	for (auto &&bullet : bullet_pipeline.player_pipeline.actual_bullets) {
@@ -749,14 +767,7 @@ void RaceSceneMaster::conflict_judge(void)
                                                 true, false, 0, SpecialBulletAttribute(0, 10)
                                                 ));
                         }
-                        if(!p->dead() && p->hp_zero()){
-                                auto bomb = enemy_manager.kill_enemy_with_normal_effect(p, get_count());
-                                move_object_container.emplace_front(bomb);
-
-                                generate_items_random(ItemOrder(2, 2), p->get_origin(), 50);
-                                
-                                killed_shot_master_id.push_back(p->get_shot_master_id());
-                        }
+                        try_enemy_kill_check(p);
                 }
 
                 enemy_container.remove_if(
@@ -772,6 +783,16 @@ void RaceSceneMaster::conflict_judge(void)
                         junko_param.add(10);
                 }
 	}
+
+        for (auto &&laser : bullet_pipeline.enemy_pipeline.actual_lasers) {
+                for(auto &&bullet : laser->get_bullet_stream()){
+			if (bullet->check_conflict(running_char)) {
+				bullet->hide();
+				race_status.hit();
+				junko_param.add(10);
+			}
+		}
+	}
         
         for (auto &&bullet : bullet_pipeline.special_pipeline.actual_bullets) {
                 SpecialBullet *sp_bullet = dynamic_cast<SpecialBullet *>(bullet);
@@ -782,13 +803,6 @@ void RaceSceneMaster::conflict_judge(void)
                         power_counter.counter_method().add(a.power);
                         running_char.add_shinrei(get_count(), a.power);
 		}
-	}
-
-        for (auto &&bullet : test_laser->get_bullet_stream()) {
-		if (bullet->check_conflict(running_char)) {
-			bullet->hide();
-                        game_score_counter.counter_method().add(5);
-                }
 	}
         
 	if (test_bullet->check_conflict(running_char)) {
@@ -847,7 +861,6 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 	player_move();
         test_bullet->move(get_count());
         test_3d_object->move(get_count());
-        test_laser->move(get_count());
         test_slaser->update_scale(get_count());
 
         for(auto p : enemy_container){
@@ -903,6 +916,11 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
         kill_out_of_filed_bullet(bullet_pipeline.player_pipeline.actual_bullets);
         kill_out_of_filed_bullet(bullet_pipeline.enemy_pipeline.actual_bullets);
         kill_out_of_filed_bullet(bullet_pipeline.special_pipeline.actual_bullets);
+
+        kill_out_of_filed_laser(bullet_pipeline.player_pipeline.actual_lasers);
+        kill_out_of_filed_laser(bullet_pipeline.enemy_pipeline.actual_lasers);
+        kill_out_of_filed_laser(bullet_pipeline.special_pipeline.actual_lasers);
+        
         remove_killed_shot(bullet_pipeline.enemy_pipeline);
         killed_shot_master_id.clear();
 
@@ -1019,8 +1037,7 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
         post_draw_request_vargs("bullets",
                                 &bullet_pipeline,
                                 test_bullet,
-                                test_3d_object,
-                                test_laser);
+                                test_3d_object);
 
 	//window_frame.draw
 

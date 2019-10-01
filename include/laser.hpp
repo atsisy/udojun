@@ -13,9 +13,10 @@ private:
         sf::Vector2f begin;
         sf::Vector2f scale;
         u64 length;
+        float radius;
         
 public:
-        Laser(sf::Texture *head_tx, sf::Texture *body_tx, sf::Texture *tail_tx,
+        Laser(TextureID head_tx, TextureID body_tx, TextureID tail_tx,
               sf::Vector2f begin, std::function<sf::Vector2f(MoveObject *, u64, u64)> fn,
               u64 begin_count, sf::Vector2f scale, float radius, u64 length);
         ~Laser();

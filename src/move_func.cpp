@@ -2,9 +2,10 @@
 #include "geometry.hpp"
 #include "gm.hpp"
 #include "utility.hpp"
-#include "laser.hpp"
 #include "value.hpp"
 #include "effect.hpp"
+
+#include "laser.hpp"
 
 namespace mf {
         sf::Vector2f stop(MoveObject *bullet, u64 now, u64 begin)
@@ -267,6 +268,21 @@ namespace mf {
                                return sf::Vector2f(now.x + dx, now.y + dy);
                        };
 	}
+
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
+	nokogiri(sf::Vector2f v1, sf::Vector2f v2, u64 time_offset)
+	{
+		return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd) {
+                               u64 past = now_lmd - begin_lmd;
+                               sf::Vector2f now = bullet->get_place();
+                               
+                               if((past / time_offset) % 2 == 0){
+                                       return now + v1;
+                               }else{
+                                       return now + v2;
+                               }
+                       };
+	}
                 
         std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	move_point_constant(sf::Vector2f dest, sf::Vector2f now, u64 start_time, u64 end_time)
@@ -454,8 +470,23 @@ BulletData::BulletData(picojson::object &json_data)
 
 BulletData::BulletData(picojson::object &json_data, u64 flg)
         : original_data(json_data)
-{       
-	this->offset = original_data["time"].get<double>();
+{
+        switch(flg){
+        case DYNAMIC_MACRO:
+        case AIMING_SELF:
+                __constructor_for_dynamic_macro(json_data, flg);
+                break;
+        case LASER_BULLET:
+                __constructor_for_laser(json_data, flg);
+                break;
+        default:
+                break;
+        }
+}
+
+void BulletData::__constructor_for_dynamic_macro(picojson::object &json_data, u64 flg)
+{
+        this->offset = original_data["time"].get<double>();
         this->flags = flg;
 
 	if (original_data.find("extra") != std::end(original_data)) {
@@ -489,6 +520,15 @@ BulletData::BulletData(picojson::object &json_data, u64 flg)
         }
 }
 
+void BulletData::__constructor_for_laser(picojson::object &json_data, u64 flg)
+{
+        this->offset = original_data["time"].get<double>();
+        this->flags = flg;
+
+        this->appear_point = sf::Vector2f(original_data["x"].get<double>(), original_data["y"].get<double>());
+
+        init_rotation = 0;
+}
 
 void BulletData::init_texture_data(TextureID id)
 {
@@ -614,20 +654,26 @@ FunctionCallEssential::FunctionCallEssential(std::string fn, u64 t, SHOT_MASTER_
 	: func_name(fn), time(t), shot_master_id(sm_id), origin(origin_p)
 {}
 
-std::vector<Bullet *> BulletGenerator::generate_laser(BulletData *data, DrawableCharacter &running_char, u64 count)
+Laser *BulletGenerator::generate_laser(picojson::object &original_data, BulletData *data, DrawableCharacter &running_char, u64 count)
 {
-        /*
-        Laser *l = new Laser(
-                data->appear_point,
-                data->original_data["length"].get<double>(),
-                data->original_data["angle"].get<double>(),
-                data->original_data["speed"].get<double>(),
-                data->appear_time
-                );
-        return l->get_bullet_stream();
-        */
+        auto &curve_middle = original_data["curve_middle"].get<picojson::object>();
+        auto &curve_end = original_data["curve_end"].get<picojson::object>();
+        auto &scale_data = original_data["scale"].get<picojson::object>();
+        
+        Laser *l = new Laser(str_to_txid(original_data["head_tx"].get<std::string>().data()),
+                             str_to_txid(original_data["body_tx"].get<std::string>().data()),
+                             str_to_txid(original_data["tail_tx"].get<std::string>().data()),
+                             data->appear_point,
+                             mf::curve(data->appear_point,
+                                       sf::Vector2f(curve_middle["x"].get<double>(), curve_middle["y"].get<double>()),
+                                       sf::Vector2f(curve_end["x"].get<double>(), curve_end["y"].get<double>()),
+                                       original_data["required_time"].get<double>()),
+                             count,
+                             sf::Vector2f(scale_data["x"].get<double>(), scale_data["y"].get<double>()),
+                             original_data["radius"].get<double>(),
+                             original_data["length"].get<double>());
 
-        return {};
+        return l;
 }
 
 std::vector<Bullet *> BulletGenerator::generate_bullet(BulletData *data, DrawableCharacter &running_char, u64 count)
@@ -663,9 +709,5 @@ std::vector<Bullet *> BulletGenerator::generate_bullet(BulletData *data, Drawabl
 
 std::vector<Bullet *> BulletGenerator::generate(BulletData *data, DrawableCharacter &running_char, u64 count)
 {
-        if(data->flags & LASER_BULLET){
-                return generate_laser(data, running_char, count);
-        }else{
-                return generate_bullet(data, running_char, count);
-        }
+        return generate_bullet(data, running_char, count);
 }
