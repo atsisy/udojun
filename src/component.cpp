@@ -309,6 +309,12 @@ void DrawableObject::set_alpha(u8 alpha)
         set_color(col);
 }
 
+u8 DrawableObject::get_alpha(void)
+{
+        auto col = sprite.getColor();
+        return col.a;
+}
+
 void DrawableObject::set_scale(float x, float y)
 {
 	sprite.setScale(x, y);

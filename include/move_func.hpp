@@ -36,6 +36,7 @@ namespace mf {
         DEF_MOVE_FUNC(step, sf::Vector2f begin, sf::Vector2f first_speed, u64 limit,
                       u64 stop, sf::Vector2f second_speed);
         DEF_MOVE_FUNC(shadow_vector_linear, sf::Vector2f speed, u64 enable_time, u64 disable_time);
+        DEF_MOVE_FUNC(shadow_vector_linear2, sf::Vector2f speed, u64 trigger, u64 hide_time);
         DEF_MOVE_FUNC(ratio_step, sf::Vector2f goal, float ratio);
         DEF_MOVE_FUNC(accelerating, sf::Vector2f init_speed, sf::Vector2f accel, sf::Vector2f x_speed_range, sf::Vector2f y_speed_range);
         DEF_MOVE_FUNC(udon_double_step_getting_slower, float init_speed, float angle, u64 change_course_time, float sub_angle);
@@ -63,6 +64,7 @@ enum BulletFunctionID {
         ACTIVE_HOMING,
         STEP,
         SHADOW_VECTOR_LINEAR,
+        SHADOW_VECTOR_LINEAR2,
         UNKNOWN_BFID,
         ACCELERATING,
 };
@@ -89,6 +91,7 @@ inline BulletFunctionID str_to_bfid(const char *str)
         str_to_idx_sub(str, STOP);
         str_to_idx_sub(str, STEP);
         str_to_idx_sub(str, SHADOW_VECTOR_LINEAR);
+        str_to_idx_sub(str, SHADOW_VECTOR_LINEAR2);
         str_to_idx_sub(str, ACCELERATING);
         str_to_idx_sub(str, UDON_SLOWER);
         str_to_idx_sub(str, NOKOGIRI);

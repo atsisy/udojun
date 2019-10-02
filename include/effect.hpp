@@ -45,8 +45,11 @@ namespace effect {
         std::function<void(MoveObject *, u64, u64)> fade_in(u64 distance);
         std::function<void(MoveObject *, u64, u64)> fade_out(u64 distance);
         std::function<void(MoveObject *, u64, u64)> fade_in(u64 distance, u64 called);
-        std::function<void(MoveObject *, u64, u64)> fade_out(u64 distance, u64 called);
+        std::function<void(MoveObject *, u64, u64)> fade_out(u64 distance, u64 called, float init_alpha = 255.f);
+
         std::function<void(MoveObject *, u64, u64)> fade_out_later(u64 distance, u64 later);
+        std::function<void(MoveObject *, u64, u64)> fade_in_later(u64 distance, u64 later, float init_alpha = 255.f);
+        
         std::function<void(MoveObject *, u64, u64)> kill_at(u64 time);
         std::function<void(MoveObject *, u64, u64)> kill_at(u64 time, u64 called);
         std::function<void(MoveObject *, u64, u64)> scale_effect(sf::Vector2f begin, sf::Vector2f end, u64 time);
@@ -55,6 +58,7 @@ namespace effect {
         std::function<void(MoveObject *, u64, u64)> override_move_func(
                 std::function<sf::Vector2f(MoveObject *, u64, u64)> fn,
                 u64 effect_begin, u64 call_offset);
+        std::function<void(MoveObject *, u64, u64)> bullet_conflict_on_at(u64 calling, u64 offset);
 
         std::function<void(MoveObject *, u64, u64)> call_interface(EffectID id, picojson::object &obj);
 } // namespace effect

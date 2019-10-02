@@ -92,6 +92,22 @@ namespace mf {
         }
 
         std::function<sf::Vector2f(MoveObject *, u64, u64)>
+	shadow_vector_linear2(sf::Vector2f speed, u64 trigger, u64 hide_time)
+	{
+                return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd){
+                               u64 past = now_lmd - begin_lmd;
+                               if(now_lmd % trigger == 0){
+                                       bullet->clear_effect_queue();
+                                       bullet->add_effect({ effect::fade_out(20, now_lmd, bullet->get_alpha()),
+                                                            effect::fade_in_later(40, past + hide_time),
+                                                            effect::bullet_conflict_on_at(now_lmd, 120)});
+                                       dynamic_cast<Bullet *>(bullet)->conflict_off();
+                               }
+                               return bullet->get_place() + speed;
+                       };
+        }
+
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	accelerating(sf::Vector2f init_speed, sf::Vector2f accel, sf::Vector2f x_speed_range, sf::Vector2f y_speed_range)
         {
                 return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd){

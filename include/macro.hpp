@@ -113,7 +113,7 @@ namespace macro {
          * 第十引数: 円を形作る弾の数
          */
         std::vector<BulletData *> udon_spellcard4(TextureID txid, sf::Vector2f origin, float speed,
-                                                  u64 enable_time, u64 disable_time, u64 cast_times,
+                                                  u64 trigger, u64 disable_time, u64 cast_times,
                                                   u64 time, u64 time_offset, float r, u64 num);
         
         /**

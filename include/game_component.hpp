@@ -222,6 +222,7 @@ public:
         sf::Vector2u get_texture_size(void);
         void set_color(sf::Color color);
         virtual void set_alpha(u8 alpha);
+        virtual u8 get_alpha(void);
         sf::Vector2f displaying_size();
         void rotate(float rad);
         void set_default_origin(void);

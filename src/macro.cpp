@@ -297,7 +297,7 @@ namespace macro {
         }
 
         std::vector<BulletData *> udon_spellcard4_sub(TextureID txid, sf::Vector2f origin, float speed,
-                                                      u64 enable_time, u64 disable_time, u64 time, float r, u64 num)
+                                                      u64 trigger, u64 disable_time, u64 time, float r, u64 num)
         {
                 std::vector<BulletData *> ret;
                 float unit_rad = (2 * M_PI) / (float)num;
@@ -307,10 +307,10 @@ namespace macro {
                         ret.push_back(new BulletData(
                                               str_to_bfid("SHADOW_VECTOR_LINEAR"),
                                               txid,
-                                              mf::shadow_vector_linear(
+                                              mf::shadow_vector_linear2(
                                                       sf::Vector2f(speed * std::cos(rad),
                                                                    speed * std::sin(rad)),
-                                                      enable_time, disable_time),
+                                                      trigger, disable_time),
                                               time,
                                               sf::Vector2f(
                                                       origin.x + (r * std::cos(rad)),
@@ -322,14 +322,14 @@ namespace macro {
         }
 
         std::vector<BulletData *> udon_spellcard4(TextureID txid, sf::Vector2f origin, float speed,
-                                                  u64 enable_time, u64 disable_time, u64 cast_times,
+                                                  u64 trigger, u64 disable_time, u64 cast_times,
                                                   u64 time, u64 time_offset, float r, u64 num)
         {
                 std::vector<BulletData *> ret;
 
-                for(u64 i = 0;i < cast_times;i++, time += time_offset, enable_time -= time_offset){
+                for(u64 i = 0;i < cast_times;i++, time += time_offset){
                         std::vector<BulletData *> &&circle = udon_spellcard4_sub(txid, sf::Vector2f(50, 50), speed,
-                                                                                   enable_time, disable_time, time, r, num);
+                                                                                   trigger, disable_time, time, r, num);
                         util::concat_container<std::vector<BulletData *>>(ret, circle);
                 }
                 
@@ -741,7 +741,7 @@ namespace macro {
                                 );
                 case UDON_SPELL2:
                         return macro::udon_spellcard2(data["speed"].get<double>(),
-                                                      data["enable_time"].get<double>(),
+                                                      data["trigger"].get<double>(),
                                                       data["disable_time"].get<double>(),
                                                       data["time"].get<double>(),
                                                       data["r"].get<double>(),
@@ -751,7 +751,7 @@ namespace macro {
                                                       sf::Vector2f(data["x"].get<double>(),
                                                                    data["y"].get<double>()),
                                                       data["speed"].get<double>(),
-                                                      data["enable_time"].get<double>(),
+                                                      data["trigger"].get<double>(),
                                                       data["disable_time"].get<double>(),
                                                       data["cast_times"].get<double>(),
                                                       data["time"].get<double>(),
