@@ -159,6 +159,24 @@ namespace mf {
 	}
 
         std::function<sf::Vector2f(MoveObject *, u64, u64)>
+	linear_getting_slower(float init_speed, float angle, float slow, float min_speed)
+	{
+		return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd) {
+                               const sf::Vector2f &&now = bullet->get_place();
+
+                               float speed = init_speed - (slow * (now_lmd - begin_lmd));
+
+                               if(speed < min_speed)
+                                       speed = min_speed;
+                               
+                               float x_speed = speed * std::cos(angle);
+                               float y_speed = speed * std::sin(angle);
+
+			       return now + sf::Vector2f(x_speed, y_speed);
+                       };
+	}
+        
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
         udon_double_step_getting_slower(float init_speed, float angle, u64 change_course_time, float sub_angle)
 	{
                 float x_speed = init_speed * std::cos(angle);

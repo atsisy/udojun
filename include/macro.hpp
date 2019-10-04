@@ -11,6 +11,7 @@ enum MacroID {
         UDON_CIRCLE1,
 	UDON_TSUJO1,
 	UDON_TSUJO2,
+        UDON_TSUJO3,
         UDON_SPELL1,
         UDON_SPELL2,
         UDON_SPELL4,
@@ -58,6 +59,7 @@ inline MacroID str_to_macroid(const char *str)
         str_to_idx_sub(str, JUNKO_SPELL1);
         str_to_idx_sub(str, NORMAL_ENEMY_SHOT1);
         str_to_idx_sub(str, WINDER1);
+        str_to_idx_sub(str, UDON_TSUJO3);
         str_to_idx_sub(str, UDON_DELAY_CIRCLE);
 
 	std::cout << "Unknown Macro ID: " << str << std::endl;
@@ -130,6 +132,8 @@ namespace macro {
                                              float speed, float angle,
                                              float bias,
                                              u64 time, u64 distance);
+
+        std::vector<BulletData *> udon_tsujo3(sf::Vector2f origin, u64 time, u64 offset, float r, float speed);
         
         std::vector<BulletData *> junko_shot_fast_lv1(TextureID txid, sf::Vector2f center, float speed, u64 time);
         std::vector<BulletData *> junko_shot_fast_lv2(TextureID txid1, TextureID txid2,

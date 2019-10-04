@@ -209,6 +209,37 @@ namespace macro {
 		return udon_circle2(origin, 90, 10, 1024, time, phase, 0.06);
 	}
 
+        std::vector<BulletData *> udon_tsujo3_sub(sf::Vector2f origin, u64 count, u64 time, float phase, float r, float speed)
+	{
+                std::vector<BulletData *> ret;
+                float rad = phase;
+                float unit = (2.f * M_PI) / count;
+
+                for(int i = 0;i < count;i++, rad += unit){
+                        ret.push_back(new BulletData(str_to_bfid("SLOWER1"),
+                                                     BULLET1,
+                                                     mf::linear_getting_slower(speed, rad, 0.08, 1.2),
+                                                     time,
+                                                     sf::Vector2f(origin.x + (r * std::cos(rad)),
+                                                                  origin.y + (r * std::sin(rad))),
+                                                     rad + M_PI_2));
+                }
+                
+                return ret;
+	}
+
+        std::vector<BulletData *> udon_tsujo3(sf::Vector2f origin, u64 time, u64 offset, float r, float speed)
+	{
+                std::vector<BulletData *> ret;
+                
+                for(int i = 0;i < 1024;i++, time += offset){
+                        auto && elem = udon_tsujo3_sub(origin, 4, time, (2 * M_PI) * std::sin((float)i / 32.f), r, speed);
+                        util::concat_container<std::vector<BulletData *>>(ret, elem);
+                }
+
+                return ret;
+	}
+
         std::vector<BulletData *> udon_spellcard1(sf::Vector2f origin, sf::Vector2f target,
                                                   sf::Vector2f speed, u64 change_time, u64 time,
                                                   float r)
@@ -769,6 +800,14 @@ namespace macro {
 					     data["y"].get<double>()),
 				data["time"].get<double>(),
 				TAKE_DEFAULT_ARG(data, "phase", double, 0));
+                case UDON_TSUJO3:
+                        return udon_tsujo3(
+				sf::Vector2f(data["x"].get<double>(),
+					     data["y"].get<double>()),
+				data["time"].get<double>(),
+                                data["offset"].get<double>(),
+                                data["r"].get<double>(),
+                                data["speed"].get<double>());
                 case RANDOM_CIRCLES:
                         return random_circles(
                                 (int)data["circle_num"].get<double>(),

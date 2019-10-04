@@ -45,6 +45,7 @@ namespace mf {
         DEF_MOVE_FUNC(random_turning, sf::Vector2f *origin, float speed, u64 r, u64 width);
 
 	DEF_MOVE_FUNC(nokogiri, sf::Vector2f v1, sf::Vector2f v2, u64 time_offset);
+        DEF_MOVE_FUNC(linear_getting_slower, float init_speed, float angle, float slow, float min_speed);
 }
 
 
