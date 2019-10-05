@@ -25,6 +25,8 @@ class BulletPipeline {
         void direct_insert_bullet_data(std::vector<BulletData *> data);
 
         void clear_killed_shot(SHOT_MASTER_ID id);
+
+        void move_all_bullets(u64 count);
 };
 
 class BulletPipelineContainer : public DrawableComponent {

@@ -100,7 +100,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           enemy_sched(game_data, { "stage1_enemy_schedule.json", "stage1_enemy_schedule2.json" }),
           udon_marker(GameMaster::texture_table[UDON_MARKER], sf::Vector2f(0, 725), mf::stop, rotate::stop, 0)
 {
-        set_count_for_debug(0);
+        set_count_for_debug(4400);
         
         this->game_data = game_data;
 	test_bullet = new Bullet(GameMaster::texture_table[SHINREI1_TX1],
@@ -651,9 +651,6 @@ void RaceSceneMaster::kill_out_of_filed_laser(std::list<Laser *> &lasers)
                                   }
                                   return false;
                           });
-	for (Laser *p : lasers) {
-                p->move(get_count());
-	}
 }
 
 void RaceSceneMaster::kill_out_of_filed_bullet(std::list<Bullet *> &bullets)
@@ -671,10 +668,6 @@ void RaceSceneMaster::kill_out_of_filed_bullet(std::list<Bullet *> &bullets)
                                   }
                                   return false;
                           });
-	for (Bullet *b : bullets) {
-                b->move(get_count());
-                b->effect(get_count());
-	}
 }
 
 void RaceSceneMaster::check_graze(std::list<Bullet *> &bullets)
@@ -849,6 +842,63 @@ void RaceSceneMaster::generate_items_random(ItemOrder item, sf::Vector2f origin,
         }
 }
 
+void RaceSceneMaster::move_objects(void)
+{
+        for(DrawableObject3D *p : object3d_list){
+                p->move(get_count());
+                p->effect(get_count());
+        }
+        
+        // 立ち絵を移動
+        tachie_container.remove_if(
+                [this](Tachie *p) {
+                        if(p->visible()){
+                                p->move(get_count());
+                                p->effect(get_count());
+                                return false;
+                        }else{
+                                return true;
+                        }
+                });
+
+        
+        for(auto &&p : enemy_container){
+                p->move(get_count());
+                p->effect(get_count());
+                p->rotate_with_func(get_count());
+	}
+
+        move_object_container.remove_if(
+                [this](MoveObject *p){
+                        if(p->visible()){
+                                p->move(get_count());
+                                p->effect(get_count());
+                                return false;
+                        }else{
+                                return true;
+                        }
+                });
+        game_info_container.remove_if(
+                [this](MoveObject *p){
+                        if(p->visible()){
+                                p->move(get_count());
+                                p->effect(get_count());
+                                return false;
+                        }else{
+                                return true;
+                        }
+                });
+
+        bullet_pipeline.player_pipeline.move_all_bullets(get_count());
+        bullet_pipeline.special_pipeline.move_all_bullets(get_count());
+        bullet_pipeline.enemy_pipeline.move_all_bullets(get_count());
+
+        player_move();
+
+        test_bullet->move(get_count());
+        test_3d_object->move(get_count());
+}
+
 void RaceSceneMaster::pre_process(sf::RenderWindow &window)
 {
         add_new_functional_bullets_to_schedule();
@@ -858,9 +908,6 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
         
         conflict_judge();
         
-	player_move();
-        test_bullet->move(get_count());
-        test_3d_object->move(get_count());
         test_slaser->update_scale(get_count());
 
         for(auto p : enemy_container){
@@ -901,11 +948,6 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
                                          get_count());
                 p->add_effect({ effect::fade_in(40) });
                 object3d_list.push_back(p);
-        }
-
-        for(DrawableObject3D *p : object3d_list){
-                p->move(get_count());
-                p->effect(get_count());
         }
 
 	score_counter.counter_method().add(1);
@@ -955,41 +997,7 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
                 effect_conroller.udon_marker_hide = false;
         }
 
-	tachie_container.remove_if([](Tachie *p) { return !p->visible(); });
-        // 立ち絵の移動
-        for(auto &&p : tachie_container){
-                p->move(get_count());
-		p->effect(get_count());
-	}
-
-        for(auto &&p : enemy_container){
-                p->move(get_count());
-                p->effect(get_count());
-                p->rotate_with_func(get_count());
-	}
-
-        move_object_container.remove_if(
-                [this](MoveObject *p){
-                        if(p->visible()){
-                                p->move(get_count());
-                                p->effect(get_count());
-                                return false;
-                        }else{
-                                return true;
-                        }
-                });
-        game_info_container.remove_if(
-                [this](MoveObject *p){
-                        if(p->visible()){
-                                p->move(get_count());
-                                p->effect(get_count());
-                                return false;
-                        }else{
-                                return true;
-                        }
-                });
-        
-	//backgroundTile.scroll();
+        move_objects();
 
 	timer_list.check_and_call(get_count());
         
@@ -1414,6 +1422,30 @@ void RaceSceneMaster::ResultEvent::drawing_process(sf::RenderWindow &window)
 }
 
 GameState RaceSceneMaster::ResultEvent::post_process(sf::RenderWindow &window)
+{
+        return SceneSubEvent::post_process(window);
+}
+
+RaceSceneMaster::PauseEvent::PauseEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *data)
+        : SceneSubEvent(pos, "pause")
+{
+        set_status(SUBEVE_CONTINUE);
+        
+        this->rsm = rsm;
+
+}
+
+void RaceSceneMaster::PauseEvent::pre_process(sf::RenderWindow &window)
+{       
+        timer_list.check_and_call(get_count());
+        update_count();
+}
+
+void RaceSceneMaster::PauseEvent::drawing_process(sf::RenderWindow &window)
+{
+}
+
+GameState RaceSceneMaster::PauseEvent::post_process(sf::RenderWindow &window)
 {
         return SceneSubEvent::post_process(window);
 }

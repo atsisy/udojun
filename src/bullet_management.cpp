@@ -126,6 +126,18 @@ void BulletPipeline::direct_insert_bullet_data(std::vector<BulletData *> data)
         }
 }
 
+void BulletPipeline::move_all_bullets(u64 count)
+{
+        for(auto &&p : actual_bullets){
+                p->move(count);
+                p->effect(count);
+        }
+
+        for(auto &&p : actual_lasers){
+                p->move(count);
+        }
+}
+
 void BulletPipelineContainer::draw(sf::RenderWindow &window)
 {
         player_pipeline.draw(window);

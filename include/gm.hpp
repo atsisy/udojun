@@ -254,6 +254,20 @@ class RaceSceneMaster : public SceneMaster, public SceneAnimation {
                 RaceSceneEffectController(void);
         };
 
+        class PauseEvent : public SceneSubEvent {
+        private:
+                std::forward_list<DynamicText *> tachie_container;
+                key::KeyboardListener key_listener;
+                RaceSceneMaster *rsm;
+                
+        public:
+                PauseEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *data);
+
+                void pre_process(sf::RenderWindow &window) override;
+                void drawing_process(sf::RenderWindow &window) override;
+                GameState post_process(sf::RenderWindow &window) override;
+        };
+
         class ConversationEvent : public SceneSubEvent {
         private:
                 std::forward_list<Tachie *> tachie_container;
@@ -366,6 +380,7 @@ private:
         void spellcard_result(u64 elapsed_time, u64 remaining_time);
         void prepare_for_next_scene(void);
         void try_enemy_kill_check(EnemyCharacter *p);
+        void move_objects(void);
 
     public:
         RaceSceneMaster(GameData *game_data);
