@@ -14,6 +14,7 @@
 #include <sstream>
 #include <iomanip>
 #include <limits>
+#include <codecvt> 
 
 SceneMaster::SceneMaster()
 {
@@ -200,7 +201,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
         enemy_sched.sort();
 
         key_listener.add_key_event(key::VKEY_3,
-                                   [&, this](key::KeyStatus status){
+                                   [=](key::KeyStatus status){
                                            if(status & key::KEY_FIRST_PRESSED){
                                                    sub_event_list.push_back(new PauseEvent(this, sf::Vector2f(0, 0), game_data));
                                            }
@@ -1465,7 +1466,7 @@ GameState RaceSceneMaster::ResultEvent::post_process(sf::RenderWindow &window)
         return SceneSubEvent::post_process(window);
 }
 
-RaceSceneMaster::PauseEvent::PauseEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *data)
+RaceSceneMaster::PauseEvent::PauseEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *game_data)
         : SceneSubEvent(pos, "pause")
 {
         set_status(SUBEVE_CONTINUE);
@@ -1484,10 +1485,75 @@ RaceSceneMaster::PauseEvent::PauseEvent(RaceSceneMaster *rsm, sf::Vector2f pos, 
                                                    set_status(SUBEVE_FINISH);
                                            }
                                    });
+        key_listener.add_key_event(key::ARROW_KEY_DOWN,
+                                   [this](key::KeyStatus status) {
+                                           if (status & key::KEY_FIRST_PRESSED) {
+                                                   this->selecter.down();
+                                                   GameMaster::sound_player->add(sound::SELECTING_SOUND);
+                                           }
+                                   });
+	key_listener.add_key_event(
+		key::ARROW_KEY_UP,
+                [this](key::KeyStatus status) {
+                        if (status & key::KEY_FIRST_PRESSED) {
+                                this->selecter.up();
+                                GameMaster::sound_player->add(sound::SELECTING_SOUND);
+                        }
+                });
+        
+        choice_label_set.push_back(
+		new DynamicText(L"再開", game_data->get_font(JP_DEFAULT),
+                                GLYPH_DESIGN1,
+				sf::Vector2f(300, 300),
+                                mf::stop, rotate::stop, get_count(), 40));
+        choice_label_set.push_back(
+		new DynamicText(L"最初からやり直す", game_data->get_font(JP_DEFAULT),
+                                GLYPH_DESIGN1,
+				sf::Vector2f(300, 350),
+                                mf::stop, rotate::stop, get_count(), 28)
+                );
+        choice_label_set.push_back(
+		new DynamicText(L"タイトルに戻る", game_data->get_font(JP_DEFAULT),
+                                GLYPH_DESIGN1,
+				sf::Vector2f(300, 400),
+                                mf::stop, rotate::stop, get_count(), 28)
+                );
+
+        selecter.add_item(0);
+        selecter.add_item(1);
+	selecter.add_item(2);
+
+        key_listener.add_key_event(
+		key::VKEY_1, [this](key::KeyStatus status) {
+                                     if (status & key::KEY_FIRST_PRESSED) {
+                                             u64 index = selecter.get();
+                                             
+                                             switch(index){
+                                             case 0:
+                                                     this->set_status(SUBEVE_FINISH);
+                                                     break;
+                                             case 1:
+                                                     this->rsm->game_state = RESET_CURRENT;
+                                                     break;
+                                             case 2:
+                                                     this->rsm->game_state = START;
+                                                     break;
+                                             }
+                                     }
+                             });
 }
 
 void RaceSceneMaster::PauseEvent::pre_process(sf::RenderWindow &window)
-{       
+{
+        for (size_t i = 0;i < choice_label_set.size();i++) {
+                if(i != selecter.get())
+                        choice_label_set[i]->set_font_size(28);
+                else
+			choice_label_set[i]->set_font_size(40);
+                choice_label_set[i]->move(get_count());
+                choice_label_set[i]->effect(get_count());
+	}
+        
         key_listener.key_update();
         timer_list.check_and_call(get_count());
         update_count();
@@ -1495,6 +1561,7 @@ void RaceSceneMaster::PauseEvent::pre_process(sf::RenderWindow &window)
 
 void RaceSceneMaster::PauseEvent::drawing_process(sf::RenderWindow &window)
 {
+        rsm->post_draw_request("game_info", choice_label_set);
 }
 
 GameState RaceSceneMaster::PauseEvent::post_process(sf::RenderWindow &window)

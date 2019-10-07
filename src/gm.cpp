@@ -135,9 +135,13 @@ SceneMaster *GameMaster::create_new_scene(GameState req)
 
 void GameMaster::switch_scene(GameState res)
 {
-        if(current_state != res){
+        if(unlikely(current_state != res)){
                 SceneMaster *old_scene = current_scene;
-                current_state = res;
+                if(res != RESET_CURRENT){
+                        current_state = res;
+                }else{
+                        res = current_state;
+                }
                 current_scene = create_new_scene(res);
                 delete old_scene;
         }

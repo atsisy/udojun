@@ -33,6 +33,7 @@ enum GameState {
         SUBEVE_FINISH,
         SAVE,
         RANKING,
+        RESET_CURRENT,
 };
 
 class GraphicBuffer {
@@ -260,6 +261,8 @@ class RaceSceneMaster : public SceneMaster, public SceneAnimation {
                 std::forward_list<DynamicText *> tachie_container;
                 key::KeyboardListener key_listener;
                 RaceSceneMaster *rsm;
+                std::vector<DynamicText *> choice_label_set;
+                util::SelecterImplements<u64> selecter;
                 
         public:
                 PauseEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *data);
