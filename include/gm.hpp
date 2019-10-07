@@ -250,6 +250,7 @@ class RaceSceneMaster : public SceneMaster, public SceneAnimation {
                 bool time_limit_hide: 1;
                 bool udon_marker_hide: 1;
                 bool timelimit_on: 1;
+                bool lock_object_move: 1;
 
                 RaceSceneEffectController(void);
         };
@@ -357,6 +358,7 @@ private:
         MoveObject udon_marker;
         RaceStatus race_status;
         GameState game_state;
+        key::KeyboardListener key_listener;
 
 	void add_new_functional_bullets_to_schedule(void);
         void add_new_danmaku(void);
@@ -381,6 +383,9 @@ private:
         void prepare_for_next_scene(void);
         void try_enemy_kill_check(EnemyCharacter *p);
         void move_objects(void);
+        void move_objects_sub(void);
+        void pre_process_non_paused(sf::RenderWindow &window);
+        void pre_process_paused(sf::RenderWindow &window);
 
     public:
         RaceSceneMaster(GameData *game_data);

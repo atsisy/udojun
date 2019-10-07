@@ -199,6 +199,13 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
         
         enemy_sched.sort();
 
+        key_listener.add_key_event(key::VKEY_3,
+                                   [&, this](key::KeyStatus status){
+                                           if(status & key::KEY_FIRST_PRESSED){
+                                                   sub_event_list.push_back(new PauseEvent(this, sf::Vector2f(0, 0), game_data));
+                                           }
+                                   });
+        
 }
 
 RaceSceneMaster::~RaceSceneMaster(void)
@@ -842,7 +849,7 @@ void RaceSceneMaster::generate_items_random(ItemOrder item, sf::Vector2f origin,
         }
 }
 
-void RaceSceneMaster::move_objects(void)
+void RaceSceneMaster::move_objects_sub(void)
 {
         for(DrawableObject3D *p : object3d_list){
                 p->move(get_count());
@@ -899,8 +906,15 @@ void RaceSceneMaster::move_objects(void)
         test_3d_object->move(get_count());
 }
 
-void RaceSceneMaster::pre_process(sf::RenderWindow &window)
+void RaceSceneMaster::move_objects(void)
 {
+        move_objects_sub();
+}
+
+void RaceSceneMaster::pre_process_non_paused(sf::RenderWindow &window)
+{        
+        key_listener.key_update();
+        
         add_new_functional_bullets_to_schedule();
         bullet_pipeline.all_schedule_bullet(get_count(), running_char, target_udon);
 
@@ -1008,6 +1022,30 @@ void RaceSceneMaster::pre_process(sf::RenderWindow &window)
         flush_effect_buffer(get_count());
         
 	update_count();
+}
+
+void RaceSceneMaster::pre_process_paused(sf::RenderWindow &window)
+{
+        for(SceneSubEvent *sse : sub_event_list){
+                if(sse->get_name() == "pause"){
+                        sse->pre_process(window);
+                }
+        }
+}
+
+void RaceSceneMaster::pre_process(sf::RenderWindow &window)
+{
+        if(unlikely(effect_conroller.lock_object_move)){
+                /*
+                 * ポーズ状態の時の処理
+                 */
+                pre_process_paused(window);
+        }else{
+                /*
+                 * 通常時の処理
+                 */
+                pre_process_non_paused(window);
+        }
 }
 
 void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
@@ -1355,6 +1393,7 @@ RaceSceneMaster::RaceSceneEffectController::RaceSceneEffectController(void)
         time_limit_hide = true;
         udon_marker_hide = true;
         timelimit_on = false;
+        lock_object_move = false;
 }
 
 RaceSceneMaster::ResultEvent::ResultEvent(RaceSceneMaster *rsm, sf::Vector2f pos,
@@ -1433,10 +1472,23 @@ RaceSceneMaster::PauseEvent::PauseEvent(RaceSceneMaster *rsm, sf::Vector2f pos, 
         
         this->rsm = rsm;
 
+        rsm->effect_conroller.lock_object_move = true;
+        std::cout << "RaceSceneMaster is paused. Press VKEY_3 to restart." << std::endl;
+
+        key_listener.key_update();
+        key_listener.add_key_event(key::VKEY_3,
+                                   [&, this](key::KeyStatus status) {
+                                           if (status & key::KEY_FIRST_PRESSED) {
+                                                   std::cout << "RaceSceneMaster is unpaused." << std::endl;
+                                                   this->rsm->effect_conroller.lock_object_move = false;
+                                                   set_status(SUBEVE_FINISH);
+                                           }
+                                   });
 }
 
 void RaceSceneMaster::PauseEvent::pre_process(sf::RenderWindow &window)
 {       
+        key_listener.key_update();
         timer_list.check_and_call(get_count());
         update_count();
 }
