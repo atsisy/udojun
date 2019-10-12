@@ -99,14 +99,29 @@ void GameMaster::load_textures(const char *json_path)
         std::cout << "All textures have been loaded." << std::endl;
 }
 
+void GameMaster::init_display(void)
+{
+        sf::Texture texture;
+        if(!texture.loadFromFile("loading.png")){
+                std::cerr << "Error: Failed to find loading.png" <<  std::endl;
+        }
+        sf::Sprite sprite;
+        sprite.setTexture(texture);
+        window.draw(sprite);
+        window.display();
+}
+
 void GameMaster::init()
 {
         window.setVerticalSyncEnabled(true);
         current_state = START;
 
+        init_display();
+        
         load_textures("textures.json");
 
 	current_scene = new TitleSceneMaster(this->game_data);
+        
 }
 
 SceneMaster *GameMaster::create_new_scene(GameState req)

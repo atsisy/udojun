@@ -344,6 +344,38 @@ namespace util {
 
         };
 
+        template <typename T>
+        class VariableCounter {
+        private:
+                T value;
+                
+        public:
+                VariableCounter(T init)
+                {
+                        value = init;
+                }
+
+                VariableCounter(void)
+                {
+                        value = 0;
+                }
+                
+                T get_value(void)
+                {
+                        return value;
+                }
+
+                void add(T _value)
+                {
+                        value += _value;
+                }
+
+                void set_value(T _value)
+                {
+                        this->value = _value;
+                }
+        };
+
         template<typename type, template<typename T> class container>
         class GPContainer {
         private:

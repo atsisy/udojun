@@ -63,7 +63,8 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 	: running_char(CharacterAttribute("stick man"),
 		       GameMaster::texture_table[DOT_JUNKO],
 		       GameMaster::texture_table[PLAYER_CORE],
-		       sf::Vector2f(400, 200)),
+		       sf::Vector2f(400, 200),
+                       PlayableCharacterStatus(3, 3)),
 	  target_udon(CharacterAttribute("target udon"),
 		      GameMaster::texture_table[UDON1], sf::Vector2f(480, -80),
 		      sf::Vector2f(0.8, 0.8), 0, mf::stop, rotate::stop,
@@ -101,7 +102,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           enemy_sched(game_data, { "stage1_enemy_schedule.json", "stage1_enemy_schedule2.json" }),
           udon_marker(GameMaster::texture_table[UDON_MARKER], sf::Vector2f(0, 725), mf::stop, rotate::stop, 0)
 {
-        set_count_for_debug(4400);
+        set_count_for_debug(0);
         
         this->game_data = game_data;
 	test_bullet = new Bullet(GameMaster::texture_table[SHINREI1_TX1],
@@ -426,6 +427,7 @@ void RaceSceneMaster::player_move()
                 }
         }
 
+        running_char.effect(get_count());
 
         running_char.update_slaves(get_count());
 
@@ -733,6 +735,42 @@ void RaceSceneMaster::try_enemy_kill_check(EnemyCharacter *p)
         }
 }
 
+void RaceSceneMaster::game_over(void)
+{
+        std::cout << "game_over" << std::endl;
+}
+
+void RaceSceneMaster::running_char_hit(void)
+{
+        race_status.hit();
+        running_char.conflict();
+
+        for(int i = 0;i < 128;i++){
+                auto p = new MoveObject(GameMaster::texture_table[SHINREI1_TX1], running_char.get_origin(),
+                                        mf::vector_linear(sf::Vector2f(
+                                                                  util::generate_random.floating(-10, 10),
+                                                                  util::generate_random.floating(-10, 10)
+                                                                  )),
+                                        rotate::stop,
+                                        get_count());
+                p->add_effect({ effect::fade_out(60) });
+                p->set_scale(0.1, 0.1);
+                move_object_container.push_front(p);
+        }
+        
+        if(running_char.game_over()){
+                game_over();
+        }
+
+        running_char.add_effect({ effect::flashing(5) });
+        running_char.conflict_off();
+        timer_list.add_timer([this](void){
+                                     running_char.clear_effect_queue();
+                                     running_char.set_alpha(255);
+                                     running_char.conflict_on();
+                             }, 180, get_count());
+}
+
 void RaceSceneMaster::conflict_judge(void)
 {
 	for (auto &&bullet : bullet_pipeline.player_pipeline.actual_bullets) {
@@ -780,8 +818,7 @@ void RaceSceneMaster::conflict_judge(void)
         for (auto &&bullet : bullet_pipeline.enemy_pipeline.actual_bullets) {
                 if (bullet->check_conflict(running_char)) {
                         bullet->hide();
-                        race_status.hit();
-                        junko_param.add(10);
+                        running_char_hit();
                 }
 	}
 
@@ -1504,21 +1541,24 @@ RaceSceneMaster::PauseEvent::PauseEvent(RaceSceneMaster *rsm, sf::Vector2f pos, 
         choice_label_set.push_back(
 		new DynamicText(L"再開", game_data->get_font(JP_DEFAULT),
                                 GLYPH_DESIGN1,
-				sf::Vector2f(300, 300),
-                                mf::stop, rotate::stop, get_count(), 40));
+				sf::Vector2f(350, 300),
+                                mf::ratio_step(sf::Vector2f(300, 300), 0.1),
+                                rotate::stop, get_count(), 40));
         choice_label_set.push_back(
 		new DynamicText(L"最初からやり直す", game_data->get_font(JP_DEFAULT),
                                 GLYPH_DESIGN1,
-				sf::Vector2f(300, 350),
-                                mf::stop, rotate::stop, get_count(), 28)
+				sf::Vector2f(350, 350),
+                                mf::ratio_step(sf::Vector2f(300, 350), 0.1),
+                                rotate::stop, get_count(), 28)
                 );
         choice_label_set.push_back(
 		new DynamicText(L"タイトルに戻る", game_data->get_font(JP_DEFAULT),
                                 GLYPH_DESIGN1,
-				sf::Vector2f(300, 400),
-                                mf::stop, rotate::stop, get_count(), 28)
+				sf::Vector2f(350, 400),
+                                mf::ratio_step(sf::Vector2f(300, 400), 0.1),
+                                rotate::stop, get_count(), 28)
                 );
-
+        
         selecter.add_item(0);
         selecter.add_item(1);
 	selecter.add_item(2);
@@ -1531,6 +1571,7 @@ RaceSceneMaster::PauseEvent::PauseEvent(RaceSceneMaster *rsm, sf::Vector2f pos, 
                                              switch(index){
                                              case 0:
                                                      this->set_status(SUBEVE_FINISH);
+                                                     this->rsm->effect_conroller.lock_object_move = false;
                                                      break;
                                              case 1:
                                                      this->rsm->game_state = RESET_CURRENT;

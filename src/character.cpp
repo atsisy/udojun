@@ -109,12 +109,14 @@ void DrawableCharacter::change_textures(sf::Texture *t)
 }
 
 PlayerCharacter::PlayerCharacter(CharacterAttribute attribute,
-                                 sf::Texture *character, sf::Texture *core, sf::Vector2f p)
+                                 sf::Texture *character, sf::Texture *core, sf::Vector2f p,
+                                 PlayableCharacterStatus init_status)
         : DrawableCharacter(attribute, character, p,
                             sf::Vector2f(
                                     TextureSize::PLAYER_CHARACTER_SIZE_X / character->getSize().x,
                                     TextureSize::PLAYER_CHARACTER_SIZE_Y / character->getSize().y),
-                            mf::stop, rotate::stop, 0)
+                            mf::stop, rotate::stop, 0),
+          status(init_status)
 {
         this->core_texture = *core;
         core_sprite.setTexture(core_texture);
@@ -266,6 +268,20 @@ float PlayerCharacter::get_move_speed(void)
 {
         return this->move_speed;
 }
+
+void PlayerCharacter::conflict(void)
+{
+        this->status.life.add(-1);
+}
+
+bool PlayerCharacter::game_over(void)
+{
+        return this->status.life.get_value() < 0;
+}
+
+PlayableCharacterStatus::PlayableCharacterStatus(i16 init_life, i16 init_bomb)
+        : life(init_life), bomb(init_bomb)
+{}
 
 EnemyCharacterSchedule::EnemyCharacterSchedule(GameData *game_data, std::vector<const char *> path_vec)
 {

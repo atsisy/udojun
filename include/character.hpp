@@ -40,6 +40,14 @@ public:
         
 };
 
+class PlayableCharacterStatus {
+public:
+        util::VariableCounter<i16> life;
+        util::VariableCounter<i16> bomb;
+
+        PlayableCharacterStatus(i16 init_life, i16 init_bomb);
+};
+
 class PlayerCharacter : public DrawableCharacter {
 private:
         sf::Texture core_texture;
@@ -48,6 +56,7 @@ private:
         bool enable_shot;
         std::vector<MoveObject *> slaves;
         float move_speed;
+        PlayableCharacterStatus status;
 
         void set_core_place();
         void move_shinrei_slaves(u64 time);
@@ -55,7 +64,7 @@ private:
 
 public:
         PlayerCharacter(CharacterAttribute attribute, sf::Texture *character,
-                        sf::Texture *core, sf::Vector2f p);
+                        sf::Texture *core, sf::Vector2f p, PlayableCharacterStatus init_status);
 
         void shot_on(void);
         void shot_off(void);
@@ -71,4 +80,6 @@ public:
         float get_move_speed(void);
         void add_shinrei(u64 count, float additional_power);
         std::vector<MoveObject *> shinrei_flush(u64 time);
+        void conflict(void);
+        bool game_over(void);
 };

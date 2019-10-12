@@ -61,4 +61,5 @@ namespace effect {
         std::function<void(MoveObject *, u64, u64)> bullet_conflict_on_at(u64 calling, u64 offset);
 
         std::function<void(MoveObject *, u64, u64)> call_interface(EffectID id, picojson::object &obj);
+        std::function<void(MoveObject *, u64, u64)> flashing(u64 hz);
 } // namespace effect

@@ -112,6 +112,20 @@ std::function<void(MoveObject *, u64, u64)> effect::fade_out(u64 distance, u64 c
                };
 }
 
+std::function<void(MoveObject *, u64, u64)> effect::flashing(u64 hz)
+{
+	return [=](MoveObject *obj, u64 now, u64 begin) {
+                       float r;
+                       u64 past = now - begin;
+                       if((past / hz) % 2 == 0){
+                               obj->set_alpha(0);
+                       }else{
+                               obj->set_alpha(255);
+                       }
+               };
+}
+
+
 std::function<void(MoveObject *, u64, u64)> effect::bullet_conflict_on_at(u64 calling, u64 offset)
 {
 	return [=](MoveObject *obj, u64 now, u64 begin) {

@@ -211,7 +211,6 @@ public:
         GameState post_process(sf::RenderWindow &window) override;
 };
 
-
 class EnemyManager {
 public:
         EnemyManager(void);
@@ -389,6 +388,8 @@ private:
         void move_objects_sub(void);
         void pre_process_non_paused(sf::RenderWindow &window);
         void pre_process_paused(sf::RenderWindow &window);
+        void running_char_hit(void);
+        void game_over(void);
 
     public:
         RaceSceneMaster(GameData *game_data);
@@ -426,6 +427,7 @@ private:
         u64 master_clock;
 
         SceneMaster *create_new_scene(GameState state);
+        void init_display(void);
         
 public:
         static TextureTable texture_table;
