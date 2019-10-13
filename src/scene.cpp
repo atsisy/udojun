@@ -737,6 +737,9 @@ void RaceSceneMaster::try_enemy_kill_check(EnemyCharacter *p)
 
 void RaceSceneMaster::game_over(void)
 {
+        timer_list.add_timer([this](){
+                                     sub_event_list.push_back(new GameOverEvent(this, sf::Vector2f(0, 0), game_data));
+                             }, 15, get_count());
         std::cout << "game_over" << std::endl;
 }
 
@@ -834,7 +837,7 @@ void RaceSceneMaster::conflict_judge(void)
         
         for (auto &&bullet : bullet_pipeline.special_pipeline.actual_bullets) {
                 SpecialBullet *sp_bullet = dynamic_cast<SpecialBullet *>(bullet);
-		if (sp_bullet && sp_bullet->check_conflict(running_char)) {
+		if (sp_bullet && sp_bullet->check_conflict_ignore_flags(running_char)) {
                         SpecialBulletAttribute &&a = sp_bullet->get_attribute();
 			sp_bullet->hide();
                         game_score_counter.counter_method().add(a.score);
@@ -1065,7 +1068,7 @@ void RaceSceneMaster::pre_process_non_paused(sf::RenderWindow &window)
 void RaceSceneMaster::pre_process_paused(sf::RenderWindow &window)
 {
         for(SceneSubEvent *sse : sub_event_list){
-                if(sse->get_name() == "pause"){
+                if(sse->check_flags(SSE_FLAG_CONTROLLABLE_MAIN)){
                         sse->pre_process(window);
                 }
         }
@@ -1507,6 +1510,7 @@ RaceSceneMaster::PauseEvent::PauseEvent(RaceSceneMaster *rsm, sf::Vector2f pos, 
         : SceneSubEvent(pos, "pause")
 {
         set_status(SUBEVE_CONTINUE);
+        up_flags(SSE_FLAG_CONTROLLABLE_MAIN);
         
         this->rsm = rsm;
 
@@ -1606,6 +1610,124 @@ void RaceSceneMaster::PauseEvent::drawing_process(sf::RenderWindow &window)
 }
 
 GameState RaceSceneMaster::PauseEvent::post_process(sf::RenderWindow &window)
+{
+        return SceneSubEvent::post_process(window);
+}
+
+RaceSceneMaster::GameOverEvent::GameOverEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *game_data)
+        : SceneSubEvent(pos, "game_over")
+{
+        set_status(SUBEVE_CONTINUE);
+        up_flags(SSE_FLAG_CONTROLLABLE_MAIN);
+        
+        this->rsm = rsm;
+
+        rsm->effect_conroller.lock_object_move = true;
+        std::cout << "RaceSceneMaster is paused. Press VKEY_3 to restart." << std::endl;
+
+        key_listener.key_update();
+        key_listener.add_key_event(key::VKEY_3,
+                                   [&, this](key::KeyStatus status) {
+                                           if (status & key::KEY_FIRST_PRESSED) {
+                                                   std::cout << "RaceSceneMaster is unpaused." << std::endl;
+                                                   this->rsm->effect_conroller.lock_object_move = false;
+                                                   set_status(SUBEVE_FINISH);
+                                           }
+                                   });
+        key_listener.add_key_event(key::ARROW_KEY_DOWN,
+                                   [this](key::KeyStatus status) {
+                                           if (status & key::KEY_FIRST_PRESSED) {
+                                                   this->selecter.down();
+                                                   GameMaster::sound_player->add(sound::SELECTING_SOUND);
+                                           }
+                                   });
+	key_listener.add_key_event(
+		key::ARROW_KEY_UP,
+                [this](key::KeyStatus status) {
+                        if (status & key::KEY_FIRST_PRESSED) {
+                                this->selecter.up();
+                                GameMaster::sound_player->add(sound::SELECTING_SOUND);
+                        }
+                });
+        
+        choice_label_set.push_back(
+		new DynamicText(L"諦めない", game_data->get_font(JP_DEFAULT),
+                                GLYPH_DESIGN1,
+				sf::Vector2f(350, 300),
+                                mf::ratio_step(sf::Vector2f(300, 300), 0.1),
+                                rotate::stop, get_count(), 40));
+        choice_label_set.push_back(
+		new DynamicText(L"最初からやり直す", game_data->get_font(JP_DEFAULT),
+                                GLYPH_DESIGN1,
+				sf::Vector2f(350, 350),
+                                mf::ratio_step(sf::Vector2f(300, 350), 0.1),
+                                rotate::stop, get_count(), 28)
+                );
+        choice_label_set.push_back(
+		new DynamicText(L"タイトルに戻る", game_data->get_font(JP_DEFAULT),
+                                GLYPH_DESIGN1,
+				sf::Vector2f(350, 400),
+                                mf::ratio_step(sf::Vector2f(300, 400), 0.1),
+                                rotate::stop, get_count(), 28)
+                );
+        
+        selecter.add_item(0);
+        selecter.add_item(1);
+	selecter.add_item(2);
+
+        key_listener.add_key_event(
+		key::VKEY_1, [this](key::KeyStatus status) {
+                                     if (status & key::KEY_FIRST_PRESSED) {
+                                             u64 index = selecter.get();
+                                             
+                                             switch(index){
+                                             case 0:
+                                                     /*
+                                                      * 諦めない
+                                                      */
+                                                     this->set_status(SUBEVE_FINISH);
+                                                     this->rsm->effect_conroller.lock_object_move = false;
+                                                     break;
+                                             case 1:
+                                                     /*
+                                                      * 最初からやり直す
+                                                      */
+                                                     this->rsm->game_state = RESET_CURRENT;
+                                                     break;
+                                             case 2:
+                                                     /*
+                                                      * タイトルに戻る
+                                                      */
+                                                     this->rsm->game_state = START;
+                                                     break;
+                                             }
+                                     }
+                             });
+}
+
+
+void RaceSceneMaster::GameOverEvent::pre_process(sf::RenderWindow &window)
+{
+        for (size_t i = 0;i < choice_label_set.size();i++) {
+                if(i != selecter.get())
+                        choice_label_set[i]->set_font_size(28);
+                else
+			choice_label_set[i]->set_font_size(40);
+                choice_label_set[i]->move(get_count());
+                choice_label_set[i]->effect(get_count());
+	}
+        
+        key_listener.key_update();
+        timer_list.check_and_call(get_count());
+        update_count();
+}
+
+void RaceSceneMaster::GameOverEvent::drawing_process(sf::RenderWindow &window)
+{
+        rsm->post_draw_request("game_info", choice_label_set);
+}
+
+GameState RaceSceneMaster::GameOverEvent::post_process(sf::RenderWindow &window)
 {
         return SceneSubEvent::post_process(window);
 }

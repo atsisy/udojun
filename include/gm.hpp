@@ -99,11 +99,19 @@ public:
         void update_count();
 };
 
+
+constexpr u64 SSE_FLAG_CONTROLLABLE_MAIN = 0x01;
+
 class SceneSubEvent : public SceneMaster, public SceneAnimation {
 private:
         sf::Vector2f position;
         GameState current_status;
         std::string name;
+        u64 flags;
+
+protected:
+        void up_flags(u64 flags);
+        void down_flags(u64 flags);
 
 public:
         SceneSubEvent(sf::Vector2f pos, std::string n);
@@ -115,6 +123,8 @@ public:
         void pre_process(sf::RenderWindow &window) override;
         void drawing_process(sf::RenderWindow &window) override;
         GameState post_process(sf::RenderWindow &window) override;
+
+        bool check_flags(u64 _flags);
 };
 
 
@@ -265,6 +275,21 @@ class RaceSceneMaster : public SceneMaster, public SceneAnimation {
                 
         public:
                 PauseEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *data);
+
+                void pre_process(sf::RenderWindow &window) override;
+                void drawing_process(sf::RenderWindow &window) override;
+                GameState post_process(sf::RenderWindow &window) override;
+        };
+
+        class GameOverEvent : public SceneSubEvent {
+        private:
+                key::KeyboardListener key_listener;
+                RaceSceneMaster *rsm;
+                std::vector<DynamicText *> choice_label_set;
+                util::SelecterImplements<u64> selecter;
+                
+        public:
+                GameOverEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *data);
 
                 void pre_process(sf::RenderWindow &window) override;
                 void drawing_process(sf::RenderWindow &window) override;

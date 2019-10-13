@@ -524,14 +524,19 @@ void Conflictable::conflict_off()
 	enable = false;
 }
 
+bool Conflictable::check_conflict_ignore_flags(Conflictable &obj)
+{
+        return (std::pow(obj.center.x - this->center.x, 2) +
+		std::pow(obj.center.y - this->center.y, 2)) <
+                        std::pow(obj.r + this->r, 2);
+}
+
 bool Conflictable::check_conflict(Conflictable &obj)
 {
 	if (!this->enable || !obj.enable)
 		return false;
-        
-	return (std::pow(obj.center.x - this->center.x, 2) +
-		std::pow(obj.center.y - this->center.y, 2)) <
-	       std::pow(obj.r + this->r, 2);
+
+        return check_conflict_ignore_flags(obj);
 }
 
 void Conflictable::update_center(sf::Vector2f p)

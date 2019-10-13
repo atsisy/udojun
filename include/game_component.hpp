@@ -314,6 +314,7 @@ public:
         void conflict_on();
         void conflict_off();
         bool check_conflict(Conflictable &obj);
+        bool check_conflict_ignore_flags(Conflictable &obj);
         void update_center(sf::Vector2f p);
         void move_center(sf::Vector2f d);
         void set_radius(float r);
