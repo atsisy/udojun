@@ -164,15 +164,18 @@ class DrawableScoreCounter : public DrawableComponent {
 private:
         ScoreCounter<T> score_counter;
         Label label;
+        std::string unit_str;
 
 public:
-        DrawableScoreCounter(T initial, sf::Font *f, T rate = 1)
-                : score_counter(initial, rate), label(L"0", f)
-        {}
+        DrawableScoreCounter(T initial, sf::Font *f, GlyphInformation glyph, std::string unit, T rate = 1)
+                : score_counter(initial, rate), label(L"0", f), unit_str(unit)
+        {
+                label.change_status(glyph);
+        }
         
         void draw(sf::RenderWindow &window) override
         {
-                label.set_text(std::to_string(score_counter.get_score()).c_str());
+                label.set_text((std::to_string(score_counter.get_score()) + unit_str).c_str());
                 label.draw(window);
         }
         
@@ -199,7 +202,7 @@ private:
         u64 last_set;
 
 public:
-        ElapsedCounter(u64 initial, sf::Font *f, float rate = 1);
+        ElapsedCounter(u64 initial, sf::Font *f, GlyphInformation info, std::string unit_str, float rate = 1);
         u64 get_elapsed(void);
         u64 get_last_set(void);
         void reset_counter(float value);
@@ -298,6 +301,7 @@ public:
         void move_diff(sf::Vector2f diff);
         
         sf::Vector2f get_initial_position(void);
+        bool out_of_screen(sf::IntRect window_rect);
 };
 
 class Conflictable {
@@ -361,8 +365,10 @@ class SpecialBulletAttribute {
 public:
         float power;
         i64 score;
+        i16 life;
+        i16 bomb;
 
-        SpecialBulletAttribute(float power, i64 score);
+        SpecialBulletAttribute(float power, i64 score, i16 life, i16 bomb);
 };
 
 class SpecialBullet : public Bullet {

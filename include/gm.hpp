@@ -136,11 +136,11 @@ private:
         GameState game_state;
         key::KeyboardListener key_listener;
         std::vector<EffectableGroup *> effect_group;
+        i16 bgm_sound_id;
 
         bool keyboard_function(void);
         void start_handler(void);
         
-
 public:
         TitleSceneMaster(GameData *game_data);
         
@@ -365,10 +365,8 @@ private:
         DrawableScoreCounter<double> power_counter;
         BulletFuncTable func_table;
         Meter stamina;
-        Meter junko_param;
         Meter udon_hp;
         Label stamina_label;
-        Label junko_param_label;
         Label graze_label;
         Label game_score_label;
         Label power_label;
@@ -386,7 +384,9 @@ private:
         RaceStatus race_status;
         GameState game_state;
         key::KeyboardListener key_listener;
-
+        DrawableStackCounter life_counter;
+        Label life_counter_label;
+        
 	void add_new_functional_bullets_to_schedule(void);
         void add_new_danmaku(void);
         void next_danmaku_forced(void);
@@ -409,6 +409,7 @@ private:
         void spellcard_result(u64 elapsed_time, u64 remaining_time);
         void prepare_for_next_scene(void);
         void try_enemy_kill_check(EnemyCharacter *p);
+        void udon_dead_event(void);
         void move_objects(void);
         void move_objects_sub(void);
         void pre_process_non_paused(sf::RenderWindow &window);

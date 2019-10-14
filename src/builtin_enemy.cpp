@@ -14,8 +14,36 @@ namespace builtin_enemy {
 
                 return ret;
         }
+
+        std::vector<EnemyCharacterMaterial> nokogiri_ghost_group1(GameData *game_data)
+        {
+                std::vector<EnemyCharacterMaterial> ret;
+                EnemyCharacterMaterial *p = game_data->get_enemy_material("NOKOGIRI_GHOST_ENEMY");
+                
+                for(int i = 0;i < 16;i++){
+                        p->time = 4300 + (i * 30);
+                        p->point = sf::Vector2f(100, 0);
+                        ret.push_back(*p);
+                }
+
+                for(int i = 0;i < 16;i++){
+                        p->time = 4300 + (i * 30);
+                        p->point = sf::Vector2f(300, 0);
+                        ret.push_back(*p);
+                }
+
+                for(int i = 0;i < 16;i++){
+                        p->time = 4300 + (i * 30);
+                        p->point = sf::Vector2f(500, 0);
+                        ret.push_back(*p);
+                }
+
+
+                return ret;
+        }
 }
 
 std::vector<std::function<std::vector<EnemyCharacterMaterial>(GameData *)>> builtin_enemy_funcs = {
-        builtin_enemy::ghost_group1
+        builtin_enemy::ghost_group1,
+        builtin_enemy::nokogiri_ghost_group1
 };

@@ -44,8 +44,9 @@ class PlayableCharacterStatus {
 public:
         util::VariableCounter<i16> life;
         util::VariableCounter<i16> bomb;
+        util::VariableCounter<float> power;
 
-        PlayableCharacterStatus(i16 init_life, i16 init_bomb);
+        PlayableCharacterStatus(i16 init_life, i16 init_bomb, float power);
 };
 
 class PlayerCharacter : public DrawableCharacter {
@@ -81,5 +82,6 @@ public:
         void add_shinrei(u64 count, float additional_power);
         std::vector<MoveObject *> shinrei_flush(u64 time);
         void conflict(void);
+        void add_life(i16 life);
         bool game_over(void);
 };

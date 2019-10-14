@@ -55,11 +55,12 @@ namespace sound {
                 return nullptr;
 	}
 
-        SoundElement::SoundElement(sf::SoundBuffer *sb, u64 now)
+        SoundElement::SoundElement(sf::SoundBuffer *sb, u64 now, i16 id)
         {
                 this->start = now;
                 sound.setBuffer(*sb);
                 this->end = now + (60 * sb->getDuration().asSeconds());
+                this->id = id;
         }
 
         SoundElement::~SoundElement(void)
@@ -94,28 +95,90 @@ namespace sound {
                 this->end = now + (60 * sb->getDuration().asSeconds());
         }
 
+        void SoundElement::config_loop(bool loop)
+        {
+                this->sound.setLoop(loop);
+        }
+        
+        void SoundElement::config_volume(float volume)
+        {
+                this->sound.setVolume(volume);
+        }
+
+        i16 SoundElement::get_instance_id(void)
+        {
+                return this->id;
+        }
+
+        void SoundElement::override_instance_id(i16 new_id)
+        {
+                this->id = new_id;
+        }
+
+        SoundInformation::SoundInformation(SoundID id)
+        {
+                this->id = id;
+                this->volume = 50.f;
+                this->loop = false;
+                this->instace_id = -1;
+        }
+        
+        SoundInformation::SoundInformation(SoundID id, float volume, bool loop)
+        {
+                this->id = id;
+                this->volume = volume;
+                this->loop = loop;
+                this->instace_id = -1;
+        }
+        
+        bool operator ==(SoundInformation &info1, SoundInformation &info2)
+        {
+                return info1.id == info2.id &&
+                        info1.loop == info2.loop &&
+                                info1.volume == info2.loop;
+        }
+
+
         SoundPlayer::SoundPlayer(std::string sound_data)
                 : table(sound_data)
         {
                 for(int i = 0;i < 255;i++){
-                        sound_pool.push_back(new SoundElement(table[SELECTING_SOUND], 0));
+                        sound_pool.push_back(new SoundElement(table[SELECTING_SOUND], 0, -1));
                 }
         }
 
-        void SoundPlayer::add(SoundID id)
+        i16 SoundPlayer::add(SoundInformation info)
         {
-                registered.push_back(id);
+                static i16 instance_id;
+                info.instace_id = instance_id++;
+                registered.push_back(info);
+                return info.instace_id;
+        }
+
+        i16 SoundPlayer::stop(i16 instance_id)
+        {
+                auto it = std::find_if(std::begin(sound_pool), std::end(sound_pool),
+                                       [&](SoundElement *p){ return p->get_instance_id() == instance_id; });
+                if(it != std::end(sound_pool)){
+                        (*it)->stop();
+                        return instance_id;
+                }
+
+                return -1;
         }
 
         void SoundPlayer::flush(u64 now)
         {
                 std::unique(std::begin(registered), std::end(registered));
                 
-                for(SoundID id : registered){
+                for(SoundInformation info : registered){
                         SoundElement *p = sound_pool.front();
                         sound_pool.pop_front();
                         p->stop();
-                        p->reset_buffer(table[id], now);
+                        p->override_instance_id(info.instace_id);
+                        p->reset_buffer(table[info.id], now);
+                        p->config_loop(info.loop);
+                        p->config_volume(info.volume);
                         p->play();
                         sound_pool.push_back(p);
                 }

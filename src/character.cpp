@@ -212,7 +212,7 @@ void PlayerCharacter::update_slaves(u64 time)
 
 std::vector<MoveObject *> PlayerCharacter::shinrei_flush(u64 time)
 {
-        if(slaves.size() > 64){
+        if(slaves.size() > 128){
                 return __shinrei_flush(time);
         }
 
@@ -274,13 +274,18 @@ void PlayerCharacter::conflict(void)
         this->status.life.add(-1);
 }
 
-bool PlayerCharacter::game_over(void)
+void PlayerCharacter::add_life(i16 life)
 {
-        return this->status.life.get_value() < 0;
+        this->status.life.add(life);
 }
 
-PlayableCharacterStatus::PlayableCharacterStatus(i16 init_life, i16 init_bomb)
-        : life(init_life), bomb(init_bomb)
+bool PlayerCharacter::game_over(void)
+{
+        return this->status.life.get_value() < 1;
+}
+
+PlayableCharacterStatus::PlayableCharacterStatus(i16 init_life, i16 init_bomb, float power)
+        : life(init_life), bomb(init_bomb), power(power)
 {}
 
 EnemyCharacterSchedule::EnemyCharacterSchedule(GameData *game_data, std::vector<const char *> path_vec)

@@ -241,8 +241,8 @@ float Meter::get_value()
 	return value;
 }
 
-ElapsedCounter::ElapsedCounter(u64 initial, sf::Font *f, float rate)
-        : DrawableScoreCounter<u64>(initial, f, rate)
+ElapsedCounter::ElapsedCounter(u64 initial, sf::Font *f, GlyphInformation info, std::string unit_str, float rate)
+        : DrawableScoreCounter<u64>(initial, f, info, unit_str, rate)
 {
         reset_counter(initial);
 }
@@ -446,6 +446,12 @@ void MoveObject::move(u64 count)
 void MoveObject::draw(sf::RenderWindow &window)
 {
 	window.draw(sprite);
+}
+
+bool MoveObject::out_of_screen(sf::IntRect window_rect)
+{
+        const sf::Vector2f p = get_place();
+        return !window_rect.contains(p.x, p.y);
 }
 
 void MoveObject::effect(u64 count)
@@ -692,10 +698,12 @@ void Bullet::set_shot_master_id(SHOT_MASTER_ID id)
 }
 
 
-SpecialBulletAttribute::SpecialBulletAttribute(float power, i64 score)
+SpecialBulletAttribute::SpecialBulletAttribute(float power, i64 score, i16 life, i16 bomb)
 {
         this->power = power;
         this->score = score;
+        this->life = life;
+        this->bomb = bomb;
 }
 
 SpecialBullet::SpecialBullet(sf::Texture *t, sf::Vector2f p,

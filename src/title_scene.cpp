@@ -15,6 +15,8 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 	: background(GameMaster::texture_table[TITLE_BLUE], sf::Vector2f(0, 0), mf::stop, rotate::stop, 0),
           game_state(START)
 {
+        key_listener.key_update();
+        this->bgm_sound_id = GameMaster::sound_player->add(sound::SoundInformation(sound::TITLE_BGM, 50.f, true));
 	choice_label_set.emplace(
 		"Start",
 		new DynamicText(L"Start", game_data->get_font(JP_DEFAULT),
@@ -76,6 +78,9 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 		key::VKEY_1, [this](key::KeyStatus status) {
 			if (status & key::KEY_FIRST_PRESSED) {
 				std::string command = selecter.get();
+                                if(GameMaster::sound_player->stop(bgm_sound_id) == -1){
+                                        std::cout << "unstopped: " << bgm_sound_id << std::endl;
+                                }
 				if (command == "Exit") {
 					exit(0);
 				} else if (command == "Start") {

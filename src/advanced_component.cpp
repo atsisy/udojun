@@ -437,3 +437,62 @@ sf::Vector2f ScreenSaver::get_position(void)
 {
         return sf::Vector2f(0, 0);
 }
+
+void DrawableStackCounter::shrink_fit(u64 count, i16 offset)
+{
+        while(offset--){
+                delete stack_objects.back();
+                stack_objects.pop_back();
+        }
+}
+
+void DrawableStackCounter::grow_fit(u64 count, i16 offset)
+{
+        while(offset--){
+                auto p = new MoveObject(
+                        texture,
+                        position + sf::Vector2f(stack_objects.size() * 32 ,0),
+                        mf::stop,
+                        rotate::stop,
+                        count
+                        );
+                p->set_scale(scale);
+                stack_objects.push_back(p);
+        }
+}
+
+void DrawableStackCounter::add(u64 count, i16 value)
+{
+        counter.add(value);
+        if(value < 0){
+                shrink_fit(count, -value);
+        }else{
+                grow_fit(count, value);
+        }
+}
+
+void DrawableStackCounter::draw(sf::RenderWindow &window)
+{
+        for(MoveObject *p : stack_objects){
+                p->draw(window);
+        }
+}
+
+void DrawableStackCounter::effect(u64 count)
+{
+        for(MoveObject *p : stack_objects){
+                p->move(count);
+                p->effect(count);
+        }
+}
+
+sf::Vector2f DrawableStackCounter::get_position(void)
+{
+        return position;
+}
+
+DrawableStackCounter::DrawableStackCounter(sf::Vector2f pos, sf::Vector2f _scale, sf::Texture *t, i16 init, u64 count)
+        : counter(init), position(pos), texture(t), scale(_scale)
+{
+        grow_fit(count, init);
+}

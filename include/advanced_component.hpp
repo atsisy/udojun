@@ -129,3 +129,25 @@ public:
         void draw(sf::RenderWindow &window) override;
         sf::Vector2f get_position(void) override;
 };
+
+
+class DrawableStackCounter : public EffectableGroup {
+private:
+        util::VariableCounter<i16> counter;
+        std::vector<MoveObject *> stack_objects;
+        sf::Vector2f position;
+        sf::Texture *texture;
+        sf::Vector2f scale;
+
+        void shrink_fit(u64 count, i16 offset);
+        void grow_fit(u64 count, i16 offset);
+
+public:
+
+        DrawableStackCounter(sf::Vector2f pos, sf::Vector2f _scale, sf::Texture *t, i16 init, u64 count);
+        void add(u64 count, i16 value);
+        void draw(sf::RenderWindow &window);
+        void effect(u64 count);
+        sf::Vector2f get_position(void);
+};
+
