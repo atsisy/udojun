@@ -12,13 +12,15 @@ namespace sound {
                 SHOOT1,
                 UNKNOWN_SDID,
                 TITLE_BGM,
+                JUNKO_HIT,
         };
 
         inline SoundID str_to_sdid(const char *str)
         {
                 str_to_idx_sub(str, SELECTING_SOUND);
                 str_to_idx_sub(str, SHOOT1);
-                str_to_idx_sub(str, TITLE_BGM); 
+                str_to_idx_sub(str, TITLE_BGM);
+                str_to_idx_sub(str, JUNKO_HIT);
 
                 return UNKNOWN_SDID;
         }

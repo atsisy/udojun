@@ -194,6 +194,31 @@ std::function<void(MoveObject *, u64, u64)> effect::keep_origin(sf::Vector2f ori
                };
 }
 
+std::function<void(MoveObject *, u64, u64)> effect::rotate_animation(u64 distance, u64 call, float init_angle, float goal_angle)
+{
+        float frame_angle = (goal_angle - init_angle) / distance;
+        return [=](MoveObject *obj, u64 now, u64 begin) {
+                       u64 past = now - call;
+                       
+                       if (past < distance) {
+                               float now_angle = obj->get_angle();
+                               obj->rotate(now_angle + frame_angle);
+                       }
+               };
+}
+
+std::function<void(MoveObject *, u64, u64)> effect::alpha_animation(u64 distance, u64 call, float init_alpha, float goal_alpha)
+{
+        float frame_alpha = (goal_alpha - init_alpha) / distance;
+        return [=](MoveObject *obj, u64 now, u64 begin) {
+                       u64 past = now - call;
+                       
+                       if (past < distance) {
+                               obj->set_alpha(obj->get_alpha() + frame_alpha);
+                       }
+               };
+}
+
 std::function<void(MoveObject *, u64, u64)> effect::override_move_func(
         std::function<sf::Vector2f(MoveObject *, u64, u64)> fn,
         u64 effect_begin, u64 call_offset)

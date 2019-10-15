@@ -62,4 +62,8 @@ namespace effect {
 
         std::function<void(MoveObject *, u64, u64)> call_interface(EffectID id, picojson::object &obj);
         std::function<void(MoveObject *, u64, u64)> flashing(u64 hz);
+        std::function<void(MoveObject *, u64, u64)> rotate_animation(u64 distance, u64 call,
+                                                                             float init_angle, float goal_angle);
+        std::function<void(MoveObject *, u64, u64)> alpha_animation(u64 distance, u64 call,
+                                                                    float init_alpha, float goal_alpha);
 } // namespace effect

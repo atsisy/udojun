@@ -270,6 +270,7 @@ class RaceSceneMaster : public SceneMaster, public SceneAnimation {
                 std::forward_list<DynamicText *> tachie_container;
                 key::KeyboardListener key_listener;
                 RaceSceneMaster *rsm;
+                MoveObject *background;
                 std::vector<DynamicText *> choice_label_set;
                 util::SelecterImplements<u64> selecter;
                 
@@ -285,6 +286,7 @@ class RaceSceneMaster : public SceneMaster, public SceneAnimation {
         private:
                 key::KeyboardListener key_listener;
                 RaceSceneMaster *rsm;
+                MoveObject *background;
                 std::vector<DynamicText *> choice_label_set;
                 util::SelecterImplements<u64> selecter;
                 
@@ -333,7 +335,6 @@ class RaceSceneMaster : public SceneMaster, public SceneAnimation {
         class ResultEvent : public SceneSubEvent {
         private:
                 std::forward_list<MoveObject *> objects;
-                MoveObject *background;
                 RaceSceneMaster *rsm;
                 
         public:
@@ -417,6 +418,8 @@ private:
         void running_char_hit(void);
         void game_over(void);
 
+        void game_over_continue(void);
+
     public:
         RaceSceneMaster(GameData *game_data);
         ~RaceSceneMaster(void);
@@ -441,6 +444,13 @@ public:
         EnemyCharacterMaterial *get_enemy_material(std::string name);
 };
 
+class GameConfig {
+public:
+        u64 race_scene_time_offset;
+        
+        GameConfig(std::string json_path);
+};
+
 class GameMaster {
 private:
         sf::RenderWindow window;
@@ -458,6 +468,7 @@ private:
 public:
         static TextureTable texture_table;
         static sound::SoundPlayer *sound_player;
+        static GameConfig *game_config;
         
         GameMaster();
         void init();

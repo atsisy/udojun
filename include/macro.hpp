@@ -27,6 +27,8 @@ enum MacroID {
         JUNKO_SPELL1,
         NORMAL_ENEMY_SHOT1,
         UDON_DELAY_CIRCLE,
+        STRAGHT_CIRCLE,
+        DELAY_CIRCLE_MOVE_LINEAR,
 };
 
 inline MacroID str_to_macroid(const char *str)
@@ -61,6 +63,8 @@ inline MacroID str_to_macroid(const char *str)
         str_to_idx_sub(str, WINDER1);
         str_to_idx_sub(str, UDON_TSUJO3);
         str_to_idx_sub(str, UDON_DELAY_CIRCLE);
+        str_to_idx_sub(str, STRAGHT_CIRCLE);
+        str_to_idx_sub(str, DELAY_CIRCLE_MOVE_LINEAR);
 
 	std::cout << "Unknown Macro ID: " << str << std::endl;
         
@@ -163,4 +167,10 @@ namespace macro {
         std::vector<BulletData *> winder(TextureID txid, sf::Vector2f origin, float r,
                                          float toward, float unit_rad,
                                          u8 num, u64 time, float speed, u64 distance, u64 term);
+
+        std::vector<BulletData *> straight_circle(TextureID txid, sf::Vector2f origin, float r,
+                                                  float speed, u8 num, u8 multi_shot_num, u64 delay, u64 time, float phase);
+
+        std::vector<BulletData *> delay_circle_move_linear(TextureID txid, sf::Vector2f origin, float r,
+                                                           float speed, float angle, u8 num, u64 delay, u64 time, float phase);
 }

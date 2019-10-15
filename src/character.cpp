@@ -156,16 +156,16 @@ void PlayerCharacter::core_off()
 
 void PlayerCharacter::move_diff(sf::Vector2f diff)
 {
-        if(center.x + diff.x < 32){
+        if(center.x + diff.x < 32 && diff.x < 0){
                 return;
         }
-        if(center.x + diff.x > 992){
+        if(center.x + diff.x > 992 && diff.x > 0){
                 return;
         }
-        if(center.y + diff.y < 32){
+        if(center.y + diff.y < 32 && diff.y < 0){
                 return;
         }
-        if(center.y + diff.y > 736){
+        if(center.y + diff.y > 736 && diff.y > 0){
                 return;
         }
 

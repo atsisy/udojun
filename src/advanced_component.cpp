@@ -440,7 +440,7 @@ sf::Vector2f ScreenSaver::get_position(void)
 
 void DrawableStackCounter::shrink_fit(u64 count, i16 offset)
 {
-        while(offset--){
+        while(stack_objects.size() && offset--){
                 delete stack_objects.back();
                 stack_objects.pop_back();
         }

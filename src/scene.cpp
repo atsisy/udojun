@@ -64,7 +64,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 		       GameMaster::texture_table[DOT_JUNKO],
 		       GameMaster::texture_table[PLAYER_CORE],
 		       sf::Vector2f(400, 200),
-                       PlayableCharacterStatus(2, 3, 0)),
+                       PlayableCharacterStatus(3, 3, 0)),
 	  target_udon(CharacterAttribute("target udon"),
 		      GameMaster::texture_table[UDON1], sf::Vector2f(480, -80),
 		      sf::Vector2f(0.8, 0.8), 0, mf::stop, rotate::stop,
@@ -100,7 +100,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           life_counter(sf::Vector2f(100, 132), sf::Vector2f(0.1, 0.1), GameMaster::texture_table[JUNKO_HART_BULLET], 2, 0),
           life_counter_label(L"残り", game_data->get_font(JP_DEFAULT))
 {
-        set_count_for_debug(0);
+        set_count_for_debug(GameMaster::game_config->race_scene_time_offset);
         
         this->game_data = game_data;
 	test_bullet = new Bullet(GameMaster::texture_table[SHINREI1_TX1],
@@ -201,6 +201,35 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
                                    [=](key::KeyStatus status){
                                            if(status & key::KEY_FIRST_PRESSED){
                                                    sub_event_list.push_back(new PauseEvent(this, sf::Vector2f(0, 0), game_data));
+                                           }
+                                   });
+
+        key_listener.add_key_event(key::ARROW_KEY_RIGHT,
+                                   [this](key::KeyStatus status){
+                                           if(status & key::KEY_FIRST_PRESSED){
+                                                   running_char.add_effect({
+                                                                   effect::rotate_animation(10, this->get_count(),
+                                                                                            running_char.get_angle(),
+                                                                                            0.05) });
+                                           }else if(status & key::KEY_RELEASED){
+                                                   running_char.add_effect({
+                                                                   effect::rotate_animation(10, this->get_count(),
+                                                                                            running_char.get_angle(),
+                                                                                            0) });
+                                           }
+                                   });
+        key_listener.add_key_event(key::ARROW_KEY_LEFT,
+                                   [this](key::KeyStatus status){
+                                           if(status & key::KEY_FIRST_PRESSED){
+                                                   running_char.add_effect({
+                                                                   effect::rotate_animation(10, this->get_count(),
+                                                                                            running_char.get_angle(),
+                                                                                            -0.05) });
+                                           }else if(status & key::KEY_RELEASED){
+                                                   running_char.add_effect({
+                                                                   effect::rotate_animation(10, this->get_count(),
+                                                                                            running_char.get_angle(),
+                                                                                            0) });
                                            }
                                    });
         
@@ -733,6 +762,12 @@ void RaceSceneMaster::try_enemy_kill_check(EnemyCharacter *p)
         }
 }
 
+void RaceSceneMaster::game_over_continue(void)
+{
+        life_counter.add(get_count(), 2);
+        running_char.add_life(3);
+}
+
 void RaceSceneMaster::game_over(void)
 {
         timer_list.add_timer([this](){
@@ -771,6 +806,8 @@ void RaceSceneMaster::running_char_hit(void)
                                      running_char.set_alpha(255);
                                      running_char.conflict_on();
                              }, 180, get_count());
+
+        GameMaster::sound_player->add(sound::SoundInformation(sound::JUNKO_HIT, 50.f, false));
 }
 
 void RaceSceneMaster::udon_dead_event(void)
@@ -995,7 +1032,7 @@ void RaceSceneMaster::pre_process_non_paused(sf::RenderWindow &window)
 
         if(get_count() % 20 == 0){
                 DrawableObject3D *p = new DrawableObject3D(GameMaster::texture_table[TAKE1],
-                                                           sf::Vector3f(-3000, 3000, 150),
+                                                           sf::Vector3f(-3000, 5000, 150),
                                                            [](DrawableObject3D *p, u64 n, u64 b){
                                                                    return p->get_3d_position() + sf::Vector3f(0, 0, -1);
                                                            },
@@ -1005,7 +1042,7 @@ void RaceSceneMaster::pre_process_non_paused(sf::RenderWindow &window)
                 object3d_list.push_back(p);
 
                 p = new DrawableObject3D(GameMaster::texture_table[TAKE1],
-                                         sf::Vector3f(9000, 3000, 150),
+                                         sf::Vector3f(9000, 5000, 150),
                                          [](DrawableObject3D *p, u64 n, u64 b){
                                                  return p->get_3d_position() + sf::Vector3f(0, 0, -1);
                                          },
@@ -1224,7 +1261,7 @@ RaceSceneMaster::ConversationEvent::ConversationEvent(RaceSceneMaster *rsm, sf::
         
         auto udon = new Tachie(
                 GameMaster::texture_table[UDON_TACHIE],
-                sf::Vector2f(100, 70),
+                sf::Vector2f(20, 70),
                 mf::stop,
                 rotate::stop,
                 get_count(), "udon");
@@ -1233,7 +1270,7 @@ RaceSceneMaster::ConversationEvent::ConversationEvent(RaceSceneMaster *rsm, sf::
         
         auto junko = new Tachie(
                 GameMaster::texture_table[JUNKO_TACHIE1],
-                sf::Vector2f(600, 70),
+                sf::Vector2f(600, 0),
                 mf::stop,
                 rotate::stop,
                 get_count(), "junko");
@@ -1527,6 +1564,13 @@ RaceSceneMaster::PauseEvent::PauseEvent(RaceSceneMaster *rsm, sf::Vector2f pos, 
         rsm->effect_conroller.lock_object_move = true;
         std::cout << "RaceSceneMaster is paused. Press VKEY_3 to restart." << std::endl;
 
+        background = new MoveObject(GameMaster::texture_table[BLACK_ANTEN], sf::Vector2f(0, 0),
+                                    mf::stop,
+                                    rotate::stop,
+                                    0);
+        background->set_alpha(0);
+        background->add_effect({ effect::alpha_animation(10, 0, 0, 40) });
+
         key_listener.key_update();
         key_listener.add_key_event(key::VKEY_3,
                                    [&, this](key::KeyStatus status) {
@@ -1608,6 +1652,8 @@ void RaceSceneMaster::PauseEvent::pre_process(sf::RenderWindow &window)
                 choice_label_set[i]->move(get_count());
                 choice_label_set[i]->effect(get_count());
 	}
+
+        background->effect(get_count());
         
         key_listener.key_update();
         timer_list.check_and_call(get_count());
@@ -1617,6 +1663,7 @@ void RaceSceneMaster::PauseEvent::pre_process(sf::RenderWindow &window)
 void RaceSceneMaster::PauseEvent::drawing_process(sf::RenderWindow &window)
 {
         rsm->post_draw_request("game_info", choice_label_set);
+        rsm->post_draw_request_vargs("conversation", background);
 }
 
 GameState RaceSceneMaster::PauseEvent::post_process(sf::RenderWindow &window)
@@ -1635,6 +1682,15 @@ RaceSceneMaster::GameOverEvent::GameOverEvent(RaceSceneMaster *rsm, sf::Vector2f
         rsm->effect_conroller.lock_object_move = true;
         std::cout << "RaceSceneMaster is paused. Press VKEY_3 to restart." << std::endl;
 
+        key_listener.key_update();
+        
+        background = new MoveObject(GameMaster::texture_table[BLACK_ANTEN], sf::Vector2f(0, 0),
+                                    mf::stop,
+                                    rotate::stop,
+                                    0);
+        background->set_alpha(0);
+        background->add_effect({ effect::alpha_animation(10, 0, 0, 40) });
+        
         key_listener.key_update();
         key_listener.add_key_event(key::VKEY_3,
                                    [&, this](key::KeyStatus status) {
@@ -1697,6 +1753,7 @@ RaceSceneMaster::GameOverEvent::GameOverEvent(RaceSceneMaster *rsm, sf::Vector2f
                                                       */
                                                      this->set_status(SUBEVE_FINISH);
                                                      this->rsm->effect_conroller.lock_object_move = false;
+                                                     this->rsm->game_over_continue();
                                                      break;
                                              case 1:
                                                      /*
@@ -1727,6 +1784,8 @@ void RaceSceneMaster::GameOverEvent::pre_process(sf::RenderWindow &window)
                 choice_label_set[i]->effect(get_count());
 	}
         
+        background->effect(get_count());
+        
         key_listener.key_update();
         timer_list.check_and_call(get_count());
         update_count();
@@ -1735,6 +1794,7 @@ void RaceSceneMaster::GameOverEvent::pre_process(sf::RenderWindow &window)
 void RaceSceneMaster::GameOverEvent::drawing_process(sf::RenderWindow &window)
 {
         rsm->post_draw_request("game_info", choice_label_set);
+        rsm->post_draw_request_vargs("conversation", background);
 }
 
 GameState RaceSceneMaster::GameOverEvent::post_process(sf::RenderWindow &window)

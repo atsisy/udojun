@@ -251,6 +251,31 @@ namespace macro {
                 return root_part;
 	}
 
+        std::vector<BulletData *> delay_circle_move_linear(TextureID txid, sf::Vector2f origin, float r,
+                                                           float speed, float angle, u8 num, u64 delay, u64 time, float phase)
+        {
+                std::vector<BulletData *> ret;
+                float unit_rad = (2 * M_PI) / (float)num;
+                float rad = phase;
+
+                sf::Vector2f speed_vec(speed * std::cos(angle), -speed * std::sin(angle));
+                
+                for(u8 i = 0;i < num;i++, rad += unit_rad, time += delay){
+                        ret.push_back(new BulletData(
+                                              BEZIER_CURVE,
+                                              txid,
+                                              mf::vector_linear(speed_vec),
+                                              time,
+                                              sf::Vector2f(
+                                                      origin.x + (r * std::cos(rad)),
+                                                      origin.y + (r * std::sin(rad)))
+                                              ));
+                }
+                
+                return ret;
+        }
+        
+
         std::vector<BulletData *> udon_spellcard2_sub(TextureID txid, sf::Vector2f origin, float speed,
                                                       u64 enable_time, u64 disable_time, u64 time, float r, u64 num)
 	{
@@ -528,6 +553,22 @@ namespace macro {
                 return ret;
         }
 
+        std::vector<BulletData *> straight_circle(TextureID txid, sf::Vector2f origin, float r,
+                                                  float speed, u8 num, u8 multi_shot_num, u64 delay, u64 time, float phase)
+        {
+                std::vector<BulletData *> ret;
+                float unit_rad = (2 * M_PI) / (float)num;
+                float rad = phase;
+
+                for(u8 i = 0;i < num;i++, rad += unit_rad){
+                        auto vec = multi_shot(txid, origin + sf::Vector2f(r * std::cos(rad), r * std::sin(rad)),
+                                              num, speed, rad + (M_PI / 2.f), 0, time, delay);
+                        util::concat_container<std::vector<BulletData *>>(ret, vec);
+                }
+                
+                return ret;
+        }
+        
         std::vector<BulletData *> junko_shot_fast_lv1(TextureID txid, sf::Vector2f center, float speed, u64 time)
         {
                 std::vector<BulletData *> ret;
@@ -892,6 +933,30 @@ namespace macro {
                                       data["speed"].get<double>(),
                                       data["distance"].get<double>(),
                                       data["term"].get<double>());
+                case STRAGHT_CIRCLE:
+                        return straight_circle(str_to_txid(data["texture"].get<std::string>().data()),
+                                               sf::Vector2f(data["x"].get<double>(),
+                                                            data["y"].get<double>()),
+                                               data["r"].get<double>(),
+                                               data["speed"].get<double>(),
+                                               data["num"].get<double>(),
+                                               data["multi_shot_num"].get<double>(),
+                                               data["delay"].get<double>(),
+                                               data["time"].get<double>(),
+                                               data["phase"].get<double>());
+                case DELAY_CIRCLE_MOVE_LINEAR:
+                        return delay_circle_move_linear(
+                                str_to_txid(data["texture"].get<std::string>().data()),
+                                sf::Vector2f(data["x"].get<double>(),
+                                             data["y"].get<double>()),
+                                data["r"].get<double>(),
+                                data["speed"].get<double>(),
+                                data["angle"].get<double>(),
+                                data["num"].get<double>(),
+                                data["delay"].get<double>(),
+                                data["time"].get<double>(),
+                                TAKE_DEFAULT_ARG(data, "phase", double, 0)
+                                );
 		default:
                         return std::vector<BulletData *>();
                 }
@@ -1033,6 +1098,33 @@ namespace macro {
                                 data["r"].get<double>(),
                                 data["speed"].get<double>(),
                                 data["quantity"].get<double>(),
+                                data["delay"].get<double>(),
+                                data["time"].get<double>(),
+                                TAKE_DEFAULT_ARG(data, "phase", double, 0)
+                                );
+                case STRAGHT_CIRCLE:
+                        return straight_circle(str_to_txid(data["texture"].get<std::string>().data()),
+                                               sf::Vector2f(data["x"].get<double>(),
+                                                            data["y"].get<double>()),
+                                               data["r"].get<double>(),
+                                               data["speed"].get<double>(),
+                                               data["num"].get<double>(),
+                                               data["multi_shot_num"].get<double>(),
+                                               data["delay"].get<double>(),
+                                               data["time"].get<double>(),
+                                               data["phase"].get<double>());
+                case DELAY_CIRCLE_MOVE_LINEAR:
+                        return delay_circle_move_linear(
+                                str_to_txid(data["texture"].get<std::string>().data()),
+                                bullet_data->appear_point,
+                                data["r"].get<double>(),
+                                data["speed"].get<double>(),
+                                geometry::calc_angle(running_char->get_origin(),
+                                                     bullet_data->appear_point +
+                                                     sf::Vector2f(
+                                                             bullet_data->scale.x * bullet_data->texture->getSize().x * 0.5,
+                                                             bullet_data->scale.y * bullet_data->texture->getSize().y * 0.5)),
+                                data["num"].get<double>(),
                                 data["delay"].get<double>(),
                                 data["time"].get<double>(),
                                 TAKE_DEFAULT_ARG(data, "phase", double, 0)

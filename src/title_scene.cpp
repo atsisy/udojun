@@ -78,12 +78,12 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 		key::VKEY_1, [this](key::KeyStatus status) {
 			if (status & key::KEY_FIRST_PRESSED) {
 				std::string command = selecter.get();
-                                if(GameMaster::sound_player->stop(bgm_sound_id) == -1){
-                                        std::cout << "unstopped: " << bgm_sound_id << std::endl;
-                                }
 				if (command == "Exit") {
 					exit(0);
 				} else if (command == "Start") {
+                                        if(GameMaster::sound_player->stop(bgm_sound_id) == -1){
+                                                std::cout << "unstopped: " << bgm_sound_id << std::endl;
+                                        }
 					start_handler();
 					timer_list.add_timer(
 						[this](void) {

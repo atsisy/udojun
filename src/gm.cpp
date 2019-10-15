@@ -10,6 +10,7 @@
 TextureTable GameMaster::texture_table;
 sound::SoundPlayer *GameMaster::sound_player;
 util::xor128 util::generate_random;
+GameConfig *GameMaster::game_config;
 
 GameData::GameData()
         : enemy_table({ "stage1_enemy.json" })
@@ -51,13 +52,42 @@ void GraphicBuffer::flush_draw_requests(sf::RenderWindow &window)
         }
 }
 
+GameConfig::GameConfig(std::string json_path)
+{
+        std::ifstream ifs(json_path, std::ios::in);
+
+        std::cout << "Loading game config written in " << json_path << "..." << std::endl;
+
+        if (ifs.fail()) {
+                std::cerr << "failed to read json file" << std::endl;
+                exit(1);
+        }
+
+        const std::string json((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+        ifs.close();
+
+        picojson::value v;
+        const std::string err = picojson::parse(v, json);
+        if (err.empty() == false) {
+                std::cerr << err << std::endl;
+                exit(1);
+        }
+
+        picojson::object& obj = v.get<picojson::object>();
+
+        this->race_scene_time_offset = obj["race_scene_time_offset"].get<double>();
+
+        std::cout << "Game config has been loaded." << std::endl;
+}
+
 GameMaster::GameMaster()
         : window(sf::VideoMode(1366, 768), "udjn")
 {
         window_handle = window.getSystemHandle();
         current_scene = nullptr;
         game_data = new GameData();
-        sound_player = new  sound::SoundPlayer("sound.json");
+        sound_player = new sound::SoundPlayer("sound.json");
+        game_config = new GameConfig("game_config.json");
         master_clock = 0;
 }
 
