@@ -259,7 +259,7 @@ namespace macro {
                 float rad = phase;
 
                 sf::Vector2f speed_vec(speed * std::cos(angle), -speed * std::sin(angle));
-                
+
                 for(u8 i = 0;i < num;i++, rad += unit_rad, time += delay){
                         ret.push_back(new BulletData(
                                               BEZIER_CURVE,
@@ -271,6 +271,7 @@ namespace macro {
                                                       origin.y + (r * std::sin(rad)))
                                               ));
                 }
+
                 
                 return ret;
         }

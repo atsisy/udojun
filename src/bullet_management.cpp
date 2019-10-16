@@ -56,7 +56,7 @@ void BulletPipeline::schedule_bullet(u64 now, PlayerCharacter &player, DrawableC
                                         // これにより、BulletDataのvectorが得られる
                                         auto &&gen = macro::expand_dynamic_macro(
                                                 target->original_data, &player, &udon, target);
-                                        
+
                                         // 実体化し、表示する弾丸のグループに加える
                                         for (auto &elem : gen) {
                                                 auto generated = BulletGenerator::generate(

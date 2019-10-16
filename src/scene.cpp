@@ -610,6 +610,9 @@ void RaceSceneMaster::convert_bullet_to_small_crystal(BulletPipeline &pipeline)
 void RaceSceneMaster::spellcard_result(u64 elapsed_time, u64 remaining_time)
 {
         std::ostringstream oss;
+        i64 bonus_score = ((double)elapsed_time / (double)60.0) * 100000;
+
+        oss << std::fixed << std::setprecision(4) << (double)elapsed_time / (double)60.0;
         
         // 追加得点. 消費時間
         auto text = new DynamicText(
@@ -623,8 +626,10 @@ void RaceSceneMaster::spellcard_result(u64 elapsed_time, u64 remaining_time)
                         effect::fade_out_later(30, 120) });
         game_info_container.push_front(text);
 
+        std::wstring *bonus_str = util::utf8_str_to_widechar_str(
+                std::string("8000 + ") + std::to_string(bonus_score));
         auto additonal = new DynamicText(
-                L"+8000", game_data->get_font(JP_DEFAULT),
+                bonus_str->data(), game_data->get_font(JP_DEFAULT),
                 GLYPH_DESIGN1,
                 sf::Vector2f(500, 260), mf::stop,
                 rotate::stop, get_count(), 36);
@@ -634,7 +639,7 @@ void RaceSceneMaster::spellcard_result(u64 elapsed_time, u64 remaining_time)
                         effect::fade_out_later(30, 120) });
         game_info_container.push_front(additonal);
 
-        oss << std::fixed << std::setprecision(4) << (double)elapsed_time / (double)60.0;
+        game_score_counter.counter_method().add(bonus_score);
 
         auto elapsed = new DynamicText(
                 util::utf8_str_to_widechar_str(std::string("撃破時間: ") + oss.str())->data(),
@@ -675,6 +680,7 @@ void RaceSceneMaster::next_danmaku_forced(void)
                                  });
         
         this->target_udon.set_hp_max();
+        udon_hp.set_value(target_udon.get_hp());
         // 次の弾幕を追加し、タイマも設定する
         this->add_new_danmaku();
 }
@@ -766,6 +772,7 @@ void RaceSceneMaster::game_over_continue(void)
 {
         life_counter.add(get_count(), 2);
         running_char.add_life(3);
+        game_score_counter.counter_method().set_score(0);
 }
 
 void RaceSceneMaster::game_over(void)
