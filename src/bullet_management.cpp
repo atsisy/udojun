@@ -57,15 +57,10 @@ void BulletPipeline::schedule_bullet(u64 now, PlayerCharacter &player, DrawableC
                                         auto &&gen = macro::expand_dynamic_macro(
                                                 target->original_data, &player, &udon, target);
 
-                                        // 実体化し、表示する弾丸のグループに加える
+                                        // 展開されたマクロをもう一度スケジューラに入れる
                                         for (auto &elem : gen) {
-                                                auto generated = BulletGenerator::generate(
-                                                        elem, player,
-                                                        now);
-                                                std::copy(
-                                                        std::begin(generated),
-                                                        std::end(generated),
-                                                        std::back_inserter(actual_bullets));
+                                                elem->set_appear_time(now);
+                                                bullet_sched.add(elem);
                                         }
                                 } else if (target->flags & LASER_BULLET) {
                                         /*
