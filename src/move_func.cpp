@@ -387,6 +387,7 @@ namespace mf {
                        };
 	}
 
+        
         std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	ratio_step(sf::Vector2f goal, float ratio)
 	{
@@ -397,6 +398,48 @@ namespace mf {
                                if(std::abs(offset.x) < 1.f && std::abs(offset.y) < 1.f){
                                        p->override_move_func(mf::stop);
                                        return p->get_origin();
+                               }
+                               
+                               offset *= ratio;
+                               return now + offset;
+                       };
+	}
+
+        static std::function<sf::Vector2f(MoveObject *, u64, u64)>
+	__ratio_two_step_sub(sf::Vector2f goal, float ratio, u64 init_stop)
+	{
+		return [=](MoveObject *p, u64 now_lmd, u64 begin_lmd) {
+                               u64 past = now_lmd - begin_lmd;
+                               
+                               sf::Vector2f now = p->get_place();
+                               sf::Vector2f offset = goal - now;
+
+                               if(past < init_stop){
+                                       return now;
+                               }
+
+                               if(std::abs(offset.x) < 1.f && std::abs(offset.y) < 1.f){
+                                       p->override_move_func(mf::stop);
+                                       return now;
+                               }
+                               
+                               offset *= ratio;
+                               return now + offset;
+                       };
+	}
+        
+        
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
+	ratio_two_step(sf::Vector2f begin, sf::Vector2f middle, sf::Vector2f goal,
+                       u64 stop, float ratio)
+	{
+		return [=](MoveObject *p, u64 now_lmd, u64 begin_lmd) {
+                               sf::Vector2f now = p->get_place();
+                               sf::Vector2f offset = middle - now;
+
+                               if(std::abs(offset.x) < 1.f && std::abs(offset.y) < 1.f){
+                                       p->override_move_func(__ratio_two_step_sub(goal, ratio, stop));
+                                       return now;
                                }
                                
                                offset *= ratio;
@@ -499,7 +542,6 @@ BulletData::BulletData(picojson::object &json_data)
         } else {
                 init_rotation = original_data["rotate"].get<double>();
         }
-
 }
 
 BulletData::BulletData(picojson::object &json_data, u64 flg)

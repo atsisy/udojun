@@ -915,7 +915,7 @@ void RaceSceneMaster::generate_items_random(ItemOrder item, sf::Vector2f origin,
         for(int i = 0;i < item.power;i++){
                 auto p = new SpecialBullet(
                         GameMaster::texture_table[POWER_PANEL],
-                        origin + sf::Vector2f((util::generate_random() % width) - half, 0),
+                        origin + sf::Vector2f((util::generate_random() % width) - half, (util::generate_random() % width) - half),
                         mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
                         get_count() + (util::generate_random() % 5),
                         sf::Vector2f(0.04, 0.04), BulletSize::SPECIAL_PANEL,
@@ -928,11 +928,14 @@ void RaceSceneMaster::generate_items_random(ItemOrder item, sf::Vector2f origin,
         for(int i = 0;i < item.score;i++){
                 auto p = new SpecialBullet(
                         GameMaster::texture_table[SCORE_PANEL],
-                        origin + sf::Vector2f((util::generate_random() % width) - half, 0),
+                        origin + sf::Vector2f((util::generate_random() % width) - half, (util::generate_random() % width) - half),
                         mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
                         get_count() + (util::generate_random() % 5),
                         sf::Vector2f(0.04, 0.04), BulletSize::SPECIAL_PANEL,
                         true, false, 0, SpecialBulletAttribute(0, 10, 0, 0)
+
+
+                        
                         );
                 p->set_shot_master_id(SPECIAL_ITEM);
                 bullet_pipeline.special_pipeline.direct_insert_bullet(p);
@@ -1225,6 +1228,9 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
         switch_view("bullets", window);
         get_view("bullets")->flush_draw_requests(window);
 
+        switch_view("tachie", window);
+        get_view("tachie")->flush_draw_requests(window);
+        
         switch_view("conversation", window);
         get_view("conversation")->flush_draw_requests(window);
 
@@ -1233,9 +1239,6 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
 
         switch_view("params", window);
         get_view("params")->flush_draw_requests(window);
-
-        switch_view("tachie", window);
-        get_view("tachie")->flush_draw_requests(window);
 
         switch_view("loading", window);
         draw_animation(window);
@@ -1268,16 +1271,33 @@ RaceSceneMaster::ConversationEvent::ConversationEvent(RaceSceneMaster *rsm, sf::
         
         auto udon = new Tachie(
                 GameMaster::texture_table[UDON_TACHIE],
-                sf::Vector2f(20, 70),
+                sf::Vector2f(600, 0),
                 mf::stop,
                 rotate::stop,
                 get_count(), "udon");
         udon->set_scale(0.55, 0.55);
         udon->add_effect({ effect::fade_in(30) });
+
+        auto dtext = new DynamicText(L"地上の月兎", data->get_font(JP_DEFAULT), GLYPH_DESIGN1,
+                                     sf::Vector2f(600, 550),
+                                     mf::ratio_two_step(sf::Vector2f(600, 550), sf::Vector2f(630, 550), sf::Vector2f(660, 550), 100, 0.1),
+                                     rotate::stop,
+                                     get_count(),
+                                     30);
+        dtext->add_effect({ effect::fade_in(15), effect::fade_out_later(15, 110) });
+        move_objects.push_front(dtext);
+        auto dtext2 = new DynamicText(L"鈴仙・優曇華院・イナバ", data->get_font(JP_DEFAULT), GLYPH_DESIGN1,
+                                     sf::Vector2f(600, 590),
+                                      mf::ratio_two_step(sf::Vector2f(600, 590), sf::Vector2f(630, 590), sf::Vector2f(660, 590), 100, 0.1),
+                                     rotate::stop,
+                                     get_count(),
+                                     30);
+        dtext2->add_effect({ effect::fade_in(15), effect::fade_out_later(15, 110) });
+        move_objects.push_front(dtext2);
         
         auto junko = new Tachie(
                 GameMaster::texture_table[JUNKO_TACHIE1],
-                sf::Vector2f(600, 0),
+                sf::Vector2f(20, 70),
                 mf::stop,
                 rotate::stop,
                 get_count(), "junko");
@@ -1316,6 +1336,11 @@ void RaceSceneMaster::ConversationEvent::pre_process(sf::RenderWindow &window)
 		p->effect(get_count());
 	}
 
+        for(auto &&p : move_objects){
+                p->move(get_count());
+		p->effect(get_count());
+	}
+
         update_count();
 }
 
@@ -1324,6 +1349,7 @@ void RaceSceneMaster::ConversationEvent::drawing_process(sf::RenderWindow &windo
         rsm->post_draw_request_vargs("conversation", &background);
         rsm->post_draw_request("tachie", tachie_container);
         rsm->post_draw_request_vargs("conversation", episode.get_current_page());
+        rsm->post_draw_request("game_info", move_objects);
 }
 
 GameState RaceSceneMaster::ConversationEvent::post_process(sf::RenderWindow &window)

@@ -302,6 +302,7 @@ class RaceSceneMaster : public SceneMaster, public SceneAnimation {
         private:
                 std::forward_list<Tachie *> tachie_container;
                 EpisodeController episode;
+                std::forward_list<MoveObject *> move_objects;
                 key::KeyboardListener key_listener;
                 MoveObject background;
                 RaceSceneMaster *rsm;

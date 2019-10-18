@@ -251,7 +251,7 @@ namespace macro {
                 return root_part;
 	}
 
-        std::vector<BulletData *> delay_circle_move_linear(TextureID txid, sf::Vector2f origin, float r,
+        std::vector<BulletData *> delay_circle_move_linear(TextureID txid, sf::Vector2f origin, i16 rotate_times, float r,
                                                            float speed, float angle, u8 num, u64 delay, u64 time, float phase)
         {
                 std::vector<BulletData *> ret;
@@ -260,16 +260,18 @@ namespace macro {
 
                 sf::Vector2f speed_vec(speed * std::cos(angle), -speed * std::sin(angle));
 
-                for(u8 i = 0;i < num;i++, rad += unit_rad, time += delay){
-                        ret.push_back(new BulletData(
-                                              BEZIER_CURVE,
-                                              txid,
-                                              mf::vector_linear(speed_vec),
-                                              time,
-                                              sf::Vector2f(
-                                                      origin.x + (r * std::cos(rad)),
-                                                      origin.y + (r * std::sin(rad)))
-                                              ));
+                while(rotate_times--){
+                        for(u8 i = 0;i < num;i++, rad += unit_rad, time += delay){
+                                ret.push_back(new BulletData(
+                                                      BEZIER_CURVE,
+                                                      txid,
+                                                      mf::vector_linear(speed_vec),
+                                                      time,
+                                                      sf::Vector2f(
+                                                              origin.x + (r * std::cos(rad)),
+                                                              origin.y + (r * std::sin(rad)))
+                                                      ));
+                        }
                 }
 
                 
@@ -950,6 +952,7 @@ namespace macro {
                                 str_to_txid(data["texture"].get<std::string>().data()),
                                 sf::Vector2f(data["x"].get<double>(),
                                              data["y"].get<double>()),
+                                data["rotate_times"].get<double>(),
                                 data["r"].get<double>(),
                                 data["speed"].get<double>(),
                                 data["angle"].get<double>(),
@@ -1118,6 +1121,7 @@ namespace macro {
                         return delay_circle_move_linear(
                                 str_to_txid(data["texture"].get<std::string>().data()),
                                 bullet_data->appear_point,
+                                data["rotate_times"].get<double>(),
                                 data["r"].get<double>(),
                                 data["speed"].get<double>(),
                                 geometry::calc_angle(running_char->get_origin(),

@@ -171,6 +171,6 @@ namespace macro {
         std::vector<BulletData *> straight_circle(TextureID txid, sf::Vector2f origin, float r,
                                                   float speed, u8 num, u8 multi_shot_num, u64 delay, u64 time, float phase);
 
-        std::vector<BulletData *> delay_circle_move_linear(TextureID txid, sf::Vector2f origin, float r,
+        std::vector<BulletData *> delay_circle_move_linear(TextureID txid, sf::Vector2f origin, i16 rotate_times, float r,
                                                            float speed, float angle, u8 num, u64 delay, u64 time, float phase);
 }
