@@ -129,7 +129,14 @@ public:
 
 
 class TitleSceneMaster : public SceneMaster, public SceneAnimation {
+
+        enum SelectingStatus {
+                SS_START,
+                SS_LEVEL_SELECT,
+        };
+        
 private:
+        SelectingStatus current_selecting_status;
         util::str_hash<DynamicText *> choice_label_set;
 	MoveObject background;
 	util::SelecterImplements<std::string> selecter;
@@ -138,8 +145,14 @@ private:
         std::vector<EffectableGroup *> effect_group;
         i16 bgm_sound_id;
 
+        std::vector<DynamicText *> ss_level_select_text;
+        util::SelecterImplements<u64> ss_level_selecter;
+
         bool keyboard_function(void);
         void start_handler(void);
+
+        void ss_start_menu_handler(key::KeyStatus status);
+        void ss_level_select_handler(key::KeyStatus status);
         
 public:
         TitleSceneMaster(GameData *game_data);
