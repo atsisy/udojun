@@ -39,6 +39,6 @@ set(udjn_src
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 
-add_definitions("-Wall -std=c++17 -O2 -g3 -march=native -I/home/takai/git-repo/sfml_test/include")
+add_definitions("-Wall -std=c++17 -O3 -march=native -I/home/takai/git-repo/sfml_test/include")
 link_libraries("-lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio")
 add_executable(udjn_race ${udjn_src})

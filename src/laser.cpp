@@ -34,6 +34,16 @@ void Laser::draw(sf::RenderWindow &window)
         body.back()->appear();
 }
 
+bool Laser::finish_shot(void)
+{
+        return length < body.size();
+}
+
+sf::Vector2f Laser::get_tail_position(void)
+{
+        return body.back()->get_place();
+}
+
 void Laser::move(u64 count)
 {
         float last_rotation;

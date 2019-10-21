@@ -14,7 +14,9 @@
 #include <sstream>
 #include <iomanip>
 #include <limits>
-#include <codecvt> 
+#include <codecvt>
+#include <cstdio>
+#include "geometry.hpp"
 
 SceneMaster::SceneMaster()
 {
@@ -80,16 +82,13 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           timelimit_counter(300, game_data->get_font(JP_DEFAULT), GLYPH_DESIGN1, "", 60),
           power_counter(0, game_data->get_font(JP_DEFAULT), GLYPH_DESIGN1, ""),
 	  func_table("main.json"),
-	  stamina(sf::Vector2f(300, 20), sf::Vector2f(2, 2), 400, 400,
-		  sf::Color(10, 10, 20), sf::Color::Green,
-		  sf::Color(20, 100, 20)),
 	  udon_hp(sf::Vector2f(850, 5), sf::Vector2f(1, 1), 1000, 1000,
 		  sf::Color(10, 10, 20), sf::Color(213, 67, 67),
 		  sf::Color(110, 50, 50)),
-		  stamina_label(L"体力", game_data->get_font(JP_DEFAULT)),
 	  graze_label(L"グレイズ", game_data->get_font(JP_DEFAULT)),
           game_score_label(L"スコア", game_data->get_font(JP_DEFAULT)),
           power_label(L"霊力", game_data->get_font(JP_DEFAULT)),
+          fps_label(""),
 	  graze_counter(0, game_data->get_font(JP_DEFAULT), GLYPH_DESIGN1, ""),
 	  window_frame(sf::IntRect(0, 0, 1366, 768),
 		       sf::IntRect(32, 32, 960, 704)),
@@ -97,8 +96,10 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
           abs_danmaku_sched({ "stage1_danmaku.json" }),
           enemy_sched(game_data, { "stage1_enemy_schedule.json", "stage1_enemy_schedule2.json" }),
           udon_marker(GameMaster::texture_table[UDON_MARKER], sf::Vector2f(0, 725), mf::stop, rotate::stop, 0),
-          life_counter(sf::Vector2f(100, 132), sf::Vector2f(0.1, 0.1), GameMaster::texture_table[JUNKO_HART_BULLET], 2, 0),
-          life_counter_label(L"残り", game_data->get_font(JP_DEFAULT))
+          life_counter(sf::Vector2f(90, 118), sf::Vector2f(0.12, 0.12), GameMaster::texture_table[JUNKO_HART_BULLET], 2, 0),
+          life_counter_label(L"諦めない心", game_data->get_font(JP_DEFAULT)),
+          avail_bomb_counter(sf::Vector2f(90, 200), sf::Vector2f(0.1, 0.1), GameMaster::texture_table[STAR_ITEM1], 2, 0),
+          bomb_counter_label(L"霊撃", game_data->get_font(JP_DEFAULT))
 {
         set_count_for_debug(GameMaster::game_config->race_scene_time_offset);
         
@@ -124,18 +125,21 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
                                         },
                                         get_count());
         
-	stamina_label.set_place(0, 50);
-	stamina.set_place(0, 80);
         udon_hp.set_place(92, 48);
         timelimit_counter.set_place(870, 48);
-        graze_label.set_place(0, 250);
-        graze_counter.set_place(150, 250);
-        graze_counter.counter_method().add(10000);
-        game_score_counter.set_place(150, 200);
-        game_score_label.set_place(0, 200);
-        power_label.set_place(0, 300);
-        power_counter.set_place(150, 300);
-        life_counter_label.set_place(100, 100);
+        graze_label.set_place(0, 300);
+        graze_counter.set_place(150, 300);
+        game_score_counter.set_place(150, 250);
+        game_score_label.set_place(0, 250);
+        power_label.set_place(0, 350);
+        fps_label.set_place(940, 711);
+        fps_label.change_status(GLYPH_DESIGN1);
+        fps_label.set_font_size(20);
+        power_counter.set_place(150, 350);
+        life_counter_label.set_place(90, 73);
+        life_counter_label.set_font_size(32);
+        bomb_counter_label.set_place(90, 172);
+        bomb_counter_label.set_font_size(32);
         running_char.set_drawing_depth(126);
         target_udon.set_drawing_depth(126);
 
@@ -264,25 +268,31 @@ RaceSceneMaster::~RaceSceneMaster(void)
 
 void RaceSceneMaster::player_spellcard_effect(void)
 {
-        for (int i = 0;i < 256;i++) {
-                auto p = new MoveObject(
-                        GameMaster::texture_table[JUNKO_HART_BULLET],
-                        sf::Vector2f(util::generate_random() % 900, util::generate_random() % 700),
-                        mf::stop,
-                        rotate::stop,
-                        get_count());
-                p->add_effect({
-                                effect::scale_effect(sf::Vector2f(0.01, 0.01), sf::Vector2f(0.5, 0.5), 60),
-                                effect::fade_out(60),
-                                effect::kill_at(60)});
-                move_object_container.emplace_front(p);
+        for(int n = 0;n < 8;n++){
+                for (int i = 0;i < 32;i++) {
+                        timer_list.add_timer([this](){
+                                                     auto p = new MoveObject(
+                                                             GameMaster::texture_table[JUNKO_HART_BULLET],
+                                                             sf::Vector2f(util::generate_random() % 900, util::generate_random() % 700),
+                                                             mf::stop,
+                                                             rotate::stop,
+                                                             get_count());
+                                                     p->add_effect({
+                                                                     effect::scale_effect(sf::Vector2f(0.01, 0.01), sf::Vector2f(0.5, 0.5), 60),
+                                                                     effect::fade_out(60),
+                                                                     effect::kill_at(60)});
+                                                     p->set_scale(0, 0);
+                                                     move_object_container.emplace_front(p);
+                                             }, 1 + (n * 5), get_count());
+                }
         }
+        
         
         for(EnemyCharacter *e : enemy_container){
                 e->damage(400);
                 try_enemy_kill_check(e);
         }
-        target_udon.damage(400);
+        target_udon.damage(100);
         udon_hp.set_value(target_udon.get_hp());
         if(target_udon.hp_zero()){
                 udon_dead_event();
@@ -324,9 +334,7 @@ void RaceSceneMaster::player_spellcard(void)
                                                           return false;
                                                   }
                                           });
-                        
-                        graze_counter.counter_method().add(
-                                -200);
+                        avail_bomb_counter.add(get_count(), -1);
                         player_spellcard_effect();
                         
                 }
@@ -445,11 +453,10 @@ void RaceSceneMaster::player_move()
 	}
 	if (key::KeyboardTypeCoordinator::simple_pressed_check(key::ARROW_KEY_UP)) {
 		running_char.move_diff(sf::Vector2f(0, -speed));
-		stamina.add(-2.0);
         }
 	
         if(key::KeyboardTypeCoordinator::simple_pressed_check(key::VKEY_2)){
-                if(graze_counter.counter_method().get_score() >= 200){
+                if(avail_bomb_counter.get_count() > 0){
                         player_spellcard();
                 }
         }
@@ -459,7 +466,6 @@ void RaceSceneMaster::player_move()
         running_char.update_slaves(get_count());
 
         running_char.move_diff(sf::Vector2f(0, 0));
-	stamina.add(1);
 
         target_udon.move_diff(sf::Vector2f(((float)(util::generate_random() % 10) / 10.0) * std::sin((float)((float)get_count() / (float)60)), 0));
         target_udon.move(get_count());
@@ -492,7 +498,7 @@ void RaceSceneMaster::player_move()
                                 mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
                                 get_count(),
                                 sf::Vector2f(0.06, 0.06),
-                                8,
+                                20,
                                 true,
                                 false,
                                 0,
@@ -688,7 +694,10 @@ void RaceSceneMaster::next_danmaku_forced(void)
 void RaceSceneMaster::kill_out_of_filed_laser(std::list<Laser *> &lasers)
 {
         lasers.remove_if([](Laser *p){
-                                  if (!p->visible()) {
+                                 if (!p->visible() ||
+                                     (p->finish_shot() &&
+                                      geometry::out_of_screen(sf::IntRect(-400, -400, 2100, 1400), p->get_tail_position()))
+                                         ) {
                                           delete p;
                                           return true;
                                   }
@@ -700,7 +709,7 @@ void RaceSceneMaster::kill_out_of_filed_bullet(std::list<Bullet *> &bullets)
 {
         bullets.remove_if([this](Bullet *b){
                                   if (b->is_finish(
-                                              sf::IntRect(-1368, -768, 1368 * 2, 768 * 2)) ||
+                                              sf::IntRect(-200, -400, 1368 + 400, 768 + 500)) ||
                                       !b->visible() |
                                       std::find(std::begin(killed_shot_master_id),
                                                 std::end(killed_shot_master_id),
@@ -713,12 +722,33 @@ void RaceSceneMaster::kill_out_of_filed_bullet(std::list<Bullet *> &bullets)
                           });
 }
 
+void RaceSceneMaster::try_release_bomb_item(u64 graze, u64 count)
+{
+        if(graze % 800 == 0){
+                bullet_pipeline.special_pipeline.direct_insert_bullet(
+                        new SpecialBullet(
+                                GameMaster::texture_table[STAR_ITEM1],
+                                sf::Vector2f(running_char.get_place().x, running_char.get_origin().y - 300),
+                                mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
+                                count,
+                                sf::Vector2f(0.13, 0.13),
+                                20,
+                                true,
+                                false,
+                                0,
+                                SpecialBulletAttribute(0.0, 0, 0, 1)
+                                ));
+                std::cout << "bomb item has been released!!" << std::endl;
+        }
+}
+
 void RaceSceneMaster::check_graze(std::list<Bullet *> &bullets)
 {
         for (Bullet *b : bullets) {
                 if (b->is_grazable()){
                         if(running_char.distance(b) > 15){
-				graze_counter.counter_method().add(5);
+				graze_counter.counter_method().add(1);
+                                try_release_bomb_item(graze_counter.counter_method().get_score(), get_count());
                                 b->disable_graze();
                         }
                 }
@@ -762,6 +792,12 @@ void RaceSceneMaster::try_enemy_kill_check(EnemyCharacter *p)
                 auto bomb = enemy_manager.kill_enemy_with_normal_effect(p, get_count());
                 move_object_container.emplace_front(bomb);
 
+                auto point_text = new DynamicText(L"+250", game_data->get_font(JP_DEFAULT), GLYPH_DESIGN1, p->get_place(),
+                                                  mf::vector_linear(sf::Vector2f(0, 1)), rotate::stop, get_count(), 18);
+                point_text->add_effect({ effect::fade_out(60), effect::kill_at(60) });
+                move_object_container.emplace_front(point_text);
+                game_score_counter.counter_method().add(250);
+
                 generate_items_random(ItemOrder(2, 2), p->get_origin(), 50);
                                 
                 killed_shot_master_id.push_back(p->get_shot_master_id());
@@ -787,6 +823,7 @@ void RaceSceneMaster::running_char_hit(void)
 {
         race_status.hit();
         life_counter.add(get_count(), -1);
+        avail_bomb_counter.set_value(2);
         running_char.conflict();
 
         for(int i = 0;i < 128;i++){
@@ -891,6 +928,7 @@ void RaceSceneMaster::conflict_judge(void)
                         power_counter.counter_method().add(a.power);
                         running_char.add_shinrei(get_count(), a.power);
                         life_counter.add(get_count(), a.life);
+                        avail_bomb_counter.add(get_count(), a.bomb);
                         running_char.add_life(a.life);
 		}
 	}
@@ -1009,6 +1047,15 @@ void RaceSceneMaster::move_objects(void)
         move_objects_sub();
 }
 
+void RaceSceneMaster::update_fps_label(void)
+{
+        if(get_count() % 40 == 0){
+                static char label_buf[16];
+                std::sprintf(label_buf, "%.1f", GameMaster::fps_calc.get_current_fps() + 0.5);
+                fps_label.set_text(label_buf);
+        }
+}
+
 void RaceSceneMaster::pre_process_non_paused(sf::RenderWindow &window)
 {        
         key_listener.key_update();
@@ -1078,6 +1125,8 @@ void RaceSceneMaster::pre_process_non_paused(sf::RenderWindow &window)
         remove_killed_shot(bullet_pipeline.enemy_pipeline);
         killed_shot_master_id.clear();
 
+        update_fps_label();
+
         for (Bullet *b : bullet_pipeline.special_pipeline.actual_bullets) {
                 if(b->get_shot_master_id() == SPECIAL_ITEM && running_char.outer_distance(b) < b->get_radius() + 100){
                         b->override_move_func(mf::active_homing(running_char.get_origin(), 5.5, running_char.get_homing_point()));
@@ -1094,13 +1143,12 @@ void RaceSceneMaster::pre_process_non_paused(sf::RenderWindow &window)
                 }
 	}
 
-        if(get_count() == 6500){
-                
+        if(get_count() == 8500){
                 timer_list.cancel(danmaku_timer_id);
                 convert_bullet_to_small_crystal(bullet_pipeline.enemy_pipeline);
                 this->target_udon.set_hp_max();
                 target_udon.override_move_func(mf::move_point_constant(sf::Vector2f(480, 50),
-                                                                       target_udon.get_place(), 6500, 6628));
+                                                                       target_udon.get_place(), 8500, 8628));
                 backgroundTile.set_scroll_speed(-1);
                 timer_list.add_timer(
                         [&](void){
@@ -1188,20 +1236,21 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
         post_draw_request_vargs("params",
                                 &game_score_counter,
                                 &game_score_label,
-                                &stamina,
-                                &stamina_label,
                                 &graze_counter,
                                 &graze_label,
                                 &power_label,
                                 &power_counter,
                                 &score_counter,
                                 &life_counter,
-                                &life_counter_label
+                                &life_counter_label,
+                                &avail_bomb_counter,
+                                &bomb_counter_label
                 );
 
         post_draw_request_vargs("game_info",
                                 &udon_hp,
-                                &score_counter);
+                                &score_counter,
+                                &fps_label);
         if(effect_conroller.timelimit_on){
                 post_draw_request_vargs("game_info",
                                         &timelimit_counter);

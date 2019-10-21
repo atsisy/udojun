@@ -87,4 +87,9 @@ namespace geometry {
                 return std::sqrt(std::pow(p1.x - p2.x, 2)
                                  + std::pow(p1.y - p2.y, 2));
         }
+
+        bool out_of_screen(sf::IntRect window_rect, sf::Vector2f p)
+        {
+                return !window_rect.contains(p.x, p.y);
+        }
 }

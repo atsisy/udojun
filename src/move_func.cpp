@@ -387,6 +387,17 @@ namespace mf {
                        };
 	}
 
+        std::function<sf::Vector2f(MoveObject *, u64, u64)>
+	stop_and_override(u64 stop, std::function<sf::Vector2f(MoveObject *, u64, u64)> or_fn)
+	{
+		return [=](MoveObject *p, u64 now_lmd, u64 begin_lmd) {
+                               u64 past = now_lmd - begin_lmd;
+                               if(unlikely(past > stop)){
+                                       p->override_move_func(or_fn);
+                               }
+                               return p->get_place();
+                       };
+	}
         
         std::function<sf::Vector2f(MoveObject *, u64, u64)>
 	ratio_step(sf::Vector2f goal, float ratio)

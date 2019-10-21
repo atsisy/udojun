@@ -11,6 +11,7 @@ TextureTable GameMaster::texture_table;
 sound::SoundPlayer *GameMaster::sound_player;
 util::xor128 util::generate_random;
 GameConfig *GameMaster::game_config;
+FpsCalculator GameMaster::fps_calc;
 
 GameData::GameData()
         : enemy_table({ "stage1_enemy.json" })
@@ -50,6 +51,21 @@ void GraphicBuffer::flush_draw_requests(sf::RenderWindow &window)
                 draw_requests.top()->draw(window);
                 draw_requests.pop();
         }
+}
+
+FpsCalculator::FpsCalculator(void)
+{
+        this->last = 0.f;
+}
+
+void FpsCalculator::update(void)
+{
+        fps = 1.f / clock.restart().asSeconds();
+}
+
+float FpsCalculator::get_current_fps(void)
+{
+        return this->fps;
 }
 
 GameConfig::GameConfig(std::string json_path)
@@ -198,6 +214,8 @@ void GameMaster::main_loop()
         if(sf::Joystick::isConnected(0)){
                 puts("input: Joystick 0 is connected.");
         }
+
+        window.setFramerateLimit(60);
         
         while(window.isOpen()){
                 sf::Event event;
@@ -218,6 +236,7 @@ void GameMaster::main_loop()
 
                 GameMaster::sound_player->flush(master_clock);
                 master_clock++;
+                GameMaster::fps_calc.update();
 	}
 
 }

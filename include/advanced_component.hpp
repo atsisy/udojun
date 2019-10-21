@@ -147,7 +147,9 @@ public:
         DrawableStackCounter(sf::Vector2f pos, sf::Vector2f _scale, sf::Texture *t, i16 init, u64 count);
         void add(u64 count, i16 value);
         void draw(sf::RenderWindow &window);
+        void set_value(i16 value);
         void effect(u64 count);
         sf::Vector2f get_position(void);
+        i16 get_count(void);
 };
 

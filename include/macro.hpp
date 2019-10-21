@@ -29,6 +29,10 @@ enum MacroID {
         UDON_DELAY_CIRCLE,
         STRAGHT_CIRCLE,
         DELAY_CIRCLE_MOVE_LINEAR,
+        JIKI_NERAI_CIRCLE,
+        JIKI_HAZUSHI_CIRCLE,
+        UDON_JIKI_NERAI_CIRCLE,
+        UDON_JIKI_HAZUSHI_CIRCLE,
 };
 
 inline MacroID str_to_macroid(const char *str)
@@ -65,6 +69,10 @@ inline MacroID str_to_macroid(const char *str)
         str_to_idx_sub(str, UDON_DELAY_CIRCLE);
         str_to_idx_sub(str, STRAGHT_CIRCLE);
         str_to_idx_sub(str, DELAY_CIRCLE_MOVE_LINEAR);
+        str_to_idx_sub(str, JIKI_NERAI_CIRCLE);
+        str_to_idx_sub(str, JIKI_HAZUSHI_CIRCLE);
+        str_to_idx_sub(str, UDON_JIKI_NERAI_CIRCLE);
+        str_to_idx_sub(str, UDON_JIKI_HAZUSHI_CIRCLE);
 
 	std::cout << "Unknown Macro ID: " << str << std::endl;
         
@@ -173,4 +181,6 @@ namespace macro {
 
         std::vector<BulletData *> delay_circle_move_linear(TextureID txid, sf::Vector2f origin, i16 rotate_times, float r,
                                                            float speed, float angle, u8 num, u64 delay, u64 time, float phase);
+        std::vector<BulletData *> udon_nerai_circle1(TextureID txid, sf::Vector2f origin, float angle,  float offset_angle, u64 num, u64 time, float r, float speed, u64 stop);
+        std::vector<BulletData *> nerai_circle1(TextureID txid, sf::Vector2f origin, float angle, float offset_angle, u64 num, u64 time, float r, float speed);
 }

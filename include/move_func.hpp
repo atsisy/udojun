@@ -49,6 +49,8 @@ namespace mf {
 
         DEF_MOVE_FUNC(ratio_two_step, sf::Vector2f begin, sf::Vector2f middle, sf::Vector2f goal,
                       u64 stop, float ratio);
+
+        DEF_MOVE_FUNC(stop_and_override, u64 stop, std::function<sf::Vector2f(MoveObject *, u64, u64)> or_fn);
 }
 
 

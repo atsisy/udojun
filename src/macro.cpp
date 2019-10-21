@@ -228,6 +228,47 @@ namespace macro {
                 return ret;
 	}
 
+        std::vector<BulletData *> nerai_circle1(TextureID txid, sf::Vector2f origin, float angle, float offset_angle, u64 num, u64 time, float r, float speed)
+	{
+                std::vector<BulletData *> ret;
+                float rad = angle + offset_angle;
+                float unit = (2.f * M_PI) / num;
+                
+                for(int i = 0;i < num;i++, rad += unit){
+                        ret.push_back(new BulletData(str_to_bfid("SLOWER1"),
+                                                     txid,
+                                                     mf::vector_linear(sf::Vector2f(speed * std::cos(rad), -speed * std::sin(rad))),
+                                                     time,
+                                                     sf::Vector2f(origin.x + (r * std::cos(rad)),
+                                                                  origin.y + (r * std::sin(rad))),
+                                                     rad + M_PI_2));
+                }
+                
+                return ret;
+	}
+
+        std::vector<BulletData *> udon_nerai_circle1(TextureID txid, sf::Vector2f origin, float angle,  float offset_angle, u64 num, u64 time, float r, float speed, u64 stop)
+	{
+                std::vector<BulletData *> ret;
+                float rad = angle + offset_angle;
+                float unit = (2.f * M_PI) / num;
+
+                for(int i = 0;i < num;i++, rad += unit){
+                        ret.push_back(new BulletData(str_to_bfid("SLOWER1"),
+                                                     txid,
+                                                     mf::stop_and_override(stop,
+                                                                           mf::vector_linear(
+                                                                                   sf::Vector2f(speed * std::cos(rad),
+                                                                                                -speed * std::sin(rad)))),
+                                                     time,
+                                                     sf::Vector2f(origin.x + (r * std::cos(rad)),
+                                                                  origin.y + (r * std::sin(rad))),
+                                                     rad + M_PI_2));
+                }
+                
+                return ret;
+	}
+
         std::vector<BulletData *> udon_tsujo3(sf::Vector2f origin, u64 time, u64 offset, float r, float speed)
 	{
                 std::vector<BulletData *> ret;
@@ -728,6 +769,7 @@ namespace macro {
                 return ret;
         }
         
+        
         std::vector<BulletData *> junko_spellcard(TextureID txid, sf::Vector2f junko_origin,
                                                   sf::Vector2f curve_middle, sf::Vector2f curve_end,
                                                   u64 time_offset, float speed, float r, float num, u64 time)
@@ -1133,6 +1175,68 @@ namespace macro {
                                 data["delay"].get<double>(),
                                 data["time"].get<double>(),
                                 TAKE_DEFAULT_ARG(data, "phase", double, 0)
+                                );
+                case JIKI_NERAI_CIRCLE:
+                        return nerai_circle1(
+                                str_to_txid(data["texture"].get<std::string>().data()),
+                                bullet_data->appear_point,
+                                geometry::calc_angle(running_char->get_origin(),
+                                                     bullet_data->appear_point -
+                                                     sf::Vector2f(
+                                                             bullet_data->scale.x * bullet_data->texture->getSize().x * 0.5,
+                                                             bullet_data->scale.y * bullet_data->texture->getSize().y * 0.5)),
+                                0,
+                                data["num"].get<double>(),
+                                data["time"].get<double>(),
+                                data["r"].get<double>(),
+                                data["speed"].get<double>()
+                                );
+                case JIKI_HAZUSHI_CIRCLE:
+                        return nerai_circle1(
+                                str_to_txid(data["texture"].get<std::string>().data()),
+                                bullet_data->appear_point,
+                                geometry::calc_angle(running_char->get_origin(),
+                                                     bullet_data->appear_point -
+                                                     sf::Vector2f(
+                                                             bullet_data->scale.x * bullet_data->texture->getSize().x * 0.5,
+                                                             bullet_data->scale.y * bullet_data->texture->getSize().y * 0.5)),
+                                data["offset_angle"].get<double>(),
+                                data["num"].get<double>(),
+                                data["time"].get<double>(),
+                                data["r"].get<double>(),
+                                data["speed"].get<double>()
+                                );
+                case UDON_JIKI_NERAI_CIRCLE:
+                        return udon_nerai_circle1(
+                                str_to_txid(data["texture"].get<std::string>().data()),
+                                bullet_data->appear_point,
+                                geometry::calc_angle(running_char->get_origin(),
+                                                     bullet_data->appear_point +
+                                                     sf::Vector2f(
+                                                             bullet_data->scale.x * bullet_data->texture->getSize().x * 0.5,
+                                                             bullet_data->scale.y * bullet_data->texture->getSize().y * 0.5)),
+                                0,
+                                data["num"].get<double>(),
+                                data["time"].get<double>(),
+                                data["r"].get<double>(),
+                                data["speed"].get<double>(),
+                                data["stop"].get<double>()
+                                );
+                case UDON_JIKI_HAZUSHI_CIRCLE:
+                        return udon_nerai_circle1(
+                                str_to_txid(data["texture"].get<std::string>().data()),
+                                bullet_data->appear_point,
+                                geometry::calc_angle(running_char->get_origin(),
+                                                     bullet_data->appear_point +
+                                                     sf::Vector2f(
+                                                             bullet_data->scale.x * bullet_data->texture->getSize().x * 0.5,
+                                                             bullet_data->scale.y * bullet_data->texture->getSize().y * 0.5)),
+                                data["offset_angle"].get<double>(),
+                                data["num"].get<double>(),
+                                data["time"].get<double>(),
+                                data["r"].get<double>(),
+                                data["speed"].get<double>(),
+                                data["stop"].get<double>()
                                 );
 		default:
                         return std::vector<BulletData *>();

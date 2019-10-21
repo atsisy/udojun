@@ -379,12 +379,11 @@ private:
 	ElapsedCounter timelimit_counter;
         DrawableScoreCounter<double> power_counter;
         BulletFuncTable func_table;
-        Meter stamina;
         Meter udon_hp;
-        Label stamina_label;
         Label graze_label;
         Label game_score_label;
         Label power_label;
+        Label fps_label;
         DrawableScoreCounter<i64> graze_counter;
         WindowFrame window_frame;
 	DanmakuScheduler danmaku_sched;
@@ -401,6 +400,8 @@ private:
         key::KeyboardListener key_listener;
         DrawableStackCounter life_counter;
         Label life_counter_label;
+        DrawableStackCounter avail_bomb_counter;
+        Label bomb_counter_label;
         
 	void add_new_functional_bullets_to_schedule(void);
         void add_new_danmaku(void);
@@ -431,6 +432,8 @@ private:
         void pre_process_paused(sf::RenderWindow &window);
         void running_char_hit(void);
         void game_over(void);
+        void update_fps_label(void);
+        void try_release_bomb_item(u64 graze, u64 count);
 
         void game_over_continue(void);
 
@@ -465,11 +468,23 @@ public:
         GameConfig(std::string json_path);
 };
 
+class FpsCalculator {
+private:
+        sf::Clock clock;
+        float last;
+        float fps;
+
+public:
+        FpsCalculator(void);
+        void update();
+        float get_current_fps(void);
+};
+
 class GameMaster {
 private:
         sf::RenderWindow window;
         sf::WindowHandle window_handle;
-
+        
         SceneMaster *current_scene;
         GameState current_state;
         GameData *game_data;
@@ -483,6 +498,7 @@ public:
         static TextureTable texture_table;
         static sound::SoundPlayer *sound_player;
         static GameConfig *game_config;
+        static FpsCalculator fps_calc;
         
         GameMaster();
         void init();

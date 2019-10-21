@@ -374,6 +374,11 @@ namespace util {
                 {
                         this->value = _value;
                 }
+
+                T get(void)
+                {
+                        return this->value;
+                }
         };
 
         template<typename type, template<typename T> class container>

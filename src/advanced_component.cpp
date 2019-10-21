@@ -471,6 +471,20 @@ void DrawableStackCounter::add(u64 count, i16 value)
         }
 }
 
+void DrawableStackCounter::set_value(i16 value)
+{
+        i16 current, diff;
+        current = counter.get_value();
+        diff = value - current;
+        counter.set_value(value);
+        
+        if(diff < 0){
+                shrink_fit(current, -diff);
+        }else{
+                grow_fit(current, diff);
+        }
+}
+
 void DrawableStackCounter::draw(sf::RenderWindow &window)
 {
         for(MoveObject *p : stack_objects){
@@ -489,6 +503,12 @@ void DrawableStackCounter::effect(u64 count)
 sf::Vector2f DrawableStackCounter::get_position(void)
 {
         return position;
+}
+
+
+i16 DrawableStackCounter::get_count(void)
+{
+        return this->counter.get();
 }
 
 DrawableStackCounter::DrawableStackCounter(sf::Vector2f pos, sf::Vector2f _scale, sf::Texture *t, i16 init, u64 count)

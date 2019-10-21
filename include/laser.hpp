@@ -25,6 +25,8 @@ public:
         
         void draw(sf::RenderWindow &window) override;
         void move(u64 count);
+        bool finish_shot(void);
+        sf::Vector2f get_tail_position(void);
 };
 
 class StraightLaser : public DrawableComponent {
