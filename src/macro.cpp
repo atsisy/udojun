@@ -194,7 +194,7 @@ namespace macro {
                                               rad1 + M_PI_2));
 			ret.push_back(new BulletData(
                                               str_to_bfid("SLOWER1"),
-                                              BULLET1,
+                                              BULLET_BLUE,
                                               mf::getting_slower(speed, rad2, 0), time,
                                               sf::Vector2f(origin.x + (r * std::cos(rad2)),
                                                            origin.y + (r * std::sin(rad2))),
@@ -215,7 +215,7 @@ namespace macro {
                 float rad = phase;
                 float unit = (2.f * M_PI) / count;
 
-                for(int i = 0;i < count;i++, rad += unit){
+                for(u64 i = 0;i < count;i++, rad += unit){
                         ret.push_back(new BulletData(str_to_bfid("SLOWER1"),
                                                      BULLET1,
                                                      mf::linear_getting_slower(speed, rad, 0.08, 1.2),
@@ -234,7 +234,7 @@ namespace macro {
                 float rad = angle + offset_angle;
                 float unit = (2.f * M_PI) / num;
                 
-                for(int i = 0;i < num;i++, rad += unit){
+                for(u64 i = 0;i < num;i++, rad += unit){
                         ret.push_back(new BulletData(str_to_bfid("SLOWER1"),
                                                      txid,
                                                      mf::vector_linear(sf::Vector2f(speed * std::cos(rad), -speed * std::sin(rad))),
@@ -253,7 +253,7 @@ namespace macro {
                 float rad = angle + offset_angle;
                 float unit = (2.f * M_PI) / num;
 
-                for(int i = 0;i < num;i++, rad += unit){
+                for(u64 i = 0;i < num;i++, rad += unit){
                         ret.push_back(new BulletData(str_to_bfid("SLOWER1"),
                                                      txid,
                                                      mf::stop_and_override(stop,
@@ -616,35 +616,43 @@ namespace macro {
         std::vector<BulletData *> junko_shot_fast_lv1(TextureID txid, sf::Vector2f center, float speed, u64 time)
         {
                 std::vector<BulletData *> ret;
+                BulletData *tmp;
 
-                ret.push_back(new BulletData(
-                                      str_to_bfid("LINEAR"),
-                                      txid,
-                                      mf::vector_linear(
-                                              sf::Vector2f(0,
-                                                           speed)),
-                                      time,
-                                      center + sf::Vector2f(0, -15)
-                                      )
+                tmp = new BulletData(
+                        str_to_bfid("LINEAR"),
+                        txid,
+                        mf::vector_linear(
+                                sf::Vector2f(0,
+                                             speed)),
+                        time,
+                        center + sf::Vector2f(0, -15)
                         );
-                ret.push_back(new BulletData(
-                                      str_to_bfid("LINEAR"),
-                                      txid,
-                                      mf::vector_linear(
-                                              sf::Vector2f(speed * std::cos(geometry::convert_to_radian(110)),
-                                                           speed * std::sin(geometry::convert_to_radian(105)))),
-                                      time,
-                                      center + sf::Vector2f(-10, -12)
-                                      ));
-                ret.push_back(new BulletData(
-                                      str_to_bfid("LINEAR"),
-                                      txid,
-                                      mf::vector_linear(
-                                              sf::Vector2f(speed * std::cos(geometry::convert_to_radian(70)),
-                                                           speed * std::sin(geometry::convert_to_radian(70)))),
-                                      time,
-                                      center + sf::Vector2f(10, -12)
-                                      ));
+                tmp->alpha = 180;
+                ret.push_back(tmp);
+
+                tmp = new BulletData(
+                        str_to_bfid("LINEAR"),
+                        txid,
+                        mf::vector_linear(
+                                sf::Vector2f(speed * std::cos(geometry::convert_to_radian(110)),
+                                             speed * std::sin(geometry::convert_to_radian(105)))),
+                        time,
+                        center + sf::Vector2f(-10, -12)
+                        );
+                tmp->alpha = 180;
+                ret.push_back(tmp);
+
+                tmp = new BulletData(
+                        str_to_bfid("LINEAR"),
+                        txid,
+                        mf::vector_linear(
+                                sf::Vector2f(speed * std::cos(geometry::convert_to_radian(70)),
+                                             speed * std::sin(geometry::convert_to_radian(70)))),
+                        time,
+                        center + sf::Vector2f(10, -12)
+                        );
+                tmp->alpha = 180;
+                ret.push_back(tmp);
 
                 return ret;
         }
@@ -653,28 +661,34 @@ namespace macro {
                                                       sf::Vector2f center, float speed, u64 time)
         {
                 std::vector<BulletData *> ret;
+                BulletData *tmp;
 
                 auto &&lv1 = junko_shot_fast_lv1(txid1, center, speed, time);
                 util::concat_container<std::vector<BulletData *>>(ret, lv1);
 
-                ret.push_back(new BulletData(
-                                      str_to_bfid("LINEAR"),
-                                      txid2,
-                                      mf::vector_linear(
-                                              sf::Vector2f(0.6 * speed * std::cos(geometry::convert_to_radian(120)),
-                                                           0.6 * speed * std::sin(geometry::convert_to_radian(120)))),
-                                      time,
-                                      center + sf::Vector2f(-30, 16)
-                                      ));
-                ret.push_back(new BulletData(
-                                      str_to_bfid("LINEAR"),
-                                      txid2,
-                                      mf::vector_linear(
-                                              sf::Vector2f(0.6 * speed * std::cos(geometry::convert_to_radian(60)),
-                                                           0.6 * speed * std::sin(geometry::convert_to_radian(60)))),
-                                      time,
-                                      center + sf::Vector2f(30, 16)
-                                      ));
+                tmp = new BulletData(
+                        str_to_bfid("LINEAR"),
+                        txid2,
+                        mf::vector_linear(
+                                sf::Vector2f(0.6 * speed * std::cos(geometry::convert_to_radian(120)),
+                                             0.6 * speed * std::sin(geometry::convert_to_radian(120)))),
+                        time,
+                        center + sf::Vector2f(-30, 16)
+                        );
+                tmp->alpha = 180;
+                ret.push_back(tmp);
+
+                tmp = new BulletData(
+                        str_to_bfid("LINEAR"),
+                        txid2,
+                        mf::vector_linear(
+                                sf::Vector2f(0.6 * speed * std::cos(geometry::convert_to_radian(60)),
+                                             0.6 * speed * std::sin(geometry::convert_to_radian(60)))),
+                        time,
+                        center + sf::Vector2f(30, 16)
+                        );
+                tmp->alpha = 180;
+                ret.push_back(tmp);
 
                 return ret;
         }
@@ -682,26 +696,31 @@ namespace macro {
         std::vector<BulletData *> junko_shot_slow_lv1(TextureID txid, sf::Vector2f center, float speed, u64 time)
         {
                 std::vector<BulletData *> ret;
+                BulletData *tmp;
 
-                ret.push_back(new BulletData(
-                                      str_to_bfid("LINEAR"),
-                                      txid,
-                                      mf::vector_linear(
-                                              sf::Vector2f(0,
-                                                           speed)),
-                                      time,
-                                      center + sf::Vector2f(-7, -15)
-                                      )
+                tmp = new BulletData(
+                        str_to_bfid("LINEAR"),
+                        txid,
+                        mf::vector_linear(
+                                sf::Vector2f(0,
+                                             speed)),
+                        time,
+                        center + sf::Vector2f(-7, -15)
                         );
-                ret.push_back(new BulletData(
-                                      str_to_bfid("LINEAR"),
-                                      txid,
-                                      mf::vector_linear(
-                                              sf::Vector2f(0,
-                                                           speed)),
-                                      time,
-                                      center + sf::Vector2f(7, -15)
-                                      ));
+                tmp->alpha = 180;
+                ret.push_back(tmp);
+
+                tmp = new BulletData(
+                        str_to_bfid("LINEAR"),
+                        txid,
+                        mf::vector_linear(
+                                sf::Vector2f(0,
+                                             speed)),
+                        time,
+                        center + sf::Vector2f(7, -15)
+                        );
+                tmp->alpha = 180;
+                ret.push_back(tmp);
 
                 return ret;
         }
@@ -709,35 +728,43 @@ namespace macro {
         std::vector<BulletData *> junko_shot_slow_lv2(TextureID txid, sf::Vector2f center, float speed, u64 time)
         {
                 std::vector<BulletData *> ret;
-                
-                ret.push_back(new BulletData(
-                                      str_to_bfid("LINEAR"),
-                                      txid,
-                                      mf::vector_linear(
-                                              sf::Vector2f(0,
-                                                           speed)),
-                                      time,
-                                      center + sf::Vector2f(0, -15)
-                                      )
+                BulletData *tmp;
+
+                tmp = new BulletData(
+                        str_to_bfid("LINEAR"),
+                        txid,
+                        mf::vector_linear(
+                                sf::Vector2f(0,
+                                             speed)),
+                        time,
+                        center + sf::Vector2f(0, -15)
                         );
-                ret.push_back(new BulletData(
-                                      str_to_bfid("LINEAR"),
-                                      txid,
-                                      mf::vector_linear(
-                                              sf::Vector2f(0,
-                                                           speed)),
-                                      time,
-                                      center + sf::Vector2f(15, -12)
-                                      ));
-                ret.push_back(new BulletData(
-                                      str_to_bfid("LINEAR"),
-                                      txid,
-                                      mf::vector_linear(
-                                              sf::Vector2f(0,
-                                                           speed)),
-                                      time,
-                                      center + sf::Vector2f(-15, -12)
-                                      ));
+                tmp->alpha = 180;
+                ret.push_back(tmp);
+
+                tmp = new BulletData(
+                        str_to_bfid("LINEAR"),
+                        txid,
+                        mf::vector_linear(
+                                sf::Vector2f(0,
+                                             speed)),
+                        time,
+                        center + sf::Vector2f(15, -12)
+                        );
+                tmp->alpha = 180;
+                ret.push_back(tmp);
+
+                tmp = new BulletData(
+                        str_to_bfid("LINEAR"),
+                        txid,
+                        mf::vector_linear(
+                                sf::Vector2f(0,
+                                             speed)),
+                        time,
+                        center + sf::Vector2f(-15, -12)
+                        );
+                tmp->alpha = 180;
+                ret.push_back(tmp);
 
                 return ret;
         }

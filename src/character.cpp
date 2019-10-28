@@ -233,7 +233,7 @@ std::vector<MoveObject *> PlayerCharacter::__shinrei_flush(u64 time)
                                                                                 util::generate_random(-7, 7))),
                                                            time,
                                                            50),
-                                effect::fade_out_later(50, 100),
+                                effect::fade_out_later(50, 100, time),
                                 effect::kill_at(150)
                         });
                 ret.push_back(p);

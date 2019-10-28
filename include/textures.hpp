@@ -43,6 +43,9 @@ enum TextureID {
 	LASER_TAIL1,
 	UNKNOWN_TXID,
 	UDON_TACHIE,
+        UDON_TACHIE_DEFAULT,
+        UDON_TACHIE_SAD,
+        UDON_TACHIE_POWER,
 	DOT_JUNKO,
 	BLACK_ANTEN,
 	SAMPLE_BACKGROUND1,
@@ -50,7 +53,11 @@ enum TextureID {
         SMALL_CRYSTAL2,
         MIST1,
         BULLET1,
+        BULLET_BLUE,
         JUNKO_TACHIE1,
+        JUNKO_TACHIE_DEFAULT,
+        JUNKO_TACHIE_SMILE,
+        JUNKO_TACHIE_YODARE,
         FLOWER1,
         SPELL_CARD_ATTACK,
         BACKGROUND1,
@@ -100,6 +107,8 @@ enum TextureID {
         TITLE_BLUE,
         HEXAGRAM2,
         STAR_ITEM1,
+        ROAD_3D_TEXTURE,
+        SKY_STAR1,
 };
 
 enum LaserTextureID {
@@ -158,7 +167,17 @@ inline TextureID str_to_txid(const char *str)
         str_to_idx_sub(str, SMALL_CRYSTAL2);
         str_to_idx_sub(str, MIST1);
         str_to_idx_sub(str, BULLET1);
+        str_to_idx_sub(str, BULLET_BLUE);
+
         str_to_idx_sub(str, JUNKO_TACHIE1);
+        str_to_idx_sub(str, JUNKO_TACHIE_DEFAULT);
+        str_to_idx_sub(str, JUNKO_TACHIE_SMILE);
+        str_to_idx_sub(str, JUNKO_TACHIE_YODARE);
+
+        str_to_idx_sub(str, UDON_TACHIE_DEFAULT);
+        str_to_idx_sub(str, UDON_TACHIE_POWER);
+        str_to_idx_sub(str, UDON_TACHIE_SAD);
+
         str_to_idx_sub(str, FLOWER1);
         str_to_idx_sub(str, SPELL_CARD_ATTACK);
         str_to_idx_sub(str, BACKGROUND1);
@@ -224,6 +243,9 @@ inline TextureID str_to_txid(const char *str)
 
         str_to_idx_sub(str, HEXAGRAM2);
         str_to_idx_sub(str, STAR_ITEM1);
+
+        str_to_idx_sub(str, ROAD_3D_TEXTURE);
+        str_to_idx_sub(str, SKY_STAR1);
         
 
 	std::cout << "Unknown texture: " << str << std::endl;

@@ -605,10 +605,11 @@ float Rotatable::get_angle(void)
 
 Bullet::Bullet(sf::Texture *t, sf::Vector2f p,
 	       std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
-	       u64 begin_count, sf::Vector2f scale, float radius,
+	       u64 begin_count, sf::Vector2f scale, float radius, u8 alpha,
                bool conflictable, bool grazable, float init_rotate)
 	: MoveObject(t, p, f, rotate::stop, begin_count), Conflictable(true), grazable(grazable)
 {
+        set_alpha(alpha);
         set_scale(scale);
         rotate(init_rotate);
 	set_radius(radius);
@@ -708,10 +709,10 @@ SpecialBulletAttribute::SpecialBulletAttribute(float power, i64 score, i16 life,
 
 SpecialBullet::SpecialBullet(sf::Texture *t, sf::Vector2f p,
                            std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
-                           u64 begin_count, sf::Vector2f scale, float radius,
-                           bool conflictable, bool grazable, float init_rotate,
-                           SpecialBulletAttribute _attribute)
-        : Bullet(t, p, f, begin_count, scale, radius, conflictable, grazable, init_rotate),
+                             u64 begin_count, sf::Vector2f scale, float radius, u8 alpha,
+                             bool conflictable, bool grazable, float init_rotate,
+                             SpecialBulletAttribute _attribute)
+        : Bullet(t, p, f, begin_count, scale, radius, alpha, conflictable, grazable, init_rotate),
           attribute(_attribute)
 {}
 

@@ -3,7 +3,8 @@
 #include <SFML/Audio.hpp>
 #include <unordered_map>
 #include "utility.hpp"
-#include <deque>
+#include <queue>
+#include <array>
 
 namespace sound {
 
@@ -13,6 +14,10 @@ namespace sound {
                 UNKNOWN_SDID,
                 TITLE_BGM,
                 JUNKO_HIT,
+                BGM2,
+                SE_ITEM,
+                SE_LARGE_ITEM,
+                SE_PLAYER_SPELLCARD,
         };
 
         inline SoundID str_to_sdid(const char *str)
@@ -21,6 +26,12 @@ namespace sound {
                 str_to_idx_sub(str, SHOOT1);
                 str_to_idx_sub(str, TITLE_BGM);
                 str_to_idx_sub(str, JUNKO_HIT);
+                str_to_idx_sub(str, BGM2);
+
+                str_to_idx_sub(str, SE_ITEM);
+                str_to_idx_sub(str, SE_LARGE_ITEM);
+
+                str_to_idx_sub(str, SE_PLAYER_SPELLCARD);
 
                 return UNKNOWN_SDID;
         }
@@ -36,13 +47,14 @@ namespace sound {
 
         class SoundElement {
         private:
-                i16 id;
+                i8 id;
+                i8 priority;
                 u64 start;
                 u64 end;
                 sf::Sound sound;
                 
         public:
-                SoundElement(sf::SoundBuffer *sb, u64 now, i16 id);
+                SoundElement(sf::SoundBuffer *sb, u64 now, i16 id, i8 priority = 0);
                 ~SoundElement(void);
                 u64 get_start_time(void);
                 u64 get_end_time(void);
@@ -51,9 +63,12 @@ namespace sound {
                 void reset_buffer(sf::SoundBuffer *sb, u64 now);
                 void config_loop(bool loop);
                 void config_volume(float volume);
+                void set_priority(i8 priority);
 
                 i16 get_instance_id(void);
                 void override_instance_id(i16 new_id);
+
+                static bool priority_compare(SoundElement *p1, SoundElement *p2);
         };
 
         class SoundInformation {
@@ -62,9 +77,10 @@ namespace sound {
                 float volume;
                 bool loop;
                 i16 instace_id;
+                i8 priority;
 
-                SoundInformation(SoundID id);
-                SoundInformation(SoundID id, float volume, bool loop);
+                SoundInformation(SoundID id, i8 priority = 0);
+                SoundInformation(SoundID id, float volume, bool loop, i8 priority = 0);
 
         };
 
@@ -75,7 +91,10 @@ namespace sound {
                 sf::Sound sound;
                 SoundTable table;
                 std::vector<SoundInformation> registered;
-                std::deque<SoundElement *> sound_pool;
+                std::priority_queue<SoundElement *,
+                                    std::vector<SoundElement *>,
+                                    std::function<bool(SoundElement *, SoundElement *)>> sound_pool;
+                std::array<SoundElement *, 256> union_sound_pool;
                 
         public:
                 SoundPlayer(std::string sound_data);

@@ -33,6 +33,7 @@ std::function<void(MoveObject *, u64, u64)> effect::fade_in(u64 distance, u64 ca
 			       r = 255.0 * (float)((float)(now - begin) /
 						   (float)distance);
 		       }
+                       
 		       obj->set_alpha(r);
                };
 }
@@ -74,6 +75,30 @@ std::function<void(MoveObject *, u64, u64)> effect::fade_out_later(u64 distance,
                };
 }
 
+std::function<void(MoveObject *, u64, u64)> effect::fade_out_later(u64 distance, u64 later, u64 called)
+{
+	return [=](MoveObject *obj, u64 now, u64 begin) {
+                       u64 past = now - called;
+                       u64 after_enabled = 0;
+                       float r;
+
+                       if(past < later){
+                               return;
+                       }
+
+                       after_enabled = past - later;
+                       
+                       if (after_enabled > distance) {
+                               r = 0;
+                       } else {
+                               r = 255.0 *
+                                       (1 - (float)((float)(after_enabled) / (float)distance));
+                       }
+                       obj->set_alpha(r);
+               };
+}
+
+
 std::function<void(MoveObject *, u64, u64)> effect::fade_in_later(u64 distance, u64 later, float init_alpha)
 {
 	return [=](MoveObject *obj, u64 now, u64 begin) {
@@ -102,11 +127,15 @@ std::function<void(MoveObject *, u64, u64)> effect::fade_out(u64 distance, u64 c
 	return [=](MoveObject *obj, u64 now, u64 begin) {
                        float r;
                        begin = called;
-                       if (now - begin > distance) {
+                       i64 signed_past = (i64)now - (i64)begin;
+                       
+                       if (signed_past > (i64)distance) {
                                r = 0;
-                       } else {
+                       } else if(signed_past > 0) {
                                r = init_alpha *
                                        (1 - (float)((float)(now - begin) / (float)distance));
+                       } else {
+                               r = init_alpha;
                        }
                        obj->set_alpha(r);
                };
@@ -138,7 +167,7 @@ std::function<void(MoveObject *, u64, u64)> effect::bullet_conflict_on_at(u64 ca
 std::function<void(MoveObject *, u64, u64)> effect::kill_at(u64 time)
 {
 	return [=](MoveObject *obj, u64 now, u64 begin) {
-                       if (now == (time + begin)) {
+                       if (now > (time + begin)) {
                                obj->hide();
                        }
 	};
@@ -147,8 +176,7 @@ std::function<void(MoveObject *, u64, u64)> effect::kill_at(u64 time)
 std::function<void(MoveObject *, u64, u64)> effect::kill_at(u64 time, u64 called)
 {
 	return [=](MoveObject *obj, u64 now, u64 begin) {
-                       begin = called;
-                       if (now == (time + begin)) {
+                       if (now > (time + called)) {
                                obj->hide();
                        }
                };

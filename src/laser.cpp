@@ -59,15 +59,15 @@ void Laser::move(u64 count)
 
         if(body.size() == 0){
                 body.push_back(new Bullet(head_texture, begin, move_func, count,
-                                          sf::Vector2f(0.3, 0.3), radius, true, true));
+                                          sf::Vector2f(0.3, 0.3), radius, 200, true, true));
                 body.back()->hide();
         }else if(length > body.size()){
                 body.push_back(new Bullet(body_texture, begin, move_func, count,
-                                          sf::Vector2f(0.3, 0.3), radius, true, true));
+                                          sf::Vector2f(0.3, 0.3), radius, 200, true, true));
                 body.back()->hide();
         }else if(length == body.size()){
                 body.push_back(new Bullet(tail_texture, begin, move_func, count,
-                                          sf::Vector2f(0.3, 0.3), radius, true, true));
+                                          sf::Vector2f(0.3, 0.3), radius, 200, true, true));
                 body.back()->hide();
         }
 }
@@ -101,7 +101,7 @@ StraightLaser::StraightLaser(sf::Texture *t, sf::Vector2f begin, sf::Vector2f en
         sf::Vector2f point = begin;
         for(int i = 0;i < count;i++){
                  Bullet *b = new Bullet(this->texture, point, scale_func, begin_count,
-                                       sf::Vector2f(0.3, 1.0), 7, true, true);
+                                        sf::Vector2f(0.3, 1.0), 7, 200, true, true);
                  
                  b->rotate(angle);
                  

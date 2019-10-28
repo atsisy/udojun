@@ -343,7 +343,7 @@ namespace mf {
 	}
         
 	std::function<sf::Vector2f(MoveObject *, u64, u64)>
-	active_homing(sf::Vector2f origin, float speed, sf::Vector2f *target)
+	active_homing(sf::Vector2f bigin, float speed, sf::Vector2f *target)
 	{
 		return [=](MoveObject *bullet, u64 now_lmd, u64 begin_lmd) {
                                const sf::Vector2f &&now = bullet->get_place();
@@ -497,7 +497,7 @@ namespace mf {
 }
 
 BulletData::BulletData(picojson::object &json_data)
-        : original_data(json_data)
+        : original_data(json_data), alpha(255)
 {
         this->id = str_to_bfid(original_data["ID"].get<std::string>().c_str());
 	this->func = select_bullet_function(this->id, original_data);
@@ -556,7 +556,7 @@ BulletData::BulletData(picojson::object &json_data)
 }
 
 BulletData::BulletData(picojson::object &json_data, u64 flg)
-        : original_data(json_data)
+        : original_data(json_data), alpha(255)
 {
         switch(flg){
         case DYNAMIC_MACRO:
@@ -633,6 +633,10 @@ void BulletData::init_texture_data(TextureID id)
 		scale = sf::Vector2f(0.12, 0.12);
                 radius = BulletSize::BULLET1;
 		break;
+        case BULLET_BLUE:
+		scale = sf::Vector2f(0.12, 0.12);
+                radius = BulletSize::BULLET1;
+		break;
         case CIRCLE_BLUE:
 		scale = sf::Vector2f(0.05, 0.05);
                 radius = BulletSize::BULLET1;
@@ -699,6 +703,7 @@ BulletData::BulletData(
         TextureID tid,
 	std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
 	u64 time, sf::Vector2f appear_point, float init_rotate)
+        : alpha(255)
 {
 	this->id = id;
 	this->func = f;
@@ -727,7 +732,7 @@ Bullet *BulletData::generate(DrawableCharacter &running_char, u64 count)
                 this->texture,
                 p,
                 func, count,
-                scale, radius,
+                scale, radius, alpha,
                 this->conflictable, this->grazable, init_rotation);
 }
 
@@ -790,6 +795,7 @@ std::vector<Bullet *> BulletGenerator::generate_bullet(BulletData *data, Drawabl
                         data->func, count,
                         data->scale,
                         data->radius,
+                        data->alpha,
                         data->conflictable, data->grazable, data->init_rotation)
         };
 }

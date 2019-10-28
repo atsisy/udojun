@@ -174,6 +174,7 @@ public:
         void end(void);
         void top(void);
         bool last_page(void);
+        u64 get_index(void);
         NovelText *get_current_page(void);
 };
 
@@ -274,6 +275,8 @@ class RaceSceneMaster : public SceneMaster, public SceneAnimation {
                 bool udon_marker_hide: 1;
                 bool timelimit_on: 1;
                 bool lock_object_move: 1;
+                bool disable_bullet_conflict: 1;
+                bool lock_player_spellcard: 1;
 
                 RaceSceneEffectController(void);
         };
@@ -314,6 +317,7 @@ class RaceSceneMaster : public SceneMaster, public SceneAnimation {
         class ConversationEvent : public SceneSubEvent {
         private:
                 std::forward_list<Tachie *> tachie_container;
+                Tachie *udon;
                 EpisodeController episode;
                 std::forward_list<MoveObject *> move_objects;
                 key::KeyboardListener key_listener;
@@ -362,7 +366,7 @@ class RaceSceneMaster : public SceneMaster, public SceneAnimation {
         
 private:
         std::forward_list<Tachie *> tachie_container;
-        std::forward_list<MoveObject *> move_object_container;
+        std::list<MoveObject *> move_object_container;
         std::forward_list<EnemyCharacter *> enemy_container;
         std::list<SceneSubEvent *> sub_event_list;
         std::list<DrawableObject3D *> object3d_list;
@@ -402,6 +406,7 @@ private:
         Label life_counter_label;
         DrawableStackCounter avail_bomb_counter;
         Label bomb_counter_label;
+        i16 bgm_handler;
         
 	void add_new_functional_bullets_to_schedule(void);
         void add_new_danmaku(void);
@@ -436,6 +441,12 @@ private:
         void try_release_bomb_item(u64 graze, u64 count);
 
         void game_over_continue(void);
+
+        void spellcard_init(void);
+        void spellcard_effect_chain(std::vector<sf::Vector2f> *origin_point,
+                                    std::vector<Bullet *> *catched_bullet,
+                                    i16 called,
+                                    u64 root_call_count, float effect_range);
 
     public:
         RaceSceneMaster(GameData *game_data);

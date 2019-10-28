@@ -48,6 +48,7 @@ namespace effect {
         std::function<void(MoveObject *, u64, u64)> fade_out(u64 distance, u64 called, float init_alpha = 255.f);
 
         std::function<void(MoveObject *, u64, u64)> fade_out_later(u64 distance, u64 later);
+        std::function<void(MoveObject *, u64, u64)> fade_out_later(u64 distance, u64 later, u64 called);
         std::function<void(MoveObject *, u64, u64)> fade_in_later(u64 distance, u64 later, float init_alpha = 255.f);
         
         std::function<void(MoveObject *, u64, u64)> kill_at(u64 time);

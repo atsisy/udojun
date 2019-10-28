@@ -43,6 +43,11 @@ void EpisodeController::back(void)
         page_index--;
 }
 
+u64 EpisodeController::get_index(void)
+{
+        return page_index;
+}
+
 void EpisodeController::top(void)
 {
         page_index = 0;

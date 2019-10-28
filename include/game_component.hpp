@@ -346,7 +346,7 @@ private:
 public:
         Bullet(sf::Texture *t, sf::Vector2f p,
                std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
-               u64 begin_count, sf::Vector2f scale, float radius,
+               u64 begin_count, sf::Vector2f scale, float radius, u8 alpha,
                bool Conflictable, bool grazable, float init_rotate = 0);
         bool is_finish(sf::IntRect window_rect);
         bool is_grazable(void);
@@ -378,9 +378,9 @@ private:
 public:
         SpecialBullet(sf::Texture *t, sf::Vector2f p,
                std::function<sf::Vector2f(MoveObject *, u64, u64)> f,
-               u64 begin_count, sf::Vector2f scale, float radius,
-               bool conflictable, bool grazable, float init_rotate,
-               SpecialBulletAttribute _attribute);
+                      u64 begin_count, sf::Vector2f scale, float radius, u8 alpha,
+                      bool conflictable, bool grazable, float init_rotate,
+                      SpecialBulletAttribute _attribute);
         
         SpecialBulletAttribute get_attribute(void);
         

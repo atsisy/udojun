@@ -136,7 +136,8 @@ public:
         bool grazable;
         float init_rotation;
         SHOT_MASTER_ID shot_master_id;
-
+        u8 alpha;
+        
         BulletData(picojson::object &json_data);
         BulletData(picojson::object &json_data, u64 flg);
         

@@ -109,10 +109,10 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
                                  mf::random_turning(running_char.get_homing_point(), 0.12, 120, 8),
                                  0, sf::Vector2f(0.12, 0.12), BulletSize::BULLET1,
                                  true, true, 0);
-        test_3d_object = new DrawableObject3D(GameMaster::texture_table[TAKE1],
-                                              sf::Vector3f(-3000, 100, 150),
+        test_3d_object = new DrawableObject3D(GameMaster::texture_table[SKY_STAR1],
+                                              sf::Vector3f(-1000, 4000, 200),
                                               [](DrawableObject3D *p, u64 n, u64 b){
-                                                      return p->get_3d_position() + sf::Vector3f(0, 0, -1);
+                                                      return p->get_3d_position() + sf::Vector3f(2, 0, 0);
                                               },
                                               rotate::stop,
                                               0);
@@ -236,7 +236,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
                                                                                             0) });
                                            }
                                    });
-        
+        bgm_handler = GameMaster::sound_player->add(sound::SoundInformation(sound::BGM2, 50.f, false));
 }
 
 RaceSceneMaster::~RaceSceneMaster(void)
@@ -264,6 +264,8 @@ RaceSceneMaster::~RaceSceneMaster(void)
 	for (auto p : game_info_container) {
 		delete p;
 	}
+
+        GameMaster::sound_player->stop(bgm_handler);
 }
 
 void RaceSceneMaster::player_spellcard_effect(void)
@@ -301,43 +303,130 @@ void RaceSceneMaster::player_spellcard_effect(void)
 
 void RaceSceneMaster::player_spellcard(void)
 {
-        if (std::find_if(
-                    container_entire_range(tachie_container),
-                    [](Tachie *p) {
-                            return p->are_you("udon");
-                    }) == std::end(tachie_container)){
-                auto p = new Tachie(
-                        GameMaster::texture_table[JUNKO_TACHIE1],
-                        sf::Vector2f(500, 100),
-                        mf::tachie_move_constant(4, 0),
-                        rotate::stop,
-                        get_count(), "udon");
-                tachie_container.emplace_front(p);
-                p->add_effect({ effect::fade_out(150),
-                                effect::kill_at(150) });
-                {
-                        std::list<Bullet *> &bullets = bullet_pipeline.enemy_pipeline.actual_bullets;
-                        bullets.remove_if([&, this](Bullet *b){
-                                                  if (running_char.distance(b) < 800) {
-                                                          bullet_pipeline.special_pipeline.direct_insert_bullet(
-                                                                  new SpecialBullet(
-                                                                          GameMaster::texture_table[SMALL_CRYSTAL2],
-                                                                          b->get_place(),
-                                                                          mf::active_homing(sf::Vector2f(300, 300), 10, running_char.get_homing_point()),
-                                                                          get_count(),
-                                                                          sf::Vector2f(0.7, 0.7), 15,
-                                                                          true, false, 0, SpecialBulletAttribute(0, 10, 0, 0)
-                                                                          ));
-                                                          delete b;
-                                                          return true;
-                                                  }else{
-                                                          return false;
-                                                  }
-                                          });
-                        avail_bomb_counter.add(get_count(), -1);
-                        player_spellcard_effect();
-                        
-                }
+        if(!effect_conroller.lock_player_spellcard){
+                spellcard_init();
+        }
+}
+
+constexpr inline u64 PLAYER_SPELLCARD_CHAIN_INTERVAL = 6;
+constexpr inline u64 PLAYER_SPELLCARD_CHAIN_LOOP = 16;
+constexpr inline u64 PLAYER_SPELLCARD_TOTAL_TIME = PLAYER_SPELLCARD_CHAIN_INTERVAL * PLAYER_SPELLCARD_CHAIN_LOOP;
+
+void RaceSceneMaster::spellcard_init(void)
+{
+        std::vector<sf::Vector2f> *origin_point = new std::vector<sf::Vector2f>();
+        std::vector<Bullet *> *catched_bullet = new std::vector<Bullet *>();
+
+        GameMaster::sound_player->add(sound::SoundInformation(sound::SE_PLAYER_SPELLCARD, 50.f, false));
+
+        origin_point->push_back(running_char.get_origin());
+        effect_conroller.disable_bullet_conflict = true;
+        
+        spellcard_effect_chain(origin_point,
+                               catched_bullet,
+                               0,
+                               get_count(),
+                               70);
+
+
+        auto hexagram = new MoveObject(GameMaster::texture_table[HEXAGRAM_BLUE],
+                                       sf::Vector2f(running_char.get_origin()),
+                                       mf::stop,
+                                       rotate::constant(0.1),
+                                       get_count());
+        hexagram->set_scale(1, 1);
+        hexagram->set_default_origin();
+        hexagram->add_effect({ effect::fade_in(20), effect::fade_out_later(20, PLAYER_SPELLCARD_TOTAL_TIME),
+                               effect::kill_at(PLAYER_SPELLCARD_TOTAL_TIME + 20) });
+        hexagram->set_drawing_depth(127);
+        hexagram->add_effect(
+                { [](MoveObject *p, u64 now, u64 begin)
+                          {
+                                  u64 past = now - begin;
+                                  p->set_scale(
+                                          (std::sin((float)past / 40.f) * 0.15) + 1.1,
+                                          (std::sin((float)past / 40.f) * 0.15) + 1.1);
+                          } });
+        move_object_container.push_front(hexagram);
+        
+        avail_bomb_counter.add(get_count(), -1);
+        effect_conroller.lock_player_spellcard = true;
+}
+
+void RaceSceneMaster::spellcard_effect_chain(std::vector<sf::Vector2f> *origin_point,
+                                             std::vector<Bullet *> *catched_bullet,
+                                             i16 called, u64 root_call_count,
+                                             float effect_range)
+{
+        std::vector<sf::Vector2f> point_tmp_buf;
+        std::for_each(std::begin(bullet_pipeline.enemy_pipeline.actual_bullets),
+                      std::end(bullet_pipeline.enemy_pipeline.actual_bullets),
+                      [this, origin_point, root_call_count, effect_range, called, &point_tmp_buf](Bullet *p){
+                              sf::Vector2f bullet_origin = p->get_origin();
+                              
+                              if(std::find_if(origin_point->begin(), origin_point->end(),
+                                              [=](sf::Vector2f v){
+                                                      return geometry::distance(v, bullet_origin) < effect_range;
+                                              }) != origin_point->end() &&
+                                 std::find_if(origin_point->begin(), origin_point->end(),
+                                              [=](sf::Vector2f v){
+                                                      return geometry::distance(v, bullet_origin) < 1;
+                                              }) == origin_point->end()){
+                                      p->override_move_func(mf::stop);
+                                      p->conflict_off();
+                                      p->add_effect({ effect::fade_out(30, PLAYER_SPELLCARD_TOTAL_TIME + root_call_count - 30),
+                                                      effect::kill_at(PLAYER_SPELLCARD_TOTAL_TIME, root_call_count) });
+                                      point_tmp_buf.push_back(bullet_origin);
+
+                                      auto shinrei = new MoveObject(
+                                              GameMaster::texture_table[SHINREI1_TX1],
+                                              p->get_place(),
+                                              mf::stop,
+                                              rotate::stop,
+                                              get_count());
+                                      shinrei->add_effect({ effect::animation_effect({
+                                                                      SHINREI1_TX1, SHINREI1_TX2, SHINREI1_TX3 }, 5),
+                                                            effect::fade_out(30, PLAYER_SPELLCARD_TOTAL_TIME + root_call_count - 30),
+                                                            effect::scale_effect(sf::Vector2f(0.0, 0.0), sf::Vector2f(0.3, 0.3), 8),
+                                                            effect::keep_origin(bullet_origin),
+                                                            effect::kill_at(PLAYER_SPELLCARD_TOTAL_TIME, root_call_count)});
+                                      shinrei->set_scale(0.1, 0.1);
+                                      move_object_container.push_front(shinrei);
+
+                                      timer_list.add_timer([this, bullet_origin](){
+                                                                   bullet_pipeline.special_pipeline.direct_insert_bullet(
+                                                                           new SpecialBullet(
+                                                                                   GameMaster::texture_table[SMALL_CRYSTAL1],
+                                                                                   bullet_origin,
+                                                                                   mf::active_homing(sf::Vector2f(300, 300), 10, running_char.get_homing_point()),
+                                                                                   get_count(),
+                                                                                   sf::Vector2f(0.7, 0.7), 7, 255,
+                                                                                   true, false, 0, SpecialBulletAttribute(0, 10, 0, 0)
+                                                                                   ));
+                                                           },
+                                              PLAYER_SPELLCARD_TOTAL_TIME - (called * PLAYER_SPELLCARD_CHAIN_INTERVAL),
+                                              get_count());
+                              }
+                      }
+                );
+
+        util::concat_container(*origin_point, point_tmp_buf);
+        
+        if((u64)called < PLAYER_SPELLCARD_CHAIN_LOOP){
+                timer_list.add_timer([this, origin_point, catched_bullet, called, root_call_count](){
+                                             spellcard_effect_chain(origin_point,
+                                                                    catched_bullet,
+                                                                    called + 1,
+                                                                    root_call_count,
+                                                                    40);
+                                     }, PLAYER_SPELLCARD_CHAIN_INTERVAL, get_count());
+        }else{
+                origin_point->clear();
+                catched_bullet->clear();
+                delete origin_point;
+                delete catched_bullet;
+                effect_conroller.disable_bullet_conflict = false;
+                effect_conroller.lock_player_spellcard = false;
         }
 }
 
@@ -499,6 +588,7 @@ void RaceSceneMaster::player_move()
                                 get_count(),
                                 sf::Vector2f(0.06, 0.06),
                                 20,
+                                255,
                                 true,
                                 false,
                                 0,
@@ -604,7 +694,7 @@ void RaceSceneMaster::convert_bullet_to_small_crystal(BulletPipeline &pipeline)
                                         bullet->get_place(),
                                         mf::active_homing(sf::Vector2f(300, 300), 10, running_char.get_homing_point()),
                                         get_count(),
-                                        sf::Vector2f(0.7, 0.7), 7,
+                                        sf::Vector2f(0.7, 0.7), 7, 255,
                                         true, false, 0, SpecialBulletAttribute(0, 10, 0, 0)
                                         ));
                 }
@@ -710,7 +800,7 @@ void RaceSceneMaster::kill_out_of_filed_bullet(std::list<Bullet *> &bullets)
         bullets.remove_if([this](Bullet *b){
                                   if (b->is_finish(
                                               sf::IntRect(-200, -400, 1368 + 400, 768 + 500)) ||
-                                      !b->visible() |
+                                      !b->visible() ||
                                       std::find(std::begin(killed_shot_master_id),
                                                 std::end(killed_shot_master_id),
                                                 b->get_shot_master_id()) != std::end(killed_shot_master_id)) {
@@ -724,7 +814,7 @@ void RaceSceneMaster::kill_out_of_filed_bullet(std::list<Bullet *> &bullets)
 
 void RaceSceneMaster::try_release_bomb_item(u64 graze, u64 count)
 {
-        if(graze % 800 == 0){
+        if(graze % 500 == 0){
                 bullet_pipeline.special_pipeline.direct_insert_bullet(
                         new SpecialBullet(
                                 GameMaster::texture_table[STAR_ITEM1],
@@ -733,6 +823,7 @@ void RaceSceneMaster::try_release_bomb_item(u64 graze, u64 count)
                                 count,
                                 sf::Vector2f(0.13, 0.13),
                                 20,
+                                255,
                                 true,
                                 false,
                                 0,
@@ -834,7 +925,7 @@ void RaceSceneMaster::running_char_hit(void)
                                                                   )),
                                         rotate::stop,
                                         get_count());
-                p->add_effect({ effect::fade_out(60) });
+                p->add_effect({ effect::fade_out(60), effect::kill_at(60) });
                 p->set_scale(0.1, 0.1);
                 move_object_container.push_front(p);
         }
@@ -890,7 +981,7 @@ void RaceSceneMaster::conflict_judge(void)
                                                 bullet->get_place(),
                                                 mf::active_homing(sf::Vector2f(300, 300), 10, running_char.get_homing_point()),
                                                 get_count(),
-                                                sf::Vector2f(0.7, 0.7), 7,
+                                                sf::Vector2f(0.7, 0.7), 7, 255,
                                                 true, false, 0, SpecialBulletAttribute(0, 10, 0, 0)
                                                 ));
                         }
@@ -902,22 +993,24 @@ void RaceSceneMaster::conflict_judge(void)
                                 return !p->visible();
                         });
 	}
-        
-        for (auto &&bullet : bullet_pipeline.enemy_pipeline.actual_bullets) {
-                if (bullet->check_conflict(running_char)) {
-                        bullet->hide();
-                        running_char_hit();
-                }
-	}
 
-        for (auto &&laser : bullet_pipeline.enemy_pipeline.actual_lasers) {
-                for(auto &&bullet : laser->get_bullet_stream()){
-			if (bullet->check_conflict(running_char)) {
-				bullet->hide();
-				race_status.hit();
-			}
-		}
-	}
+        if(likely(!effect_conroller.disable_bullet_conflict)){
+                for (auto &&bullet : bullet_pipeline.enemy_pipeline.actual_bullets) {
+                        if (bullet->check_conflict(running_char)) {
+                                bullet->hide();
+                                running_char_hit();
+                        }
+                }
+
+                for (auto &&laser : bullet_pipeline.enemy_pipeline.actual_lasers) {
+                        for(auto &&bullet : laser->get_bullet_stream()){
+                                if (bullet->check_conflict(running_char)) {
+                                        bullet->hide();
+                                        race_status.hit();
+                                }
+                        }
+                }
+        }
         
         for (auto &&bullet : bullet_pipeline.special_pipeline.actual_bullets) {
                 SpecialBullet *sp_bullet = dynamic_cast<SpecialBullet *>(bullet);
@@ -930,6 +1023,7 @@ void RaceSceneMaster::conflict_judge(void)
                         life_counter.add(get_count(), a.life);
                         avail_bomb_counter.add(get_count(), a.bomb);
                         running_char.add_life(a.life);
+                        GameMaster::sound_player->add(sound::SoundInformation(sound::SE_ITEM, 10.f, false));
 		}
 	}
         
@@ -956,7 +1050,7 @@ void RaceSceneMaster::generate_items_random(ItemOrder item, sf::Vector2f origin,
                         origin + sf::Vector2f((util::generate_random() % width) - half, (util::generate_random() % width) - half),
                         mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
                         get_count() + (util::generate_random() % 5),
-                        sf::Vector2f(0.04, 0.04), BulletSize::SPECIAL_PANEL,
+                        sf::Vector2f(0.04, 0.04), BulletSize::SPECIAL_PANEL, 255,
                         true, false, 0, SpecialBulletAttribute(0.03, 0, 0, 0)
                         );
                 p->set_shot_master_id(SPECIAL_ITEM);
@@ -969,7 +1063,7 @@ void RaceSceneMaster::generate_items_random(ItemOrder item, sf::Vector2f origin,
                         origin + sf::Vector2f((util::generate_random() % width) - half, (util::generate_random() % width) - half),
                         mf::accelerating(sf::Vector2f(0, -5), sf::Vector2f(0, 0.15), sf::Vector2f(0, 0), sf::Vector2f(-5, 2)),
                         get_count() + (util::generate_random() % 5),
-                        sf::Vector2f(0.04, 0.04), BulletSize::SPECIAL_PANEL,
+                        sf::Vector2f(0.04, 0.04), BulletSize::SPECIAL_PANEL, 255,
                         true, false, 0, SpecialBulletAttribute(0, 10, 0, 0)
 
 
@@ -982,10 +1076,18 @@ void RaceSceneMaster::generate_items_random(ItemOrder item, sf::Vector2f origin,
 
 void RaceSceneMaster::move_objects_sub(void)
 {
-        for(DrawableObject3D *p : object3d_list){
-                p->move(get_count());
-                p->effect(get_count());
-        }
+        player_move();
+
+        object3d_list.remove_if([this](DrawableObject3D *p){
+                                        if(!p->visible()){
+                                                delete p;
+                                                return true;
+                                        }else{
+                                                p->move(get_count());
+                                                p->effect(get_count());
+                                                return false;
+                                        }
+                                });
         
         // 立ち絵を移動
         tachie_container.remove_if(
@@ -1015,6 +1117,7 @@ void RaceSceneMaster::move_objects_sub(void)
                         if(p->visible()){
                                 p->move(get_count());
                                 p->effect(get_count());
+                                p->rotate_with_func(get_count());
                                 return false;
                         }else{
                                 delete p;
@@ -1036,8 +1139,6 @@ void RaceSceneMaster::move_objects_sub(void)
         bullet_pipeline.special_pipeline.move_all_bullets(get_count());
         bullet_pipeline.enemy_pipeline.move_all_bullets(get_count());
 
-        player_move();
-
         test_bullet->move(get_count());
         test_3d_object->move(get_count());
 }
@@ -1057,7 +1158,14 @@ void RaceSceneMaster::update_fps_label(void)
 }
 
 void RaceSceneMaster::pre_process_non_paused(sf::RenderWindow &window)
-{        
+{
+        if(get_count() % 60 == 0){
+                std::cout << bullet_pipeline.enemy_pipeline.actual_bullets.size() << ","
+                          << bullet_pipeline.player_pipeline.actual_bullets.size() << ","
+                          << bullet_pipeline.special_pipeline.actual_bullets.size() << ","
+                          << object3d_list.size() << ","
+                          << move_object_container.size() <<  std::endl;
+        }
         key_listener.key_update();
         
         add_new_functional_bullets_to_schedule();
@@ -1095,7 +1203,17 @@ void RaceSceneMaster::pre_process_non_paused(sf::RenderWindow &window)
                                                            },
                                                            rotate::stop,
                                                            get_count());
-                p->add_effect({ effect::fade_in(40) });
+                p->add_effect({ effect::fade_in(40), effect::kill_at(180) });
+                object3d_list.push_back(p);
+
+                p = new DrawableObject3D(GameMaster::texture_table[SKY_STAR1],
+                                         sf::Vector3f(util::generate_random(-100000, 50000), util::generate_random(1000, 10000), 200),
+                                         [](DrawableObject3D *p, u64 n, u64 b){
+                                                 return p->get_3d_position() + sf::Vector3f(2, 0, 0);
+                                         },
+                                         rotate::stop,
+                                         get_count());
+                p->add_effect({ effect::fade_in(40), effect::fade_in_later(20, 800), effect::kill_at(820) });
                 object3d_list.push_back(p);
 
                 p = new DrawableObject3D(GameMaster::texture_table[TAKE1],
@@ -1105,7 +1223,7 @@ void RaceSceneMaster::pre_process_non_paused(sf::RenderWindow &window)
                                          },
                                          rotate::stop,
                                          get_count());
-                p->add_effect({ effect::fade_in(40) });
+                p->add_effect({ effect::fade_in(40), effect::kill_at(180)});
                 object3d_list.push_back(p);
         }
 
@@ -1315,19 +1433,43 @@ RaceSceneMaster::ConversationEvent::ConversationEvent(RaceSceneMaster *rsm, sf::
           background(GameMaster::texture_table[SAMPLE_BACKGROUND1], sf::Vector2f(0, 450), mf::stop, rotate::stop, 0)
 {
         set_status(SUBEVE_CONTINUE);
+        key_listener.key_update();
 
         this->rsm = rsm;
         
-        auto udon = new Tachie(
-                GameMaster::texture_table[UDON_TACHIE],
-                sf::Vector2f(600, 0),
+        auto junko = new Tachie(
+                GameMaster::texture_table[JUNKO_TACHIE_SMILE],
+                sf::Vector2f(20, 70),
                 mf::stop,
                 rotate::stop,
-                get_count(), "udon");
-        udon->set_scale(0.55, 0.55);
-        udon->add_effect({ effect::fade_in(30) });
+                get_count(), "junko");
+        junko->set_scale(0.18, 0.18);
+        junko->add_effect({ effect::fade_in(30) });
+        
+        tachie_container.emplace_front(junko);
 
-        auto dtext = new DynamicText(L"地上の月兎", data->get_font(JP_DEFAULT), GLYPH_DESIGN1,
+        key_listener
+                .add_key_event(key::VKEY_1,
+                               [=](key::KeyStatus status){
+                                       if(status & key::KEY_FIRST_PRESSED){
+                                               if(episode.last_page()){
+                                                       rsm->insert_enemy_spellcard(0);
+                                                       rsm->target_udon.damage_on();
+                                                       set_status(SUBEVE_FINISH);
+                                                       rsm->add_new_danmaku();
+                                                       rsm->running_char.shot_on();
+                                               }else if(episode.get_index() == 0){
+                                                       udon = new Tachie(
+                                                               GameMaster::texture_table[UDON_TACHIE_SAD],
+                                                               sf::Vector2f(600, 100),
+                                                               mf::stop,
+                                                               rotate::stop,
+                                                               get_count(), "udon");
+                                                       udon->set_scale(0.20, 0.20);
+                                                       udon->add_effect({ effect::fade_in(30) });
+                                                       tachie_container.emplace_front(udon);
+
+                                                               auto dtext = new DynamicText(L"地上の月兎", data->get_font(JP_DEFAULT), GLYPH_DESIGN1,
                                      sf::Vector2f(600, 550),
                                      mf::ratio_two_step(sf::Vector2f(600, 550), sf::Vector2f(630, 550), sf::Vector2f(660, 550), 100, 0.1),
                                      rotate::stop,
@@ -1343,29 +1485,17 @@ RaceSceneMaster::ConversationEvent::ConversationEvent(RaceSceneMaster *rsm, sf::
                                      30);
         dtext2->add_effect({ effect::fade_in(15), effect::fade_out_later(15, 110) });
         move_objects.push_front(dtext2);
-        
-        auto junko = new Tachie(
-                GameMaster::texture_table[JUNKO_TACHIE1],
-                sf::Vector2f(20, 70),
-                mf::stop,
-                rotate::stop,
-                get_count(), "junko");
-        junko->set_scale(0.5, 0.5);
-        junko->add_effect({ effect::fade_in(30) });
-        
-        tachie_container.emplace_front(udon);
-        tachie_container.emplace_front(junko);
-
-        key_listener
-                .add_key_event(key::VKEY_1,
-                               [=](key::KeyStatus status){
-                                       if(status & key::KEY_FIRST_PRESSED){
-                                               if(episode.last_page()){
-                                                       rsm->insert_enemy_spellcard(0);
-                                                       rsm->target_udon.damage_on();
-                                                       set_status(SUBEVE_FINISH);
-                                                       rsm->add_new_danmaku();
-                                                       rsm->running_char.shot_on();
+                                                       
+                                                       episode.next();
+                                               }else if(episode.get_index() == 5){
+                                                       junko->change_texture(GameMaster::texture_table[JUNKO_TACHIE_YODARE]);
+                                                       episode.next();
+                                               }else if(episode.get_index() == 7){
+                                                       junko->change_texture(GameMaster::texture_table[JUNKO_TACHIE_DEFAULT]);
+                                                       episode.next();
+                                               }else if(episode.get_index() == 8){
+                                                       udon->change_texture(GameMaster::texture_table[UDON_TACHIE_POWER]);
+                                                       episode.next();
                                                }else{
                                                        episode.next();
                                                }
@@ -1415,12 +1545,12 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
         this->rsm = rsm;
         
         auto udon = new Tachie(
-                GameMaster::texture_table[UDON_TACHIE],
+                GameMaster::texture_table[UDON_TACHIE_POWER],
                 sf::Vector2f(500, 70),
                 mf::vector_linear(sf::Vector2f(1, -2)),
                 rotate::stop,
                 get_count(), "udon");
-        udon->set_scale(0.55, 0.55);
+        udon->set_scale(0.20, 0.20);
         udon->add_effect({ effect::fade_out(120) });
         udon->set_drawing_depth(125);
 
@@ -1498,8 +1628,7 @@ RaceSceneMaster::SpellCardEvent::SpellCardEvent(RaceSceneMaster *rsm, sf::Vector
                                                p->move_sprite(sf::Vector2f(now - begin, 0));
                                                return p->get_place();
                                        });
-        background->set_drawing_depth(128);
-        
+        background->set_drawing_depth(128);       
 }
 
 void RaceSceneMaster::SpellCardEvent::pre_process(sf::RenderWindow &window)
@@ -1564,6 +1693,8 @@ RaceSceneMaster::RaceSceneEffectController::RaceSceneEffectController(void)
         udon_marker_hide = true;
         timelimit_on = false;
         lock_object_move = false;
+        disable_bullet_conflict = false;
+        lock_player_spellcard = false;
 }
 
 RaceSceneMaster::ResultEvent::ResultEvent(RaceSceneMaster *rsm, sf::Vector2f pos,
