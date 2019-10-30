@@ -32,30 +32,42 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
                                 mf::stop, rotate::stop, get_count(), 28)
                 );
         choice_label_set.emplace(
+		"Credit",
+		new DynamicText(L"Credit", game_data->get_font(JP_DEFAULT),
+                                GLYPH_DESIGN1,
+				sf::Vector2f(400, 400),
+                                [](MoveObject *p, u64 current, u64 begin) {
+                                        auto &&init = p->get_initial_position();
+                                        float width = 5 * std::sin((float)(current - begin) / 20.0);
+                                        return sf::Vector2f(init.x, init.y + width);
+                                }, rotate::stop, get_count(), 28)
+                );
+        choice_label_set.emplace(
 		"Exit",
 		new DynamicText(L"Exit", game_data->get_font(JP_DEFAULT),
                                 GLYPH_DESIGN1,
-				sf::Vector2f(400, 400),
+				sf::Vector2f(400, 450),
                                 mf::stop, rotate::stop, get_count(), 28)
                 );
 
         ss_level_select_text.push_back(
 		new DynamicText(L"狐級 Hard", game_data->get_font(JP_DEFAULT),
-                                GLYPH_DESIGN1,
+                                GLYPH_DESIGN4,
 				sf::Vector2f(400, 320),
-                                mf::stop, rotate::stop, get_count(), 32)
+                                mf::stop, rotate::stop, get_count(), 56)
                 );
         ss_level_select_text.back()->set_alpha(0);
         ss_level_select_text.push_back(
 		new DynamicText(L"兎級 Easy", game_data->get_font(JP_DEFAULT),
-                                GLYPH_DESIGN1,
+                                GLYPH_DESIGN3,
 				sf::Vector2f(400, 400),
-                                mf::stop, rotate::stop, get_count(), 32)
+                                mf::stop, rotate::stop, get_count(), 56)
                 );
         ss_level_select_text.back()->set_alpha(0);
 
         selecter.add_item("Start");
         selecter.add_item("Ranking");
+        selecter.add_item("Credit");
 	selecter.add_item("Exit");
 
         ss_level_selecter.add_item(0);
@@ -176,7 +188,7 @@ void TitleSceneMaster::start_handler(void)
                                 rotate::stop,
                                 get_count());
         add_animation_object(p);
-        p->add_effect({ effect::fade_in(100) });
+        p->add_effect({ effect::fade_in(60) });
 }
 
 void TitleSceneMaster::ss_start_menu_handler(key::KeyStatus status)
@@ -203,6 +215,14 @@ void TitleSceneMaster::ss_start_menu_handler(key::KeyStatus status)
                                                 RANKING;
                                 },
                                 180, get_count());
+                } else if (command == "Credit") {
+                        start_handler();
+                        timer_list.add_timer(
+                                [this](void) {
+                                        this->game_state =
+                                                CREDIT;
+                                },
+                                120, get_count());
                 }
         }
 }
@@ -257,9 +277,9 @@ void TitleSceneMaster::pre_process(sf::RenderWindow &window)
         }
         for (size_t i = 0;i < ss_level_select_text.size();i++) {
                 if(i != ss_level_selecter.get())
-                        ss_level_select_text[i]->set_font_size(28);
+                        ss_level_select_text[i]->set_font_size(42);
                 else
-                        ss_level_select_text[i]->set_font_size(40);
+                        ss_level_select_text[i]->set_font_size(56);
                 ss_level_select_text[i]->move(get_count());
                 ss_level_select_text[i]->effect(get_count());
         }

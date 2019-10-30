@@ -34,6 +34,7 @@ set(udjn_src
   src/save_scene.cpp
   src/ranking_scene.cpp
   src/builtin_enemy.cpp
+  src/credit_scene.cpp
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

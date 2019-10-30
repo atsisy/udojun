@@ -33,6 +33,7 @@ enum GameState {
         SUBEVE_FINISH,
         SAVE,
         RANKING,
+        CREDIT,
         RESET_CURRENT,
 };
 
@@ -229,6 +230,25 @@ private:
 
 public:
         RankingSceneMaster(GameData *game_data);
+        
+        void pre_process(sf::RenderWindow &window) override;
+        void drawing_process(sf::RenderWindow &window) override;
+        GameState post_process(sf::RenderWindow &window) override;
+};
+
+class CreditSceneMaster : public SceneMaster, public SceneAnimation {
+private:
+        std::forward_list<DynamicText *> text_objects;
+        std::forward_list<EffectableGroup *> effect_objects;
+        
+        MoveObject *background;
+        GameState game_state;
+        key::KeyboardListener key_listener;
+
+        void prepare_for_next_scene(void);
+
+public:
+        CreditSceneMaster(GameData *game_data);
         
         void pre_process(sf::RenderWindow &window) override;
         void drawing_process(sf::RenderWindow &window) override;

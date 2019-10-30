@@ -185,6 +185,8 @@ SceneMaster *GameMaster::create_new_scene(GameState req)
                         dynamic_cast<RaceSceneMaster *>(current_scene)->export_score_information());
         case RANKING:
                 return new RankingSceneMaster(this->game_data);
+        case CREDIT:
+                return new CreditSceneMaster(this->game_data);
 	case END:
                 return nullptr;
         default:

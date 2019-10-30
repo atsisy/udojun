@@ -91,6 +91,21 @@ inline GlyphInformation GLYPH_DESIGN2 = {
         .style = sf::Text::Bold
 };
 
+inline GlyphInformation GLYPH_DESIGN3 = {
+        .text_color = sf::Color(sf::Color(0xf6, 0xf6, 0xf6)),
+        .outline_color = sf::Color(0xd7, 0x00, 0x3a, 255),
+        .thickness = 2,
+        .style = sf::Text::Bold
+};
+
+inline GlyphInformation GLYPH_DESIGN4 = {
+        .text_color = sf::Color(sf::Color(0xf0, 0xf0, 0xf0)),
+        .outline_color = sf::Color(0x95, 0x6f, 0x29, 255),
+        .thickness = 2,
+        .style = sf::Text::Bold
+};
+
+
 class Label : public DrawableComponent {
 protected:
         sf::Text text;
