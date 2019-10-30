@@ -15,6 +15,7 @@ namespace sound {
                 TITLE_BGM,
                 JUNKO_HIT,
                 BGM2,
+                BGM3,
                 SE_ITEM,
                 SE_LARGE_ITEM,
                 SE_PLAYER_SPELLCARD,
@@ -27,6 +28,7 @@ namespace sound {
                 str_to_idx_sub(str, TITLE_BGM);
                 str_to_idx_sub(str, JUNKO_HIT);
                 str_to_idx_sub(str, BGM2);
+                str_to_idx_sub(str, BGM3);
 
                 str_to_idx_sub(str, SE_ITEM);
                 str_to_idx_sub(str, SE_LARGE_ITEM);

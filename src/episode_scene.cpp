@@ -7,7 +7,7 @@
 #include <SFML/System/Utf.hpp>
 #include "rotate_func.hpp"
 
-EpisodeController::EpisodeController(const char *path, sf::Font *font)
+EpisodeController::EpisodeController(const char *path, sf::Font *font, sf::Vector2f position)
         : page_index(0)
 {
         std::vector<wchar_t *> buf;
@@ -25,7 +25,7 @@ EpisodeController::EpisodeController(const char *path, sf::Font *font)
                         episode.push_back(new NovelText(
                                                   buf,
                                                   font,
-                                                  sf::Vector2f(100, 500), 20, 20));
+                                                  position, 20, 20));
                         buf.clear();
                 }else{
                         buf.push_back(util::utf8_str_to_widechar_str(str)->data());
@@ -72,7 +72,7 @@ OpeningEpisodeSceneMaster::OpeningEpisodeSceneMaster(GameData *game_data)
 	: background(GameMaster::texture_table[SAMPLE_BACKGROUND1],
 		     sf::Vector2f(0, 0), sf::IntRect(0, 0, 1366, 768),
 		     sf::Vector2f(1, 1)),
-          episode("opening_episode.txt", game_data->get_font(JP_DEFAULT))
+          episode("opening_episode.txt", game_data->get_font(JP_DEFAULT), sf::Vector2f(100, 500))
 {
         game_state = OPENING_EPISODE;
         

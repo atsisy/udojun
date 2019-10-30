@@ -169,7 +169,7 @@ private:
         u64 page_index;
 
 public:
-        EpisodeController(const char *path, sf::Font *font);
+        EpisodeController(const char *path, sf::Font *font, sf::Vector2f position);
         void next(void);
         void back(void);
         void end(void);
@@ -297,6 +297,7 @@ class RaceSceneMaster : public SceneMaster, public SceneAnimation {
                 bool lock_object_move: 1;
                 bool disable_bullet_conflict: 1;
                 bool lock_player_spellcard: 1;
+                bool spellcard_bonus_failed_because_dead: 1;
 
                 RaceSceneEffectController(void);
         };
@@ -448,6 +449,8 @@ private:
         void generate_items_random(ItemOrder item, sf::Vector2f origin, i64 width);
         void convert_bullet_to_small_crystal(BulletPipeline &pipeline);
         void spellcard_result(u64 elapsed_time, u64 remaining_time);
+        void spellcard_bonus_failed(void);
+        void spellcard_bonus_get(u64 elapsed_time, u64 remaining_time);
         void prepare_for_next_scene(void);
         void try_enemy_kill_check(EnemyCharacter *p);
         void udon_dead_event(void);

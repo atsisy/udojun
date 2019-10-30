@@ -703,9 +703,24 @@ void RaceSceneMaster::convert_bullet_to_small_crystal(BulletPipeline &pipeline)
         pipeline.clear_all_bullets();
 }
 
-void RaceSceneMaster::spellcard_result(u64 elapsed_time, u64 remaining_time)
+void RaceSceneMaster::spellcard_bonus_failed(void)
 {
-        std::ostringstream oss;
+        auto text = new DynamicText(
+                L"Spell Card Bonus Failed...", game_data->get_font(JP_DEFAULT),
+                GLYPH_DESIGN1,
+                sf::Vector2f(350, 200), mf::stop,
+                rotate::stop, get_count(), 36);
+        text->add_effect({
+                        effect::fade_in(30),
+                        effect::kill_at(150),
+                        effect::fade_out_later(30, 120) });
+        game_info_container.push_front(text);
+}
+
+void RaceSceneMaster::spellcard_bonus_get(u64 elapsed_time, u64 remaining_time)
+{
+        
+        std::ostringstream oss;        
         i64 bonus_score = ((double)elapsed_time / (double)60.0) * 100000;
 
         oss << std::fixed << std::setprecision(4) << (double)elapsed_time / (double)60.0;
@@ -750,6 +765,16 @@ void RaceSceneMaster::spellcard_result(u64 elapsed_time, u64 remaining_time)
         game_info_container.push_front(elapsed);       
 }
 
+void RaceSceneMaster::spellcard_result(u64 elapsed_time, u64 remaining_time)
+{
+        std::cout << "spellcard result: " << elapsed_time << ":" << remaining_time << std::endl;
+        if((i64)remaining_time <= 0 || effect_conroller.spellcard_bonus_failed_because_dead) {
+                spellcard_bonus_failed();
+        }else{
+                spellcard_bonus_get(elapsed_time, remaining_time);
+        }       
+}
+
 void RaceSceneMaster::next_danmaku_forced(void)
 {
         convert_bullet_to_small_crystal(bullet_pipeline.enemy_pipeline);
@@ -768,7 +793,10 @@ void RaceSceneMaster::next_danmaku_forced(void)
                                                  }
                                                  spellcard_result(
                                                          timelimit_counter.get_elapsed(),
-                                                         timelimit_counter.get_last_set());
+                                                         timelimit_counter.get_last_set() - timelimit_counter.get_elapsed() + 1);
+
+                                                 // reset dead status
+                                                 effect_conroller.spellcard_bonus_failed_because_dead = false;
 
                                                  return true;
                                          }
@@ -916,6 +944,7 @@ void RaceSceneMaster::running_char_hit(void)
         life_counter.add(get_count(), -1);
         avail_bomb_counter.set_value(2);
         running_char.conflict();
+        effect_conroller.spellcard_bonus_failed_because_dead = true;
 
         for(int i = 0;i < 128;i++){
                 auto p = new MoveObject(GameMaster::texture_table[SHINREI1_TX1], running_char.get_origin(),
@@ -1429,8 +1458,8 @@ ScoreInformation RaceSceneMaster::export_score_information(void)
 }
 
 RaceSceneMaster::ConversationEvent::ConversationEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *data)
-        : SceneSubEvent(pos, "conv"), episode("stage1_spell.txt", data->get_font(JP_DEFAULT)),
-          background(GameMaster::texture_table[SAMPLE_BACKGROUND1], sf::Vector2f(0, 450), mf::stop, rotate::stop, 0)
+        : SceneSubEvent(pos, "conv"), episode("stage1_spell.txt", data->get_font(JP_DEFAULT), sf::Vector2f(100, 550)),
+          background(GameMaster::texture_table[SAMPLE_BACKGROUND1], sf::Vector2f(0, 500), mf::stop, rotate::stop, 0)
 {
         set_status(SUBEVE_CONTINUE);
         key_listener.key_update();
@@ -1458,6 +1487,8 @@ RaceSceneMaster::ConversationEvent::ConversationEvent(RaceSceneMaster *rsm, sf::
                                                        set_status(SUBEVE_FINISH);
                                                        rsm->add_new_danmaku();
                                                        rsm->running_char.shot_on();
+                                                       GameMaster::sound_player->stop(rsm->bgm_handler);
+                                                       rsm->bgm_handler = GameMaster::sound_player->add(sound::SoundInformation(sound::BGM3, 50.f, false, 10));
                                                }else if(episode.get_index() == 0){
                                                        udon = new Tachie(
                                                                GameMaster::texture_table[UDON_TACHIE_SAD],
@@ -1468,23 +1499,23 @@ RaceSceneMaster::ConversationEvent::ConversationEvent(RaceSceneMaster *rsm, sf::
                                                        udon->set_scale(0.20, 0.20);
                                                        udon->add_effect({ effect::fade_in(30) });
                                                        tachie_container.emplace_front(udon);
-
-                                                               auto dtext = new DynamicText(L"地上の月兎", data->get_font(JP_DEFAULT), GLYPH_DESIGN1,
-                                     sf::Vector2f(600, 550),
-                                     mf::ratio_two_step(sf::Vector2f(600, 550), sf::Vector2f(630, 550), sf::Vector2f(660, 550), 100, 0.1),
-                                     rotate::stop,
-                                     get_count(),
-                                     30);
-        dtext->add_effect({ effect::fade_in(15), effect::fade_out_later(15, 110) });
-        move_objects.push_front(dtext);
-        auto dtext2 = new DynamicText(L"鈴仙・優曇華院・イナバ", data->get_font(JP_DEFAULT), GLYPH_DESIGN1,
-                                     sf::Vector2f(600, 590),
-                                      mf::ratio_two_step(sf::Vector2f(600, 590), sf::Vector2f(630, 590), sf::Vector2f(660, 590), 100, 0.1),
-                                     rotate::stop,
-                                     get_count(),
-                                     30);
-        dtext2->add_effect({ effect::fade_in(15), effect::fade_out_later(15, 110) });
-        move_objects.push_front(dtext2);
+                                                       
+                                                       auto dtext = new DynamicText(L"地上の月兎", data->get_font(JP_DEFAULT), GLYPH_DESIGN1,
+                                                                                    sf::Vector2f(600, 550),
+                                                                                    mf::ratio_two_step(sf::Vector2f(600, 550), sf::Vector2f(630, 550), sf::Vector2f(660, 550), 100, 0.1),
+                                                                                    rotate::stop,
+                                                                                    get_count(),
+                                                                                    30);
+                                                       dtext->add_effect({ effect::fade_in(15), effect::fade_out_later(15, 110) });
+                                                       move_objects.push_front(dtext);
+                                                       auto dtext2 = new DynamicText(L"鈴仙・優曇華院・イナバ", data->get_font(JP_DEFAULT), GLYPH_DESIGN1,
+                                                                                     sf::Vector2f(600, 590),
+                                                                                     mf::ratio_two_step(sf::Vector2f(600, 590), sf::Vector2f(630, 590), sf::Vector2f(660, 590), 100, 0.1),
+                                                                                     rotate::stop,
+                                                                                     get_count(),
+                                                                                     30);
+                                                       dtext2->add_effect({ effect::fade_in(15), effect::fade_out_later(15, 110) });
+                                                       move_objects.push_front(dtext2);
                                                        
                                                        episode.next();
                                                }else if(episode.get_index() == 5){
@@ -1695,6 +1726,7 @@ RaceSceneMaster::RaceSceneEffectController::RaceSceneEffectController(void)
         lock_object_move = false;
         disable_bullet_conflict = false;
         lock_player_spellcard = false;
+        spellcard_bonus_failed_because_dead = false;
 }
 
 RaceSceneMaster::ResultEvent::ResultEvent(RaceSceneMaster *rsm, sf::Vector2f pos,
