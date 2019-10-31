@@ -298,6 +298,7 @@ class RaceSceneMaster : public SceneMaster, public SceneAnimation {
                 bool disable_bullet_conflict: 1;
                 bool lock_player_spellcard: 1;
                 bool spellcard_bonus_failed_because_dead: 1;
+                bool udon_is_appeared: 1;
 
                 RaceSceneEffectController(void);
         };
@@ -353,6 +354,24 @@ class RaceSceneMaster : public SceneMaster, public SceneAnimation {
                 GameState post_process(sf::RenderWindow &window) override;
         };
 
+        class ClearConversationEvent : public SceneSubEvent {
+        private:
+                Tachie *junko;
+                Tachie *udon;
+                EpisodeController episode;
+                std::forward_list<MoveObject *> move_objects;
+                key::KeyboardListener key_listener;
+                MoveObject background;
+                RaceSceneMaster *rsm;
+                
+        public:
+                ClearConversationEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *data);
+
+                void pre_process(sf::RenderWindow &window) override;
+                void drawing_process(sf::RenderWindow &window) override;
+                GameState post_process(sf::RenderWindow &window) override;
+        };
+        
         class SpellCardEvent : public SceneSubEvent {
         private:
                 std::forward_list<Tachie *> tachie_container;

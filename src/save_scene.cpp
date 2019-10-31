@@ -144,6 +144,7 @@ void SaveSceneMaster::prepare_for_next_scene(void)
                                                 mf::stop,
                                                 rotate::stop,
                                                 get_count());
+                        p->set_alpha(0);
                         add_animation_object(p);
                         p->add_effect({ effect::fade_in(100) });
                 },

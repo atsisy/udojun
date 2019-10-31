@@ -19,6 +19,7 @@ namespace sound {
                 SE_ITEM,
                 SE_LARGE_ITEM,
                 SE_PLAYER_SPELLCARD,
+                NO_SOUND,
         };
 
         inline SoundID str_to_sdid(const char *str)
@@ -54,9 +55,10 @@ namespace sound {
                 u64 start;
                 u64 end;
                 sf::Sound sound;
+                SoundID sound_id;
                 
         public:
-                SoundElement(sf::SoundBuffer *sb, u64 now, i16 id, i8 priority = 0);
+                SoundElement(sf::SoundBuffer *sb, u64 now, i16 id, SoundID sound_id, i8 priority = 0);
                 ~SoundElement(void);
                 u64 get_start_time(void);
                 u64 get_end_time(void);
@@ -66,6 +68,8 @@ namespace sound {
                 void config_loop(bool loop);
                 void config_volume(float volume);
                 void set_priority(i8 priority);
+                void set_sound_id(SoundID id);
+                SoundID get_sound_id(void);
 
                 i16 get_instance_id(void);
                 void override_instance_id(i16 new_id);
@@ -96,13 +100,15 @@ namespace sound {
                 std::priority_queue<SoundElement *,
                                     std::vector<SoundElement *>,
                                     std::function<bool(SoundElement *, SoundElement *)>> sound_pool;
-                std::array<SoundElement *, 256> union_sound_pool;
+                std::array<SoundElement *, 255> union_sound_pool;
                 
         public:
                 SoundPlayer(std::string sound_data);
                 i16 add(SoundInformation info);
                 void flush(u64 now);
                 i16 stop(i16 instance_id);
+                i16 already_played(SoundID id);
+                i16 add_if_not_played(SoundInformation info);
         };
 
 }

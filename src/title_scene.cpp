@@ -17,7 +17,8 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 {
         current_selecting_status = SS_START;
         key_listener.key_update();
-        this->bgm_sound_id = GameMaster::sound_player->add(sound::SoundInformation(sound::TITLE_BGM, 50.f, true));
+        this->bgm_sound_id = GameMaster::sound_player->add_if_not_played(sound::SoundInformation(sound::TITLE_BGM, 50.f, true));
+        
 	choice_label_set.emplace(
 		"Start",
 		new DynamicText(L"Start", game_data->get_font(JP_DEFAULT),

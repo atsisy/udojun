@@ -61,6 +61,8 @@ Bullet *test_bullet;
 DrawableObject3D *test_3d_object;
 StraightLaser *test_slaser;
 
+constexpr u64 UDON_APPEARING_TIME = 8500;
+
 RaceSceneMaster::RaceSceneMaster(GameData *game_data)
 	: running_char(CharacterAttribute("stick man"),
 		       GameMaster::texture_table[DOT_JUNKO],
@@ -236,7 +238,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data)
                                                                                             0) });
                                            }
                                    });
-        bgm_handler = GameMaster::sound_player->add(sound::SoundInformation(sound::BGM2, 50.f, false));
+        bgm_handler = GameMaster::sound_player->add(sound::SoundInformation(sound::BGM2, 50.f, false, 10));
 }
 
 RaceSceneMaster::~RaceSceneMaster(void)
@@ -317,7 +319,7 @@ void RaceSceneMaster::spellcard_init(void)
         std::vector<sf::Vector2f> *origin_point = new std::vector<sf::Vector2f>();
         std::vector<Bullet *> *catched_bullet = new std::vector<Bullet *>();
 
-        GameMaster::sound_player->add(sound::SoundInformation(sound::SE_PLAYER_SPELLCARD, 50.f, false));
+        GameMaster::sound_player->add(sound::SoundInformation(sound::SE_PLAYER_SPELLCARD, 50.f, false, 4));
 
         origin_point->push_back(running_char.get_origin());
         effect_conroller.disable_bullet_conflict = true;
@@ -471,7 +473,8 @@ void RaceSceneMaster::add_new_danmaku(void)
                 /*
                  * 全てのスペルカードを撃ち終わった
                  */
-                prepare_for_next_scene();
+                sub_event_list.push_back(new ClearConversationEvent(
+                                                 this, sf::Vector2f(0, 0), game_data));
         }
 }
 
@@ -484,7 +487,7 @@ void RaceSceneMaster::prepare_for_next_scene(void)
                                                          this, sf::Vector2f(0, 0), game_data,
                                                          current_score_info));
                 },
-                180, get_count());
+                100, get_count());
 
         timer_list.add_timer(
                 [this](void){
@@ -494,14 +497,16 @@ void RaceSceneMaster::prepare_for_next_scene(void)
                                                 rotate::stop,
                                                 get_count());
                         add_animation_object(p);
+                        p->set_alpha(0);
                         p->add_effect({ effect::fade_in(100) });
                 },
-                500, get_count());
+                550, get_count());
         timer_list.add_timer(
                 [this](void){
                         this->game_state = SAVE;
+                        GameMaster::sound_player->stop(bgm_handler);
                 },
-                620, get_count());
+                650, get_count());
         effect_conroller.timelimit_on = false;
 }
 
@@ -528,7 +533,6 @@ void RaceSceneMaster::player_move()
 		running_char.core_off();
                 running_char.set_move_speed(4.5);
 	}
-
 
         float speed = running_char.get_move_speed();
 	if (key::KeyboardTypeCoordinator::simple_pressed_check(key::ARROW_KEY_LEFT)) {
@@ -842,7 +846,7 @@ void RaceSceneMaster::kill_out_of_filed_bullet(std::list<Bullet *> &bullets)
 
 void RaceSceneMaster::try_release_bomb_item(u64 graze, u64 count)
 {
-        if(graze % 500 == 0){
+        if(graze % 200 == 0){
                 bullet_pipeline.special_pipeline.direct_insert_bullet(
                         new SpecialBullet(
                                 GameMaster::texture_table[STAR_ITEM1],
@@ -865,7 +869,7 @@ void RaceSceneMaster::check_graze(std::list<Bullet *> &bullets)
 {
         for (Bullet *b : bullets) {
                 if (b->is_grazable()){
-                        if(running_char.distance(b) > 15){
+                        if(running_char.distance(b) < 100){
 				graze_counter.counter_method().add(1);
                                 try_release_bomb_item(graze_counter.counter_method().get_score(), get_count());
                                 b->disable_graze();
@@ -971,7 +975,7 @@ void RaceSceneMaster::running_char_hit(void)
                                      running_char.conflict_on();
                              }, 180, get_count());
 
-        GameMaster::sound_player->add(sound::SoundInformation(sound::JUNKO_HIT, 50.f, false));
+        GameMaster::sound_player->add(sound::SoundInformation(sound::JUNKO_HIT, 50.f, false, 2));
 }
 
 void RaceSceneMaster::udon_dead_event(void)
@@ -1290,12 +1294,14 @@ void RaceSceneMaster::pre_process_non_paused(sf::RenderWindow &window)
                 }
 	}
 
-        if(get_count() == 8500){
+        if(get_count() == UDON_APPEARING_TIME){
                 timer_list.cancel(danmaku_timer_id);
                 convert_bullet_to_small_crystal(bullet_pipeline.enemy_pipeline);
                 this->target_udon.set_hp_max();
                 target_udon.override_move_func(mf::move_point_constant(sf::Vector2f(480, 50),
-                                                                       target_udon.get_place(), 8500, 8628));
+                                                                       target_udon.get_place(),
+                                                                       UDON_APPEARING_TIME,
+                                                                       UDON_APPEARING_TIME + 128));
                 backgroundTile.set_scroll_speed(-1);
                 timer_list.add_timer(
                         [&](void){
@@ -1395,9 +1401,14 @@ void RaceSceneMaster::drawing_process(sf::RenderWindow &window)
                 );
 
         post_draw_request_vargs("game_info",
-                                &udon_hp,
                                 &score_counter,
                                 &fps_label);
+
+        if(effect_conroller.udon_is_appeared) {
+                post_draw_request_vargs("game_info",
+                                        &udon_hp);
+        }
+        
         if(effect_conroller.timelimit_on){
                 post_draw_request_vargs("game_info",
                                         &timelimit_counter);
@@ -1487,7 +1498,10 @@ RaceSceneMaster::ConversationEvent::ConversationEvent(RaceSceneMaster *rsm, sf::
                                                        set_status(SUBEVE_FINISH);
                                                        rsm->add_new_danmaku();
                                                        rsm->running_char.shot_on();
-                                                       GameMaster::sound_player->stop(rsm->bgm_handler);
+                                                       if(GameMaster::sound_player->stop(rsm->bgm_handler) == -1){
+                                                               std::cerr << "Failed to Stop Road BGM!!" << std::endl;
+                                                       }
+                                                       rsm->effect_conroller.udon_is_appeared = true;
                                                        rsm->bgm_handler = GameMaster::sound_player->add(sound::SoundInformation(sound::BGM3, 50.f, false, 10));
                                                }else if(episode.get_index() == 0){
                                                        udon = new Tachie(
@@ -1727,6 +1741,7 @@ RaceSceneMaster::RaceSceneEffectController::RaceSceneEffectController(void)
         disable_bullet_conflict = false;
         lock_player_spellcard = false;
         spellcard_bonus_failed_because_dead = false;
+        udon_is_appeared = false;
 }
 
 RaceSceneMaster::ResultEvent::ResultEvent(RaceSceneMaster *rsm, sf::Vector2f pos,
@@ -1747,7 +1762,7 @@ RaceSceneMaster::ResultEvent::ResultEvent(RaceSceneMaster *rsm, sf::Vector2f pos
                         GLYPH_DESIGN2,
                         sf::Vector2f(400, 500),
                         mf::ratio_step(sf::Vector2f(300, 500), 0.1),
-                        rotate::stop, get_count(), 28));
+                        rotate::stop, get_count(), 32));
         
         objects.push_front(new DynamicText(
                                    util::utf8_str_to_widechar_str(
@@ -1758,7 +1773,7 @@ RaceSceneMaster::ResultEvent::ResultEvent(RaceSceneMaster *rsm, sf::Vector2f pos
                                    GLYPH_DESIGN2,
                                    sf::Vector2f(400, 550),
                                    mf::ratio_step(sf::Vector2f(300, 550), 0.1),
-                                   rotate::stop, get_count(), 28));
+                                   rotate::stop, get_count(), 32));
         
         objects.push_front(new DynamicText(
                                    util::utf8_str_to_widechar_str(
@@ -1769,7 +1784,7 @@ RaceSceneMaster::ResultEvent::ResultEvent(RaceSceneMaster *rsm, sf::Vector2f pos
                                    GLYPH_DESIGN2,
                                    sf::Vector2f(400, 600),
                                    mf::ratio_step(sf::Vector2f(300, 600), 0.1),
-                                   rotate::stop, get_count(), 28));
+                                   rotate::stop, get_count(), 32));
 }
 
 void RaceSceneMaster::ResultEvent::pre_process(sf::RenderWindow &window)
@@ -2043,6 +2058,85 @@ void RaceSceneMaster::GameOverEvent::drawing_process(sf::RenderWindow &window)
 }
 
 GameState RaceSceneMaster::GameOverEvent::post_process(sf::RenderWindow &window)
+{
+        return SceneSubEvent::post_process(window);
+}
+
+RaceSceneMaster::ClearConversationEvent::ClearConversationEvent(RaceSceneMaster *rsm, sf::Vector2f pos, GameData *data)
+        : SceneSubEvent(pos, "clear_conv"),
+          episode("stage1_clear.txt", data->get_font(JP_DEFAULT), sf::Vector2f(100, 550)),
+          background(GameMaster::texture_table[SAMPLE_BACKGROUND1], sf::Vector2f(0, 500), mf::stop, rotate::stop, 0)
+{
+        set_status(SUBEVE_CONTINUE);
+        key_listener.key_update();
+
+        this->rsm = rsm;
+        
+        junko = new Tachie(
+                GameMaster::texture_table[JUNKO_TACHIE_YODARE],
+                sf::Vector2f(20, 70),
+                mf::stop,
+                rotate::stop,
+                get_count(), "junko");
+        junko->set_scale(0.18, 0.18);
+        junko->add_effect({ effect::fade_in(30) });
+
+        udon = new Tachie(
+                GameMaster::texture_table[UDON_TACHIE_SAD],
+                sf::Vector2f(600, 100),
+                mf::stop,
+                rotate::stop,
+                get_count(), "udon");
+        udon->set_scale(0.20, 0.20);
+        udon->add_effect({ effect::fade_in(30) });
+
+        key_listener
+                .add_key_event(key::VKEY_1,
+                               [=](key::KeyStatus status){
+                                       if(status & key::KEY_FIRST_PRESSED){
+                                               if(episode.last_page()){
+                                                       /*
+                                                        * 終了
+                                                        */
+                                                       rsm->prepare_for_next_scene();
+                                                       set_status(SUBEVE_FINISH);
+                                               }else{
+                                                       episode.next();
+                                               }
+                                       }
+                               });
+        background.set_alpha(200);
+
+        rsm->running_char.shot_off();
+}
+
+void RaceSceneMaster::ClearConversationEvent::pre_process(sf::RenderWindow &window)
+{
+        key_listener.key_update();
+
+        udon->move(get_count());
+        udon->effect(get_count());
+
+        junko->move(get_count());
+        junko->effect(get_count());        
+
+        for(auto &&p : move_objects){
+                p->move(get_count());
+		p->effect(get_count());
+	}
+
+        update_count();
+}
+
+void RaceSceneMaster::ClearConversationEvent::drawing_process(sf::RenderWindow &window)
+{
+        rsm->post_draw_request_vargs("conversation", &background);
+        rsm->post_draw_request_vargs("tachie", udon, junko);
+        rsm->post_draw_request_vargs("conversation", episode.get_current_page());
+        rsm->post_draw_request("game_info", move_objects);
+}
+
+GameState RaceSceneMaster::ClearConversationEvent::post_process(sf::RenderWindow &window)
 {
         return SceneSubEvent::post_process(window);
 }

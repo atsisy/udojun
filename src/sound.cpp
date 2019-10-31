@@ -55,13 +55,14 @@ namespace sound {
                 return nullptr;
 	}
 
-        SoundElement::SoundElement(sf::SoundBuffer *sb, u64 now, i16 id, i8 priority)
+        SoundElement::SoundElement(sf::SoundBuffer *sb, u64 now, i16 id, SoundID sound_id, i8 priority)
         {
                 this->start = now;
                 sound.setBuffer(*sb);
                 this->end = now + (60 * sb->getDuration().asSeconds());
                 this->id = id;
                 this->priority = priority;
+                this->sound_id = sound_id;
         }
 
         SoundElement::~SoundElement(void)
@@ -150,7 +151,17 @@ namespace sound {
                 // 来ないはず
                 return false;
         }
+        
+        void SoundElement::set_sound_id(SoundID id)
+        {
+                this->sound_id = id;
+        }
 
+        SoundID SoundElement::get_sound_id(void)
+        {
+                return this->sound_id;
+        }
+        
         SoundInformation::SoundInformation(SoundID id, i8 priority)
         {
                 this->id = id;
@@ -183,7 +194,7 @@ namespace sound {
         {
                 SoundElement *p;
                 for(int i = 0;i < 255;i++){
-                        p = new SoundElement(table[SELECTING_SOUND], 0, -1);
+                        p = new SoundElement(table[SELECTING_SOUND], 0, -1, NO_SOUND);
                         sound_pool.push(p);
                         union_sound_pool[i] = p;
                 }
@@ -209,6 +220,32 @@ namespace sound {
                 return -1;
         }
 
+        i16 SoundPlayer::already_played(SoundID id)
+        {
+                for(auto p : union_sound_pool){
+                        if(p->get_sound_id() == id){
+                                return p->get_instance_id();
+                        }
+                }
+                return -1;
+        }
+
+        i16 SoundPlayer::add_if_not_played(SoundInformation info)
+        {
+                i16 ret = already_played(info.id);
+                if(ret != -1){
+                        /*
+                         * 既に再生されている
+                         */
+                        return ret;
+                }
+
+                /*
+                 * 再生されていなかったので、add
+                 */
+                return add(info);
+        }
+
         void SoundPlayer::flush(u64 now)
         {
                 std::unique(std::begin(registered), std::end(registered));
@@ -222,6 +259,7 @@ namespace sound {
                         p->reset_buffer(table[info.id], now);
                         p->config_loop(info.loop);
                         p->config_volume(info.volume);
+                        p->set_sound_id(info.id);
                         p->play();
                         sound_pool.push(p);
                 }
