@@ -37,7 +37,8 @@ namespace game_system {
                                 ScoreInformation(-1.f,
                                                  elem_obj["score"].get<double>(),
                                                  -1,
-                                                 elem_obj["hit"].get<double>()),
+                                                 elem_obj["hit"].get<double>(),
+                                                 str_to_enum_game_level(elem_obj["level"].get<std::string>().data())),
                                 util::Date(
                                         date["year"].get<double>(),
                                         date["month"].get<double>(),
@@ -82,6 +83,8 @@ namespace game_system {
                 save_object.insert(std::make_pair("score", picojson::value((double)info.score.get_current())));
                 save_object.insert(std::make_pair("name", picojson::value(save_data.get_name())));
                 save_object.insert(std::make_pair("hit", picojson::value((double)info.hit.get_current())));
+                save_object.insert(std::make_pair("hit", picojson::value((double)info.hit.get_current())));
+                save_object.insert(std::make_pair("level", picojson::value(enum_game_level_to_const_char_p(info.level) )));
 
                 picojson::object date_object;
                 auto &&date = save_data.get_date();

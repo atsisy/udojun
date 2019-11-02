@@ -8,6 +8,7 @@ SaveSceneMaster::SaveSceneMaster(GameData *game_data, ScoreInformation info)
         : keyboard(sf::Vector2f(200, 400), game_data->get_font(JP_DEFAULT), 0),
           save_data("", info, util::Date(nullptr))
 {
+        keyboard.set_buffer_length_limit(10);
         keyboard.register_handler_function("OK",
                                            [&, this](key::KeyStatus status){
                                                    if(status & key::KEY_FIRST_PRESSED){
@@ -33,7 +34,7 @@ SaveSceneMaster::SaveSceneMaster(GameData *game_data, ScoreInformation info)
         
         display = new DynamicText(L"", game_data->get_font(JP_DEFAULT),
                                   GLYPH_DESIGN1,
-                                  sf::Vector2f(300, 200),
+                                  sf::Vector2f(250, 230),
                                   mf::stop, rotate::stop, get_count(), 40);
 
         objects.push_front(new DynamicText(L"得点を記録する", game_data->get_font(JP_DEFAULT),

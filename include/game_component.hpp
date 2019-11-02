@@ -408,37 +408,3 @@ public:
 
         ItemOrder(u16 power, u16 score); 
 };
-
-class ScoreInformation {
-public:
-        util::FixedCounter<double> power;
-        util::FixedCounter<u64> score;
-        util::FixedCounter<u64> graze;
-        util::FixedCounter<u64> hit;
-        
-        ScoreInformation(double power, u64 score, u64 graze, u64 _hit);
-};
-
-class SaveData {
-private:
-        std::string name;
-        ScoreInformation score_info;
-        util::Date date;
-
-public:
-        SaveData(std::string _name, ScoreInformation _si, util::Date date);
-        ScoreInformation get_score_information(void);
-        std::string get_name(void);
-        void reset_name(std::string _name);
-        util::Date get_date(void);
-};
-
-class RaceStatus {
-private:
-        u64 hit_count;
-
-public:
-        void hit(void);
-        u64 get_hit_count(void);
-        RaceStatus(void);
-};

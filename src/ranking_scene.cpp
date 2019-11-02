@@ -6,27 +6,47 @@ RankingSceneMaster::RankingSceneMaster(GameData *game_data)
 {
         std::vector<SaveData> &&save_data_vec = game_system::load_save_data("test_out.json");
 
-        sf::Vector2f pos(500, 220);
+        sf::Vector2f easy_pos(70, 245);
+        sf::Vector2f hard_pos(715, 245);
 
         std::sort(std::begin(save_data_vec), std::end(save_data_vec),
                   [](SaveData &a, SaveData &b){
                           return a.get_score_information().score.get_current() >  b.get_score_information().score.get_current(); });
+
+        char score_buf[2048] = { 0 };
         
         for(SaveData &data : save_data_vec){
+                sf::Vector2f &pos = (data.get_score_information().level == LEVEL_EASY) ?
+                        easy_pos : hard_pos;
+                
                 text_objects.push_front(
                         new DynamicText(
                                 util::utf8_str_to_widechar_str(
-                                        data.get_name() +
-                                        std::string("\t")
-                                        +
-                                        std::to_string(data.get_score_information().score.get_current())
-                                        +
-                                        std::string("\t") +
-                                        data.get_date().to_string())->data(),
+                                        data.get_name())->data(),
                                 game_data->get_font(JP_DEFAULT),
                                 GLYPH_DESIGN2,
                                 pos + sf::Vector2f(500, 0),
                                 mf::ratio_step(pos, 0.1),
+                                rotate::stop, get_count(), 24));
+
+                sprintf(score_buf, "%11ld", data.get_score_information().score.get_current());
+                text_objects.push_front(
+                        new DynamicText(
+                                util::utf8_str_to_widechar_str(
+                                        std::string(score_buf))->data(),
+                                game_data->get_font(JP_DEFAULT),
+                                GLYPH_DESIGN2,
+                                pos + sf::Vector2f(500, 0),
+                                mf::ratio_step(pos + sf::Vector2f(100, 0), 0.1),
+                                rotate::stop, get_count(), 24));
+                text_objects.push_front(
+                        new DynamicText(
+                                util::utf8_str_to_widechar_str(
+                                        data.get_date().to_string())->data(),
+                                game_data->get_font(JP_DEFAULT),
+                                GLYPH_DESIGN2,
+                                pos + sf::Vector2f(500, 0),
+                                mf::ratio_step(pos + sf::Vector2f(300, 0), 0.1),
                                 rotate::stop, get_count(), 24));
                 pos.y += 32;
         }
@@ -35,9 +55,39 @@ RankingSceneMaster::RankingSceneMaster(GameData *game_data)
                                            GLYPH_DESIGN1,
                                            sf::Vector2f(550, 100),
                                            mf::stop, rotate::stop, get_count(), 40));
-        text_objects.push_front(new DynamicText(L"名前\t得点\t日時", game_data->get_font(JP_DEFAULT),
+
+        text_objects.push_front(new DynamicText(L"兎級 Easy", game_data->get_font(JP_DEFAULT),
+                                                GLYPH_DESIGN3,
+                                                sf::Vector2f(250, 145),
+                                                mf::stop, rotate::stop, get_count(), 30));
+        text_objects.push_front(new DynamicText(L"狐級 Hard", game_data->get_font(JP_DEFAULT),
+                                                GLYPH_DESIGN4,
+                                                sf::Vector2f(880, 145),
+                                                mf::stop, rotate::stop, get_count(), 30));
+        text_objects.push_front(new DynamicText(L"名前", game_data->get_font(JP_DEFAULT),
                                                 GLYPH_DESIGN2,
-                                                sf::Vector2f(500, 175),
+                                                sf::Vector2f(70, 200),
+                                                mf::stop, rotate::stop, get_count(), 26));
+        text_objects.push_front(new DynamicText(L"得点", game_data->get_font(JP_DEFAULT),
+                                                GLYPH_DESIGN2,
+                                                sf::Vector2f(230, 200),
+                                                mf::stop, rotate::stop, get_count(), 26));
+        text_objects.push_front(new DynamicText(L"日時", game_data->get_font(JP_DEFAULT),
+                                                GLYPH_DESIGN2,
+                                                sf::Vector2f(420, 200),
+                                                mf::stop, rotate::stop, get_count(), 26));
+
+        text_objects.push_front(new DynamicText(L"名前", game_data->get_font(JP_DEFAULT),
+                                                GLYPH_DESIGN2,
+                                                sf::Vector2f(720, 200),
+                                                mf::stop, rotate::stop, get_count(), 26));
+        text_objects.push_front(new DynamicText(L"得点", game_data->get_font(JP_DEFAULT),
+                                                GLYPH_DESIGN2,
+                                                sf::Vector2f(900, 200),
+                                                mf::stop, rotate::stop, get_count(), 26));
+        text_objects.push_front(new DynamicText(L"日時", game_data->get_font(JP_DEFAULT),
+                                                GLYPH_DESIGN2,
+                                                sf::Vector2f(1150, 200),
                                                 mf::stop, rotate::stop, get_count(), 26));
 
         background = new MoveObject(

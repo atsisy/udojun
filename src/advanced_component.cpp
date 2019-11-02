@@ -51,10 +51,10 @@ DrawableKeyboard::DrawableKeyboard(sf::Vector2f pos, sf::Font *font, u64 count)
                                         count,
                                         32
                                         ));
-                        char_pos.x += 54;
+                        char_pos.x += 60;
                 }
                 char_pos.x = pos.x;
-                char_pos.y += 42;
+                char_pos.y += 48;
                 
                 keymap.push_back(elem);
         }
@@ -96,6 +96,8 @@ DrawableKeyboard::DrawableKeyboard(sf::Vector2f pos, sf::Font *font, u64 count)
                                [this](key::KeyStatus status){
                                        this->typed_handler(status);
                                });
+
+        this->buffer_length_limit = 512;
 }
 
 void DrawableKeyboard::draw(sf::RenderWindow &window)
@@ -121,11 +123,16 @@ void DrawableKeyboard::move(u64 count)
         }
 }
 
+void DrawableKeyboard::set_buffer_length_limit(size_t len)
+{
+        this->buffer_length_limit = len;
+}
+
 void DrawableKeyboard::realloc_cursor(void)
 {
         cursor_object->set_place(sf::Vector2f(
-                                         position.x + (cursor.x * 54),
-                                         position.y + (cursor.y * 42)
+                                         position.x + (cursor.x * 60),
+                                         position.y + (cursor.y * 48)
                                          ));
 }
 
@@ -206,7 +213,9 @@ void DrawableKeyboard::typed_handler(key::KeyStatus status)
                         }else if(key == "SPC"){
                                 buffer.append(" ");
                         }else{
-                                buffer.append(p->get_text());
+                                if(buffer.size() < this->buffer_length_limit){
+                                        buffer.append(p->get_text());
+                                }
                         }
                 }
         }

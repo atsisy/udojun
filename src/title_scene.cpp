@@ -13,7 +13,8 @@
 
 TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 	: background(GameMaster::texture_table[TITLE_BLUE], sf::Vector2f(0, 0), mf::stop, rotate::stop, 0),
-          game_state(START)
+          game_state(START),
+          logo(GameMaster::texture_table[TITLE_LOGO], sf::Vector2f(510, 100), mf::stop, rotate::stop, 0)
 {
         current_selecting_status = SS_START;
         key_listener.key_update();
@@ -23,20 +24,20 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 		"Start",
 		new DynamicText(L"Start", game_data->get_font(JP_DEFAULT),
                                 GLYPH_DESIGN1,
-				sf::Vector2f(400, 300),
+				sf::Vector2f(350, 300),
                                 mf::stop, rotate::stop, get_count(), 40));
         choice_label_set.emplace(
 		"Ranking",
 		new DynamicText(L"Ranking", game_data->get_font(JP_DEFAULT),
                                 GLYPH_DESIGN1,
-				sf::Vector2f(400, 350),
+				sf::Vector2f(350, 350),
                                 mf::stop, rotate::stop, get_count(), 28)
                 );
         choice_label_set.emplace(
 		"Credit",
 		new DynamicText(L"Credit", game_data->get_font(JP_DEFAULT),
                                 GLYPH_DESIGN1,
-				sf::Vector2f(400, 400),
+				sf::Vector2f(350, 400),
                                 [](MoveObject *p, u64 current, u64 begin) {
                                         auto &&init = p->get_initial_position();
                                         float width = 5 * std::sin((float)(current - begin) / 20.0);
@@ -47,21 +48,21 @@ TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 		"Exit",
 		new DynamicText(L"Exit", game_data->get_font(JP_DEFAULT),
                                 GLYPH_DESIGN1,
-				sf::Vector2f(400, 450),
+				sf::Vector2f(350, 450),
                                 mf::stop, rotate::stop, get_count(), 28)
                 );
 
         ss_level_select_text.push_back(
 		new DynamicText(L"狐級 Hard", game_data->get_font(JP_DEFAULT),
                                 GLYPH_DESIGN4,
-				sf::Vector2f(400, 320),
+				sf::Vector2f(350, 320),
                                 mf::stop, rotate::stop, get_count(), 56)
                 );
         ss_level_select_text.back()->set_alpha(0);
         ss_level_select_text.push_back(
 		new DynamicText(L"兎級 Easy", game_data->get_font(JP_DEFAULT),
                                 GLYPH_DESIGN3,
-				sf::Vector2f(400, 400),
+				sf::Vector2f(350, 400),
                                 mf::stop, rotate::stop, get_count(), 56)
                 );
         ss_level_select_text.back()->set_alpha(0);
@@ -246,6 +247,12 @@ void TitleSceneMaster::ss_level_select_handler(key::KeyStatus status)
                                                 OPENING_EPISODE;
                                 },
                                 180, get_count());
+                        GameMaster::posting_some_data(
+                                new StartToRace(
+                                        GameLevel::LEVEL_HARD,
+                                        { "hard/stage1_danmaku.json" },
+                                        { "hard/stage1_enemy_schedule.json", "hard/stage1_enemy_schedule2.json" }
+                                        ));
                 } else if (command == 1) {
                         /*
                          * Easy
@@ -260,6 +267,12 @@ void TitleSceneMaster::ss_level_select_handler(key::KeyStatus status)
                                                 OPENING_EPISODE;
                                 },
                                 180, get_count());
+                        GameMaster::posting_some_data(
+                                new StartToRace(
+                                        GameLevel::LEVEL_EASY,
+                                        { "easy/stage1_danmaku.json" },
+                                        { "easy/stage1_enemy_schedule.json", "easy/stage1_enemy_schedule2.json" }
+                                        ));
                 }
         }
 }
@@ -307,6 +320,8 @@ void TitleSceneMaster::drawing_process(sf::RenderWindow &window)
         for(auto text : ss_level_select_text){
                 text->draw(window);
         }
+
+        logo.draw(window);
         
         draw_animation(window);
 }

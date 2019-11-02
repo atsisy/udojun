@@ -11,7 +11,9 @@ enum MacroID {
         UDON_CIRCLE1,
 	UDON_TSUJO1,
 	UDON_TSUJO2,
+        UDON_TSUJO2_HARD,
         UDON_TSUJO3,
+        UDON_TSUJO3_HARD,
         UDON_SPELL1,
         UDON_SPELL2,
         UDON_SPELL4,
@@ -56,6 +58,7 @@ inline MacroID str_to_macroid(const char *str)
         str_to_idx_sub(str, UDON_SPELL1);
         str_to_idx_sub(str, UDON_SPELL2);
         str_to_idx_sub(str, UDON_SPELL4);
+        str_to_idx_sub(str, UDON_TSUJO2_HARD);
         str_to_idx_sub(str, MULTI_SHOT);
         str_to_idx_sub(str, JUNKO_SHOT_FAST_LV1);
         str_to_idx_sub(str, JUNKO_SHOT_FAST_LV2);
@@ -66,6 +69,7 @@ inline MacroID str_to_macroid(const char *str)
         str_to_idx_sub(str, NORMAL_ENEMY_SHOT1);
         str_to_idx_sub(str, WINDER1);
         str_to_idx_sub(str, UDON_TSUJO3);
+        str_to_idx_sub(str, UDON_TSUJO3_HARD);
         str_to_idx_sub(str, UDON_DELAY_CIRCLE);
         str_to_idx_sub(str, STRAGHT_CIRCLE);
         str_to_idx_sub(str, DELAY_CIRCLE_MOVE_LINEAR);
@@ -183,4 +187,6 @@ namespace macro {
                                                            float speed, float angle, u8 num, u64 delay, u64 time, float phase);
         std::vector<BulletData *> udon_nerai_circle1(TextureID txid, sf::Vector2f origin, float angle,  float offset_angle, u64 num, u64 time, float r, float speed, u64 stop);
         std::vector<BulletData *> nerai_circle1(TextureID txid, sf::Vector2f origin, float angle, float offset_angle, u64 num, u64 time, float r, float speed);
+        std::vector<BulletData *> udon_tsujo2_hard(sf::Vector2f origin, u64 time, float phase);
+        std::vector<BulletData *> udon_tsujo3_hard(sf::Vector2f origin, u64 time, u64 offset, float r, float speed);
 }

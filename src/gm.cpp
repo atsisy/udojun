@@ -12,6 +12,7 @@ sound::SoundPlayer *GameMaster::sound_player;
 util::xor128 util::generate_random;
 GameConfig *GameMaster::game_config;
 FpsCalculator GameMaster::fps_calc;
+GameMasterPostObject *GameMaster::post_box;
 
 GameData::GameData()
         : enemy_table({ "stage1_enemy.json" })
@@ -52,6 +53,73 @@ void GraphicBuffer::flush_draw_requests(sf::RenderWindow &window)
                 draw_requests.pop();
         }
 }
+
+GameMasterPostObject::GameMasterPostObject(void)
+{}
+
+GameMasterPostObject::~GameMasterPostObject(void)
+{}
+
+
+ScoreInformation::ScoreInformation(double power, u64 score, u64 graze, u64 _hit, GameLevel _level)
+        : power(Score::MAX_POWER, power),
+          score(Score::MAX_SCORE, score),
+          graze(Score::MAX_GRAZE, graze),
+          hit(Score::MAX_HIT, _hit),
+          level(_level)
+{}
+
+RaceStatus::RaceStatus(void)
+{
+        hit_count = 0;
+}
+
+u64 RaceStatus::get_hit_count(void)
+{
+        return this->hit_count;
+}
+
+void RaceStatus::hit(void)
+{
+        hit_count++;
+}
+
+SaveData::SaveData(std::string _name, ScoreInformation _si, util::Date _date)
+        : name(_name), score_info(_si), date(_date)
+{}
+
+std::string SaveData::get_name(void)
+{
+        return name;
+}
+
+ScoreInformation SaveData::get_score_information(void)
+{
+        return score_info;
+}
+
+void SaveData::reset_name(std::string _name)
+{
+        this->name = _name;
+}
+
+util::Date SaveData::get_date(void)
+{
+        return date;
+}
+
+
+StartToRace::StartToRace(GameLevel level,
+                         std::vector<const char *> stage1_danmaku_file,
+                         std::vector<const char *> stage1_road_file)
+{
+        this->level = level;
+        this->stage1_danmaku_file = stage1_danmaku_file;
+        this->stage1_road_file = stage1_road_file;
+}
+
+StartToRace::~StartToRace(void)
+{}
 
 FpsCalculator::FpsCalculator(void)
 {
@@ -97,6 +165,7 @@ GameConfig::GameConfig(std::string json_path)
 }
 
 GameMaster::GameMaster()
+//        : window(sf::VideoMode::getFullscreenModes()[8], "udjn", sf::Style::Fullscreen)
         : window(sf::VideoMode(1366, 768), "udjn")
 {
         window_handle = window.getSystemHandle();
@@ -176,13 +245,23 @@ SceneMaster *GameMaster::create_new_scene(GameState req)
 	case START:
 		return new TitleSceneMaster(this->game_data);
 	case RACE:
-		return new RaceSceneMaster(this->game_data);
+        {
+                StartToRace *p = dynamic_cast<StartToRace *>(GameMaster::get_posted_data());
+                if(!p){
+                        std::cerr << "No Data for Game Level" << std::endl;
+                        exit(-1);
+                }
+
+                return new RaceSceneMaster(this->game_data, p);
+        }
         case OPENING_EPISODE:
 		return new OpeningEpisodeSceneMaster(this->game_data);
         case SAVE:
+        {       
                 return new SaveSceneMaster(
                         this->game_data,
                         dynamic_cast<RaceSceneMaster *>(current_scene)->export_score_information());
+        }
         case RANKING:
                 return new RankingSceneMaster(this->game_data);
         case CREDIT:
@@ -240,7 +319,16 @@ void GameMaster::main_loop()
                 master_clock++;
                 GameMaster::fps_calc.update();
 	}
+}
 
+void GameMaster::posting_some_data(GameMasterPostObject *data)
+{
+        GameMaster::post_box = data;
+}
+
+GameMasterPostObject *GameMaster::get_posted_data(void)
+{
+        return GameMaster::post_box;
 }
 
 DrawingManager::DrawingManager(void)

@@ -118,13 +118,17 @@ namespace key {
                         case VKEY_3:
                                 return sf::Joystick::isButtonPressed(0, 0);
                         case ARROW_KEY_UP:
-                                return sf::Joystick::getAxisPosition(0, sf::Joystick::Y) < -50;
+                                return sf::Joystick::getAxisPosition(0, sf::Joystick::Y) < -50 ||
+                                        sf::Joystick::getAxisPosition(0, sf::Joystick::PovY) == -100;
                         case ARROW_KEY_RIGHT:
-                                return sf::Joystick::getAxisPosition(0, sf::Joystick::X) > 50;
+                                return sf::Joystick::getAxisPosition(0, sf::Joystick::X) > 50 ||
+                                       sf::Joystick::getAxisPosition(0, sf::Joystick::PovX) == 100;
                         case ARROW_KEY_DOWN:
-                                return sf::Joystick::getAxisPosition(0, sf::Joystick::Y) > 50;
+                                return sf::Joystick::getAxisPosition(0, sf::Joystick::Y) > 50 ||
+                                        sf::Joystick::getAxisPosition(0, sf::Joystick::PovY) == 100;
                         case ARROW_KEY_LEFT:
-                                return sf::Joystick::getAxisPosition(0, sf::Joystick::X) < -50;
+                                return sf::Joystick::getAxisPosition(0, sf::Joystick::X) < -50 ||
+                                       sf::Joystick::getAxisPosition(0, sf::Joystick::PovX) == -100;
                         case MOD_VKEY_1:
                                 return sf::Joystick::isButtonPressed(0, 5);
                         case MOD_VKEY_2:

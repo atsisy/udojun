@@ -109,6 +109,7 @@ enum TextureID {
         STAR_ITEM1,
         ROAD_3D_TEXTURE,
         SKY_STAR1,
+        TITLE_LOGO,
 };
 
 enum LaserTextureID {
@@ -168,6 +169,8 @@ inline TextureID str_to_txid(const char *str)
         str_to_idx_sub(str, MIST1);
         str_to_idx_sub(str, BULLET1);
         str_to_idx_sub(str, BULLET_BLUE);
+        
+        str_to_idx_sub(str, TITLE_LOGO);
 
         str_to_idx_sub(str, JUNKO_TACHIE1);
         str_to_idx_sub(str, JUNKO_TACHIE_DEFAULT);

@@ -28,6 +28,7 @@ private:
         sf::Vector2i map_size;
         std::string buffer;
         util::str_hash<std::vector<std::function<void(key::KeyStatus)>>> user_handler_func;
+        size_t buffer_length_limit;
 
         void arrow_right_handler(key::KeyStatus status);
         void arrow_left_handler(key::KeyStatus status);
@@ -44,6 +45,8 @@ public:
         void draw(sf::RenderWindow &window) override;
         void move(u64 count);
         void check(void);
+
+        void set_buffer_length_limit(size_t len);
 
         std::string get_buffer(void);
         void clear_buffer(void);

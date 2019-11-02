@@ -631,11 +631,11 @@ void BulletData::init_texture_data(TextureID id)
 		break;
         case BULLET1:
 		scale = sf::Vector2f(0.12, 0.12);
-                radius = BulletSize::BULLET1;
+                radius = BulletSize::UDON_BULLET1;
 		break;
         case BULLET_BLUE:
 		scale = sf::Vector2f(0.12, 0.12);
-                radius = BulletSize::BULLET1;
+                radius = BulletSize::UDON_BULLET1;
 		break;
         case CIRCLE_BLUE:
 		scale = sf::Vector2f(0.05, 0.05);

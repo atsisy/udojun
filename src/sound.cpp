@@ -124,27 +124,33 @@ namespace sound {
 
         bool SoundElement::priority_compare(SoundElement *p1, SoundElement *p2)
         {
-                if(p1->priority != p2->priority){
-                        return p1->priority > p2->priority;
-                }else{
-                        sf::SoundSource::Status p1_status = p1->sound.getStatus();
-                        sf::SoundSource::Status p2_status = p2->sound.getStatus();
+                sf::SoundSource::Status p1_status = p1->sound.getStatus();
+                sf::SoundSource::Status p2_status = p2->sound.getStatus();
 
-                        switch(p1_status){
+                switch(p1_status){
+                case sf::SoundSource::Status::Stopped:
+                        // p1が浮き上がるように
+                        return false;
+                case sf::SoundSource::Status::Paused:
+                        switch(p2_status){
                         case sf::SoundSource::Status::Stopped:
-                                // p1が浮き上がるように
-                                return false;
-                        case sf::SoundSource::Status::Paused:
-                                switch(p2_status){
-                                case sf::SoundSource::Status::Stopped:
-                                        return true;
-                                case sf::SoundSource::Status::Playing:
-                                case sf::SoundSource::Status::Paused:
-                                        return false;
-                                }
-                        case sf::SoundSource::Status::Playing:
-                                // p2が浮き上がるように
                                 return true;
+                        case sf::SoundSource::Status::Playing:
+                        case sf::SoundSource::Status::Paused:
+                                return false;
+                        }
+                case sf::SoundSource::Status::Playing:
+                        switch(p2_status){
+                        case sf::SoundSource::Status::Stopped:
+                                return true;
+                        case sf::SoundSource::Status::Playing:
+                        case sf::SoundSource::Status::Paused:
+                                if(p1->priority != p2->priority){
+                                        return p1->priority > p2->priority;
+                                }else{
+                                        // p2が浮き上がるように
+                                        return true;
+                                }
                         }
                 }
 
@@ -160,6 +166,11 @@ namespace sound {
         SoundID SoundElement::get_sound_id(void)
         {
                 return this->sound_id;
+        }
+
+        sf::Sound::Status SoundElement::get_status(void)
+        {
+                return this->sound.getStatus();
         }
         
         SoundInformation::SoundInformation(SoundID id, i8 priority)
@@ -194,7 +205,7 @@ namespace sound {
         {
                 SoundElement *p;
                 for(int i = 0;i < 255;i++){
-                        p = new SoundElement(table[SELECTING_SOUND], 0, -1, NO_SOUND);
+                        p = new SoundElement(table[SELECTING_SOUND], 0, -1, NO_SOUND, -127);
                         sound_pool.push(p);
                         union_sound_pool[i] = p;
                 }
@@ -203,13 +214,22 @@ namespace sound {
         i16 SoundPlayer::add(SoundInformation info)
         {
                 static i16 instance_id;
-                info.instace_id = instance_id++;
-                registered.push_back(info);
-                return info.instace_id;
+                if(std::find_if(std::begin(registered), std::end(registered),
+                                [&](SoundInformation &e){ return e.id == info.id; }) == std::end(registered)){
+                        /*
+                         * 同じinfoが無い
+                         */
+                        info.instace_id = instance_id++;
+                        registered.push_back(info);
+                        return info.instace_id;
+                }
+
+                return -1;
         }
 
         i16 SoundPlayer::stop(i16 instance_id)
         {
+                std::cout << "stop requset: " << instance_id << std::endl;
                 auto it = std::find_if(std::begin(union_sound_pool), std::end(union_sound_pool),
                                        [&](SoundElement *p){ return p->get_instance_id() == instance_id; });
                 if(it != std::end(union_sound_pool)){
@@ -218,6 +238,21 @@ namespace sound {
                 }
 
                 return -1;
+        }
+
+        i16 SoundPlayer::stop(SoundID id)
+        {
+                i16 count = 0;
+                
+                for(auto p : union_sound_pool){
+                        if(p->get_sound_id() == id){
+                                p->stop();
+                                p->set_priority(-127);
+                                count++;
+                        }
+                }
+
+                return count;
         }
 
         i16 SoundPlayer::already_played(SoundID id)
@@ -248,7 +283,7 @@ namespace sound {
 
         void SoundPlayer::flush(u64 now)
         {
-                std::unique(std::begin(registered), std::end(registered));
+                //std::unique(std::begin(registered), std::end(registered));
                 
                 for(SoundInformation info : registered){
                         SoundElement *p = sound_pool.top();
@@ -265,5 +300,22 @@ namespace sound {
                 }
 
                 registered.clear();
+        }
+
+        void SoundPlayer::stop_all_sound(void)
+        {
+                for(auto p : union_sound_pool){
+                        p->stop();
+                        p->set_priority(-127);
+                }
+
+                registered.clear();
+        }
+
+        size_t SoundPlayer::get_used_count(void)
+        {
+                return std::count_if(std::begin(union_sound_pool), std::end(union_sound_pool),
+                              [](SoundElement *p)
+                                      {return p->get_status() == sf::Sound::Playing; });
         }
 }

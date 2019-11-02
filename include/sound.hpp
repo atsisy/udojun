@@ -19,6 +19,9 @@ namespace sound {
                 SE_ITEM,
                 SE_LARGE_ITEM,
                 SE_PLAYER_SPELLCARD,
+                SE_UDON_SPELLCARD,
+                SE_GRAZE,
+                SE_GEKIHA1,
                 NO_SOUND,
         };
 
@@ -33,8 +36,12 @@ namespace sound {
 
                 str_to_idx_sub(str, SE_ITEM);
                 str_to_idx_sub(str, SE_LARGE_ITEM);
+                str_to_idx_sub(str, SE_GRAZE);
 
                 str_to_idx_sub(str, SE_PLAYER_SPELLCARD);
+
+                str_to_idx_sub(str, SE_GEKIHA1);
+                str_to_idx_sub(str, SE_UDON_SPELLCARD);
 
                 return UNKNOWN_SDID;
         }
@@ -70,6 +77,7 @@ namespace sound {
                 void set_priority(i8 priority);
                 void set_sound_id(SoundID id);
                 SoundID get_sound_id(void);
+                sf::Sound::Status get_status(void);
 
                 i16 get_instance_id(void);
                 void override_instance_id(i16 new_id);
@@ -107,8 +115,11 @@ namespace sound {
                 i16 add(SoundInformation info);
                 void flush(u64 now);
                 i16 stop(i16 instance_id);
+                i16 stop(SoundID id);
                 i16 already_played(SoundID id);
                 i16 add_if_not_played(SoundInformation info);
+                void stop_all_sound(void);
+                size_t get_used_count(void);
         };
 
 }

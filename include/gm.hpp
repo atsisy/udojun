@@ -21,6 +21,7 @@
 #include "enemy_character.hpp"
 #include "3d.hpp"
 #include "sound.hpp"
+#include "value.hpp"
 
 class GameData;
 
@@ -56,6 +57,71 @@ public:
         void add_draw_request(DrawableComponent *p);
         void flush_draw_requests(sf::RenderWindow &window);
 };
+
+
+enum GameLevel {
+        LEVEL_EASY = 0,
+        LEVEL_HARD,
+        LEVEL_UNKNOWN,
+};
+
+inline GameLevel str_to_enum_game_level(const char *str)
+{
+        str_to_idx_sub(str, LEVEL_EASY);
+        str_to_idx_sub(str, LEVEL_HARD);
+
+        std::cout << "Unexpected Enum LEVEL_UNKNOWN" << std::endl;
+        
+        return LEVEL_UNKNOWN;
+}
+
+inline const char *enum_game_level_to_const_char_p(GameLevel level)
+{
+        switch(level){
+        case LEVEL_EASY:
+                return "LEVEL_EASY";
+        case LEVEL_HARD:
+                return "LEVEL_HARD";
+        default:
+                return "BUG";
+        }
+}
+
+class ScoreInformation {
+public:
+        util::FixedCounter<double> power;
+        util::FixedCounter<u64> score;
+        util::FixedCounter<u64> graze;
+        util::FixedCounter<u64> hit;
+        GameLevel level;
+        
+        ScoreInformation(double power, u64 score, u64 graze, u64 _hit, GameLevel _level);
+};
+
+class SaveData {
+private:
+        std::string name;
+        ScoreInformation score_info;
+        util::Date date;
+
+public:
+        SaveData(std::string _name, ScoreInformation _si, util::Date date);
+        ScoreInformation get_score_information(void);
+        std::string get_name(void);
+        void reset_name(std::string _name);
+        util::Date get_date(void);
+};
+
+class RaceStatus {
+private:
+        u64 hit_count;
+
+public:
+        void hit(void);
+        u64 get_hit_count(void);
+        RaceStatus(void);
+};
+
 
 class SceneMaster {
 private:
@@ -109,11 +175,11 @@ private:
         GameState current_status;
         std::string name;
         u64 flags;
-
+        
 protected:
         void up_flags(u64 flags);
         void down_flags(u64 flags);
-
+        
 public:
         SceneSubEvent(sf::Vector2f pos, std::string n);
         void set_status(GameState status);
@@ -145,6 +211,7 @@ private:
         key::KeyboardListener key_listener;
         std::vector<EffectableGroup *> effect_group;
         i16 bgm_sound_id;
+        MoveObject logo;
 
         std::vector<DynamicText *> ss_level_select_text;
         util::SelecterImplements<u64> ss_level_selecter;
@@ -283,8 +350,27 @@ public:
         void draw_and_clear(sf::RenderWindow &window);
 };
 
-class RaceSceneMaster : public SceneMaster, public SceneAnimation {
+class GameMasterPostObject {
+public:
+        GameMasterPostObject(void);
+        virtual ~GameMasterPostObject(void);
+};
 
+class StartToRace : public GameMasterPostObject {
+public:
+        GameLevel level;
+        std::vector<const char *> stage1_danmaku_file;
+        std::vector<const char *> stage1_road_file;
+        
+        StartToRace(
+                GameLevel level,
+                std::vector<const char *> stage1_danmaku_file,
+                std::vector<const char *> stage1_road_filet);
+        ~StartToRace(void) override;
+};
+
+class RaceSceneMaster : public SceneMaster, public SceneAnimation {
+        
         class RaceSceneEffectController {
         public:
                 bool bullet_stop: 1;
@@ -420,6 +506,7 @@ private:
         BackgroundTile game_background;
         DrawableScoreCounter<i64> game_score_counter;
         DrawableScoreCounter<i64> score_counter;
+        DrawableScoreCounter<i64> highscore_counter;
 	ElapsedCounter timelimit_counter;
         DrawableScoreCounter<double> power_counter;
         BulletFuncTable func_table;
@@ -428,6 +515,8 @@ private:
         Label game_score_label;
         Label power_label;
         Label fps_label;
+        Label high_score_label;
+        Label level_label;
         DrawableScoreCounter<i64> graze_counter;
         WindowFrame window_frame;
 	DanmakuScheduler danmaku_sched;
@@ -447,6 +536,7 @@ private:
         DrawableStackCounter avail_bomb_counter;
         Label bomb_counter_label;
         i16 bgm_handler;
+        GameLevel current_game_level;
         
 	void add_new_functional_bullets_to_schedule(void);
         void add_new_danmaku(void);
@@ -481,6 +571,8 @@ private:
         void game_over(void);
         void update_fps_label(void);
         void try_release_bomb_item(u64 graze, u64 count);
+        void early_finalize(void);
+        void load_high_score(void);
 
         void game_over_continue(void);
 
@@ -491,7 +583,7 @@ private:
                                     u64 root_call_count, float effect_range);
 
     public:
-        RaceSceneMaster(GameData *game_data);
+        RaceSceneMaster(GameData *game_data, StartToRace *posted_data);
         ~RaceSceneMaster(void);
 
         void player_move();
@@ -546,6 +638,8 @@ private:
 
         SceneMaster *create_new_scene(GameState state);
         void init_display(void);
+
+        static GameMasterPostObject *post_box;
         
 public:
         static TextureTable texture_table;
@@ -553,15 +647,19 @@ public:
         static GameConfig *game_config;
         static FpsCalculator fps_calc;
         
+        
         GameMaster();
         void init();
         void main_loop();
         void switch_scene(GameState res);
         void load_textures(const char *json_path);
+        static void posting_some_data(GameMasterPostObject *data);
+        static GameMasterPostObject *get_posted_data(void);
 };
 
 namespace builtin_enemy {
         std::vector<EnemyCharacterMaterial> ghost_group1(GameData *);
 }
 
-extern std::vector<std::function<std::vector<EnemyCharacterMaterial>(GameData *)>> builtin_enemy_funcs;
+extern std::vector<std::function<std::vector<EnemyCharacterMaterial>(GameData *)>> builtin_enemy_funcs_hard;
+extern std::vector<std::function<std::vector<EnemyCharacterMaterial>(GameData *)>> builtin_enemy_funcs_easy;

@@ -209,7 +209,12 @@ namespace macro {
 		return udon_circle2(origin, 90, 10, 1024, time, phase, 0.06);
 	}
 
-        std::vector<BulletData *> udon_tsujo3_sub(sf::Vector2f origin, u64 count, u64 time, float phase, float r, float speed)
+        std::vector<BulletData *> udon_tsujo2_hard(sf::Vector2f origin, u64 time, float phase)
+	{
+		return udon_circle2(origin, 90, 10, 1500, time, phase, 0.04);
+	}
+
+        std::vector<BulletData *> udon_tsujo3_sub(TextureID txid, sf::Vector2f origin, u64 count, u64 time, float phase, float r, float speed)
 	{
                 std::vector<BulletData *> ret;
                 float rad = phase;
@@ -217,7 +222,7 @@ namespace macro {
 
                 for(u64 i = 0;i < count;i++, rad += unit){
                         ret.push_back(new BulletData(str_to_bfid("SLOWER1"),
-                                                     BULLET1,
+                                                     txid,
                                                      mf::linear_getting_slower(speed, rad, 0.08, 1.2),
                                                      time,
                                                      sf::Vector2f(origin.x + (r * std::cos(rad)),
@@ -225,6 +230,51 @@ namespace macro {
                                                      rad + M_PI_2));
                 }
                 
+                return ret;
+	}
+        
+        std::vector<BulletData *> udon_tsujo3_sub2(TextureID txid, sf::Vector2f origin, u64 count, u64 time, float phase, float r, float speed)
+	{
+                std::vector<BulletData *> ret;
+                float rad = phase;
+                float unit = (2.f * M_PI) / count;
+
+                for(u64 i = 0;i < count;i++, rad -= unit){
+                        ret.push_back(new BulletData(str_to_bfid("SLOWER1"),
+                                                     txid,
+                                                     mf::linear_getting_slower(speed, rad, 0.08, 1.2),
+                                                     time,
+                                                     sf::Vector2f(origin.x + (r * std::cos(rad)),
+                                                                  origin.y + (r * std::sin(rad))),
+                                                     rad + M_PI_2));
+                }
+                
+                return ret;
+	}
+
+        std::vector<BulletData *> udon_tsujo3(sf::Vector2f origin, u64 time, u64 offset, float r, float speed)
+	{
+                std::vector<BulletData *> ret;
+                
+                for(int i = 0;i < 1024;i++, time += offset){
+                        auto && elem = udon_tsujo3_sub(BULLET1, origin, 4, time, (2 * M_PI) * std::sin((float)i / 32.f), r, speed);
+                        util::concat_container<std::vector<BulletData *>>(ret, elem);
+                }
+
+                return ret;
+	}
+
+        std::vector<BulletData *> udon_tsujo3_hard(sf::Vector2f origin, u64 time, u64 offset, float r, float speed)
+	{
+                std::vector<BulletData *> ret;
+                
+                for(int i = 0;i < 1024;i++, time += offset){
+                        auto && elem1 = udon_tsujo3_sub(BULLET1, origin, 3, time, ((2 * M_PI) * std::sin((float)i / 32.f)) - 0.75, r, speed);
+                        auto && elem2 = udon_tsujo3_sub(BULLET_BLUE, origin, 3, time, ((2 * M_PI) * std::sin(-(float)i / 32.f)) - 0.75, r, speed);
+                        util::concat_container<std::vector<BulletData *>>(ret, elem1);
+                        util::concat_container<std::vector<BulletData *>>(ret, elem2);
+                }
+
                 return ret;
 	}
 
@@ -266,18 +316,6 @@ namespace macro {
                                                      rad + M_PI_2));
                 }
                 
-                return ret;
-	}
-
-        std::vector<BulletData *> udon_tsujo3(sf::Vector2f origin, u64 time, u64 offset, float r, float speed)
-	{
-                std::vector<BulletData *> ret;
-                
-                for(int i = 0;i < 1024;i++, time += offset){
-                        auto && elem = udon_tsujo3_sub(origin, 4, time, (2 * M_PI) * std::sin((float)i / 32.f), r, speed);
-                        util::concat_container<std::vector<BulletData *>>(ret, elem);
-                }
-
                 return ret;
 	}
 
@@ -913,8 +951,22 @@ namespace macro {
 					     data["y"].get<double>()),
 				data["time"].get<double>(),
 				TAKE_DEFAULT_ARG(data, "phase", double, 0));
+                case UDON_TSUJO2_HARD:
+			return udon_tsujo2_hard(
+				sf::Vector2f(data["x"].get<double>(),
+					     data["y"].get<double>()),
+				data["time"].get<double>(),
+				TAKE_DEFAULT_ARG(data, "phase", double, 0));
                 case UDON_TSUJO3:
                         return udon_tsujo3(
+				sf::Vector2f(data["x"].get<double>(),
+					     data["y"].get<double>()),
+				data["time"].get<double>(),
+                                data["offset"].get<double>(),
+                                data["r"].get<double>(),
+                                data["speed"].get<double>());
+                case UDON_TSUJO3_HARD:
+                        return udon_tsujo3_hard(
 				sf::Vector2f(data["x"].get<double>(),
 					     data["y"].get<double>()),
 				data["time"].get<double>(),
@@ -1107,6 +1159,12 @@ namespace macro {
                                 );
 		case UDON_TSUJO2:
 			return udon_tsujo2(
+				sf::Vector2f(data["x"].get<double>(),
+					     data["y"].get<double>()),
+				data["time"].get<double>(),
+				TAKE_DEFAULT_ARG(data, "phase", double, 0));
+                case UDON_TSUJO2_HARD:
+			return udon_tsujo2_hard(
 				sf::Vector2f(data["x"].get<double>(),
 					     data["y"].get<double>()),
 				data["time"].get<double>(),
