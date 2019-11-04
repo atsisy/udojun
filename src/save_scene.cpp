@@ -6,12 +6,13 @@
 
 SaveSceneMaster::SaveSceneMaster(GameData *game_data, ScoreInformation info)
         : keyboard(sf::Vector2f(200, 400), game_data->get_font(JP_DEFAULT), 0),
-          save_data("", info, util::Date(nullptr))
+          save_data("", info, util::Date(nullptr)),
+          save_done(false)
 {
         keyboard.set_buffer_length_limit(10);
         keyboard.register_handler_function("OK",
                                            [&, this](key::KeyStatus status){
-                                                   if(status & key::KEY_FIRST_PRESSED){
+                                                   if(!save_done && (status & key::KEY_FIRST_PRESSED)){
                                                            std::cout << keyboard.get_buffer() << std::endl;
                                                            save_data.reset_name(keyboard.get_buffer());
                                                            save_as_json("test_out.json", save_data);
@@ -155,4 +156,5 @@ void SaveSceneMaster::prepare_for_next_scene(void)
                         this->game_state = START;
                 },
                 160, get_count());
+        save_done = true;
 }

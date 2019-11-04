@@ -277,6 +277,7 @@ RaceSceneMaster::RaceSceneMaster(GameData *game_data, StartToRace *posted_data)
         load_high_score();
         
         std::cout << "START BGM2" << std::endl;
+        GameMaster::sound_player->stop(sound::TITLE_BGM);
         bgm_handler = GameMaster::sound_player->add(sound::SoundInformation(sound::BGM2, 50.f, true, 127));
         if(bgm_handler == -1){
                 std::cout << "BUGBUGBUGBUGBUG" << std::endl;
@@ -1590,10 +1591,10 @@ RaceSceneMaster::ConversationEvent::ConversationEvent(RaceSceneMaster *rsm, sf::
                                                        rsm->add_new_danmaku();
                                                        rsm->running_char.shot_on();
                                                        if(GameMaster::sound_player->stop(rsm->bgm_handler) == -1){
-                                                               GameMaster::sound_player->stop(sound::BGM2);
-                                                               GameMaster::sound_player->stop(sound::BGM3);
                                                                std::cerr << "Failed to Stop Road BGM!!" << std::endl;
                                                        }
+                                                       GameMaster::sound_player->stop(sound::BGM2);
+                                                       GameMaster::sound_player->stop(sound::BGM3);
                                                        rsm->effect_conroller.udon_is_appeared = true;
                                                        rsm->bgm_handler = GameMaster::sound_player->add(sound::SoundInformation(sound::BGM3, 50.f, false, 127));
                                                }else if(episode.get_index() == 0){
@@ -2196,7 +2197,7 @@ RaceSceneMaster::ClearConversationEvent::ClearConversationEvent(RaceSceneMaster 
                                                         */
                                                        rsm->prepare_for_next_scene();
                                                        set_status(SUBEVE_FINISH);
-                                               }else if(episode.get_index() == 6){
+                                               }else if(episode.get_index() == 7){
                                                        udon->override_move_func(mf::vector_linear(sf::Vector2f(-12, 0)));
                                                        rsm->target_udon.override_move_func(mf::vector_linear(sf::Vector2f(0, -12)));
                                                        episode.next();

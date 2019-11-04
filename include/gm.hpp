@@ -212,6 +212,7 @@ private:
         std::vector<EffectableGroup *> effect_group;
         i16 bgm_sound_id;
         MoveObject logo;
+        bool select_done;
 
         std::vector<DynamicText *> ss_level_select_text;
         util::SelecterImplements<u64> ss_level_selecter;
@@ -271,6 +272,7 @@ private:
         DrawableKeyboard keyboard;
         SaveData save_data;
         GameState game_state;
+        bool save_done;
 
         void save_as_json(std::string out_file, SaveData data);
         void prepare_for_next_scene(void);

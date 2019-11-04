@@ -14,10 +14,14 @@
 TitleSceneMaster::TitleSceneMaster(GameData *game_data)
 	: background(GameMaster::texture_table[TITLE_BLUE], sf::Vector2f(0, 0), mf::stop, rotate::stop, 0),
           game_state(START),
-          logo(GameMaster::texture_table[TITLE_LOGO], sf::Vector2f(510, 100), mf::stop, rotate::stop, 0)
+          logo(GameMaster::texture_table[TITLE_LOGO], sf::Vector2f(510, 100), mf::stop, rotate::stop, 0),
+          select_done(false)
 {
         current_selecting_status = SS_START;
         key_listener.key_update();
+        GameMaster::sound_player->stop(sound::BGM2);
+        GameMaster::sound_player->stop(sound::BGM3);
+        GameMaster::sound_player->stop(sound::TITLE_BGM);
         this->bgm_sound_id = GameMaster::sound_player->add_if_not_played(sound::SoundInformation(sound::TITLE_BGM, 50.f, true));
         
 	choice_label_set.emplace(
@@ -195,10 +199,10 @@ void TitleSceneMaster::start_handler(void)
 
 void TitleSceneMaster::ss_start_menu_handler(key::KeyStatus status)
 {
-        if (status & key::KEY_FIRST_PRESSED) {
+        if (!select_done && (status & key::KEY_FIRST_PRESSED)) {
                 std::string command = selecter.get();
                 if (command == "Exit") {
-                        exit(0);
+                        //exit(0);
                 } else if (command == "Start") {
                         current_selecting_status = SS_LEVEL_SELECT;
                         for(auto p : ss_level_select_text){
