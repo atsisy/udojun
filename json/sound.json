@@ -1,0 +1,14 @@
+{
+    "SELECTING_SOUND": "sound/select.ogg",
+    "SHOOT1": "sound/shoot1.ogg",
+    "TITLE_BGM": "sound/1_loop.ogg",
+    "JUNKO_HIT": "sound/junko_hit.ogg",
+    "BGM2": "sound/bgm2.wav",
+    "BGM3": "sound/bgm3.wav",
+    "SE_ITEM": "sound/se_item.ogg",
+    "SE_LARGE_ITEM": "sound/se_large_item.ogg",
+    "SE_PLAYER_SPELLCARD": "sound/player_spellcard.ogg",
+    "SE_UDON_SPELLCARD": "sound/spellcard.ogg",
+    "SE_GEKIHA1": "sound/gekiha1.ogg",
+    "SE_GRAZE": "sound/graze2.ogg"
+}

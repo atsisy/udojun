@@ -1,0 +1,84 @@
+{
+    "enemy_list": [
+        {
+            "name": "UDON_EYE_OBJECT",
+            "time": 60,
+            "point": {
+                "x": 250,
+                "y": 70
+            }
+        },
+        {
+            "name": "UDON_EYE_OBJECT",
+            "time": 60,
+            "point": {
+                "x": 300,
+                "y": 120
+            }
+        },
+        {
+            "name": "UDON_EYE_OBJECT",
+            "time": 60,
+            "point": {
+                "x": 350,
+                "y": 160
+            }
+        },
+        {
+            "name": "UDON_EYE_OBJECT",
+            "time": 60,
+            "point": {
+                "x": 400,
+                "y": 200
+            }
+        },
+        {
+            "name": "UDON_EYE_OBJECT",
+            "time": 60,
+            "point": {
+                "x": 450,
+                "y": 210
+            }
+        },
+        {
+            "name": "UDON_EYE_OBJECT",
+            "time": 60,
+            "point": {
+                "x": 500,
+                "y": 210
+            }
+        },
+        {
+            "name": "UDON_EYE_OBJECT",
+            "time": 60,
+            "point": {
+                "x": 550,
+                "y": 200
+            }
+        },
+        {
+            "name": "UDON_EYE_OBJECT",
+            "time": 60,
+            "point": {
+                "x": 600,
+                "y": 160
+            }
+        },
+        {
+            "name": "UDON_EYE_OBJECT",
+            "time": 60,
+            "point": {
+                "x": 650,
+                "y": 120
+            }
+        },
+        {
+            "name": "UDON_EYE_OBJECT",
+            "time": 60,
+            "point": {
+                "x": 700,
+                "y": 70
+            }
+        }
+    ]
+}

@@ -1,0 +1,16 @@
+{
+       "function_definition": [
+           {
+               "function": "udon-tsujo1",
+               "schedule": [
+                   {
+                       "type": "macro",
+                       "ID": "UDON_TSUJO1",
+                       "time": 0,
+                       "x": 550,
+                       "y": -10
+                   }
+               ]
+           }
+       ]
+}

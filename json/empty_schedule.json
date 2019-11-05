@@ -1,0 +1,9 @@
+{
+       "function_definition": [
+           {
+               "function": "empty_schedule",
+               "schedule": [
+               ]
+           }
+       ]
+}

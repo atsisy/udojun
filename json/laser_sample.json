@@ -1,0 +1,33 @@
+{
+    "function_definition": [
+        {
+            "function": "laser_test",
+            "schedule": [
+                {
+                    "type": "laser",
+                    "time": 0,
+                    "x": 400,
+                    "y": 100,
+                    "curve_middle": {
+                        "x": 400,
+                        "y": 500
+                    },
+                    "curve_end": {
+                        "x": 400,
+                        "y": 900
+                    },
+                    "scale": {
+                        "x": 0.3,
+                        "y": 0.3
+                    },
+                    "head_tx": "LASER_TAIL3",
+                    "body_tx": "LASER_BODY3",
+                    "tail_tx": "LASER_BODY3",
+                    "required_time": 155,
+                    "radius": 12,
+                    "length": 256
+                }
+            ]
+        }
+    ]
+}

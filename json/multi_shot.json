@@ -1,0 +1,177 @@
+{
+       "function_definition": [
+           {
+               "function": "multi_shot",
+               "schedule": [
+                   {
+                "type": "dynamic-macro",
+                       "ID": "MULTI_SHOT",
+                       "texture": "CIRCLE_GREEN",
+                       "x": 0,
+                       "y": 100,
+                       "num": 3,
+                       "speed": 3,
+                       "distance": 5,
+                       "time": 0,
+                       "bias": 1
+                   }
+               ]
+           },
+           {
+               "function": "multi_shot_hard",
+               "schedule": [
+                   {
+                "type": "dynamic-macro",
+                       "ID": "MULTI_SHOT",
+                       "texture": "CIRCLE_GREEN",
+                       "x": 0,
+                       "y": 100,
+                       "num": 8,
+                       "speed": 4,
+                       "distance": 5,
+                       "time": 0,
+                       "bias": 1
+                   }
+               ]
+           },
+                      {
+               "function": "multi_shot2_hard",
+               "schedule": [
+                   {
+                "type": "dynamic-macro",
+                       "ID": "MULTI_SHOT",
+                       "texture": "CIRCLE_PURPLE",
+                       "x": 0,
+                       "y": 100,
+                       "num": 8,
+                       "speed": 4,
+                       "distance": 5,
+                       "time": 0,
+                       "bias": 1
+                   }
+               ]
+           },
+           {
+               "function": "multi_shot_easy",
+               "schedule": [
+                   {
+                "type": "dynamic-macro",
+                       "ID": "MULTI_SHOT",
+                       "texture": "CIRCLE_GREEN",
+                       "x": 0,
+                       "y": 100,
+                       "num": 2,
+                       "speed": 3,
+                       "distance": 5,
+                       "time": 0,
+                       "bias": 1
+                   }
+               ]
+           },
+           {
+               "function": "mini_multi_shot",
+               "schedule": [
+                   {
+                "type": "dynamic-macro",
+                       "ID": "MULTI_SHOT",
+                       "texture": "CIRCLE_BLUE",
+                       "x": 0,
+                       "y": 100,
+                       "num": 2,
+                       "speed": 3,
+                       "distance": 5,
+                       "time": 0,
+                       "bias": 1
+                   }
+               ]
+           },
+           {
+               "function": "slow_multi_shot",
+               "schedule": [
+                   {
+                "type": "dynamic-macro",
+                       "ID": "MULTI_SHOT",
+                       "texture": "CIRCLE_BLUE",
+                       "x": 0,
+                       "y": 100,
+                       "num": 10,
+                       "speed": 3,
+                       "distance": 5,
+                       "time": 0,
+                       "bias": 1
+                   }
+               ]
+           },
+           {
+               "function": "simple_multi_shot",
+               "schedule": [
+                   {
+                "type": "dynamic-macro",
+                       "ID": "MULTI_SHOT",
+                       "texture": "CIRCLE_PURPLE",
+                       "x": 0,
+                       "y": 0,
+                       "num": 3,
+                       "speed": 3,
+                       "distance": 5,
+                       "time": 0,
+                       "bias": 1
+                   }
+               ]
+           },
+           {
+               "function": "simple_multi_shot_hard",
+               "schedule": [
+                   {
+                "type": "dynamic-macro",
+                       "ID": "MULTI_SHOT",
+                       "texture": "CIRCLE_PURPLE",
+                       "x": 0,
+                       "y": 0,
+                       "num": 8,
+                       "speed": 4,
+                       "distance": 4,
+                       "time": 0,
+                       "bias": 1
+                   }
+               ]
+           },
+           {
+               "function": "multi_shot_out",
+               "schedule": [
+                   {
+                       "type": "macro",
+                       "ID": "MULTI_SHOT",
+                       "texture": "ELLIPSE_GREEN",
+                       "x": 0,
+                       "y": 0,
+                       "num": 3,
+                       "angle": 1.6707,
+                       "speed": 1,
+                       "distance": 5,
+                       "time": 0,
+                       "bias": 1
+                   }
+               ]
+           },
+           {
+               "function": "multi_shot_out2",
+               "schedule": [
+                   {
+                       "type": "macro",
+                       "ID": "MULTI_SHOT",
+                       "texture": "ELLIPSE_GREEN",
+                       "x": 0,
+                       "y": 0,
+                       "num": 3,
+                       "angle": 1.4707,
+                       "speed": 1,
+                       "distance": 5,
+                       "time": 0,
+                       "bias": 1
+                   }
+               ]
+           }
+       ]
+}
+

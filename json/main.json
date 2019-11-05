@@ -1,0 +1,37 @@
+{
+    "schedule": [
+    ],
+
+    "src": [
+        "bullets_sched.json",
+        "ringo.json",
+        "jiki.json",
+        "hart.json",
+        "shot.json",
+        "udon-tsujo-elem.json",
+        "udon_tsujo1.json",
+        "udon_tsujo2.json",
+        "five_way.json",
+        "laser_sample.json",
+        "field1.json",
+        "ellipe.json",
+        "udon_spell1.json",
+        "shot2.json",
+        "junko_shot_slow_lv1.json",
+        "multi_shot.json",
+        "multi_shot2.json",
+        "udon_spell2.json",
+        "jiki2.json",
+        "spell_sub_jiki.json",
+        "empty_schedule.json",
+        "udon_spell3.json",
+        "udon_spell3_impl.json",
+        "udon_spell4.json",
+        "junko_spell1.json",
+        "normal_enemy_shot1.json",
+        "junko_shot_slow_lv2.json",
+        "winder.json",
+        "delay_circle.json",
+        "udon_tsujo3.json"
+    ]
+}

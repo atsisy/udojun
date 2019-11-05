@@ -1,0 +1,33 @@
+{
+       "function_definition": [
+           {
+               "function": "jiki-nerai2",
+               "schedule": [
+                   {
+                       "type": "dynamic-unit",
+                       "ID": "AIMING_SELF_LINEAR",
+                       "texture": "ELLIPSE_BLUE",
+                       "time": 0,
+                       "x": 0,
+                       "y": 0
+                   },
+                   {
+                       "type": "dynamic-unit",
+                       "ID": "AIMING_SELF_LINEAR",
+                       "texture": "ELLIPSE_GREEN",
+                       "time": 10,
+                       "x": 0,
+                       "y": 0
+                   },
+                   {
+                       "type": "dynamic-unit",
+                       "ID": "AIMING_SELF_LINEAR",
+                       "texture": "ELLIPSE_RED",
+                       "time": 20,
+                       "x": 0,
+                       "y": 0
+                   }
+               ]
+           }
+       ]
+}

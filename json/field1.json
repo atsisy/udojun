@@ -1,0 +1,37 @@
+{
+       "function_definition": [
+           {
+               "function": "field1",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "jiki-nerai",
+                       "distance": 10,
+                       "time": 800,
+                       "times": 40,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 10,
+                           "y": 0
+                       }
+                   },
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "jiki-nerai",
+                       "distance": 10,
+                       "time": 800,
+                       "times": 40,
+                       "position": {
+                           "x": 900,
+                           "y": 0
+                       }
+                   }
+               ]
+           }
+       ]
+}

@@ -1,0 +1,212 @@
+{
+    "function_definition": [
+        {
+            "function": "five_way",
+            "schedule": [
+                {
+                    "type": "macro",
+                    "ID": "N_WAY",
+                    "r": 75,
+                    "angle": -0.785,
+                    "width": 0.2,
+                    "quantity": 5,
+                    "texture": "CIRCLE_GREEN",
+                    "time": 0,
+                    "x": 20,
+                    "y": 0,
+                    "speed": 6
+                },
+                {
+                    "type": "macro",
+                    "ID": "N_WAY",
+                    "texture": "CIRCLE_GREEN",
+                    "r": 75,
+                    "angle": -2.355,
+                    "width": 0.2,
+                    "quantity": 5,
+                    "time": 0,
+                    "x": 900,
+                    "y": 0,
+                    "speed": 6
+                }
+            ]
+        },
+        {
+            "function": "five_way2",
+            "schedule": [
+                {
+                    "type": "macro",
+                    "ID": "N_WAY",
+                    "r": 75,
+                    "angle": -0.785,
+                    "width": 0.2,
+                    "quantity": 5,
+                    "texture": "CIRCLE_ORANGE",
+                    "time": 0,
+                    "x": 20,
+                    "y": 0,
+                    "speed": 6
+                },
+                {
+                    "type": "macro",
+                    "ID": "N_WAY",
+                    "texture": "CIRCLE_ORANGE",
+                    "r": 75,
+                    "angle": -2.355,
+                    "width": 0.2,
+                    "quantity": 5,
+                    "time": 0,
+                    "x": 900,
+                    "y": 0,
+                    "speed": 6
+                }
+            ]
+        },
+        {
+            "function": "__five_way_left_wave1",
+            "schedule": [
+                {
+                    "type": "macro",
+                    "ID": "N_WAY",
+                    "r": 75,
+                    "angle": -0.785,
+                    "width": 0.28,
+                    "quantity": 7,
+                    "texture": "CIRCLE_GREEN",
+                    "time": 0,
+                    "x": 0,
+                    "y": 0,
+                    "speed": 6
+                }
+            ]
+        },
+        {
+            "function": "__five_way_left_wave2",
+            "schedule": [
+                {
+                    "type": "macro",
+                    "ID": "N_WAY",
+                    "r": 75,
+                    "angle": -0.885,
+                    "width": 0.28,
+                    "quantity": 7,
+                    "texture": "CIRCLE_ORANGE",
+                    "time": 0,
+                    "x": 0,
+                    "y": 0,
+                    "speed": 6
+                }
+            ]
+        },
+        {
+            "function": "five_way_left",
+            "schedule": [
+                {
+                    "type": "function-call",
+                    "function": "builtin-for",
+                    "call": "__five_way_left_wave1",
+                    "distance": 10,
+                    "time": 0,
+                    "times": 36,
+                    "position": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "move": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "type": "function-call",
+                    "function": "builtin-for",
+                    "call": "__five_way_left_wave2",
+                    "distance": 10,
+                    "time": 300,
+                    "times": 36,
+                    "position": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "move": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "function": "__five_way_right_wave1",
+            "schedule": [
+                {
+                    "type": "macro",
+                    "ID": "N_WAY",
+                    "r": 75,
+                    "angle": -2.355,
+                    "width": 0.28,
+                    "quantity": 7,
+                    "texture": "CIRCLE_GREEN",
+                    "time": 0,
+                    "x": 0,
+                    "y": 0,
+                    "speed": 6
+                }
+            ]
+        },
+        {
+            "function": "__five_way_right_wave2",
+            "schedule": [
+                {
+                    "type": "macro",
+                    "ID": "N_WAY",
+                    "r": 75,
+                    "angle": -2.255,
+                    "width": 0.28,
+                    "quantity": 7,
+                    "texture": "CIRCLE_ORANGE",
+                    "time": 0,
+                    "x": 0,
+                    "y": 0,
+                    "speed": 6
+                }
+            ]
+        },
+        {
+            "function": "five_way_right",
+            "schedule": [
+                {
+                    "type": "function-call",
+                    "function": "builtin-for",
+                    "call": "__five_way_right_wave1",
+                    "distance": 10,
+                    "time": 0,
+                    "times": 36,
+                    "position": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "move": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "type": "function-call",
+                    "function": "builtin-for",
+                    "call": "__five_way_right_wave2",
+                    "distance": 10,
+                    "time": 300,
+                    "times": 36,
+                    "position": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "move": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        }
+    ]
+}

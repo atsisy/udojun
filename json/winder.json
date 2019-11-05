@@ -1,0 +1,27 @@
+{
+       "function_definition": [
+           {
+               "function": "winder",
+               "schedule": [
+                   {
+                       "type": "macro",
+                       "ID": "WINDER1",
+                       "r": 20,
+                       "toward": -1.5,
+                       "width": 0.2,
+                       "num": 5,
+                       "texture": "CIRCLE_RED",
+                       "time": 0,
+                       "speed": 3,
+                       "x": 0,
+                       "y": 0,
+                       "distance": 10,
+                       "term": 300,
+                       "unit_rad": 0.3,
+                       "conflictable": "true",
+                       "grazable": "false"
+                   }
+               ]
+           }
+       ]
+}

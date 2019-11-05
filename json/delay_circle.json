@@ -1,0 +1,587 @@
+{
+       "function_definition": [
+           {
+               "function": "delay_circle",
+               "schedule": [
+                   {
+                       "type": "macro",
+                       "ID": "DELAY_CIRCLE",
+                       "r": 75,
+                       "angle": -0.785,
+                       "width": 0.2,
+                       "quantity": 32,
+                       "texture": "CIRCLE_RED",
+                       "time": 0,
+                       "x": 0,
+                       "y": 0,
+                       "delay": 2,
+                       "speed": 3
+                   }
+               ]
+           },
+           {
+               "function": "delay_circle_loop",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "delay_circle",
+                       "distance": 30,
+                       "time": 0,
+                       "times": 20,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           },
+           {
+               "function": "udon_delay_circle",
+               "schedule": [
+                   {
+                       "type": "dynamic-macro",
+                       "ID": "UDON_DELAY_CIRCLE",
+                       "r": 90,
+                       "angle": -0.785,
+                       "width": 0.2,
+                       "quantity": 50,
+                       "texture": "CIRCLE_RED",
+                       "time": 0,
+                       "delay": 2,
+                       "speed": 1,
+                       "x": 0,
+                       "y": 0
+                   }
+               ]
+           },
+           {
+               "function": "udon_delay_circle_loop",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "udon_delay_circle",
+                       "distance": 90,
+                       "time": 0,
+                       "times": 8,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   },
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "udon_delay_circle",
+                       "distance": 60,
+                       "time": 720,
+                       "times": 8,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   },
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "udon_delay_circle",
+                       "distance": 50,
+                       "time": 1180,
+                       "times": 8,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   },
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "udon_delay_circle",
+                       "distance": 42,
+                       "time": 1580,
+                       "times": 120,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           },
+           {
+               "function": "udon_delay_circle_loop_easy",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "udon_delay_circle",
+                       "distance": 150,
+                       "time": 0,
+                       "times": 30,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           },
+           {
+               "function": "straight_circle1",
+               "schedule": [
+                   {
+                       "type": "macro",
+                       "ID": "STRAGHT_CIRCLE",
+                       "r": 80,
+                       "speed": 6,
+                       "num": 8,
+                       "multi_shot_num": 8,
+                       "texture": "CIRCLE_RED",
+                       "time": 0,
+                       "delay": 8,
+                       "phase": 0,
+                       "x": 0,
+                       "y": 0
+                   }
+               ]
+           },
+           {
+               "function": "straight_circle1_hard",
+               "schedule": [
+                   {
+                       "type": "macro",
+                       "ID": "STRAGHT_CIRCLE",
+                       "r": 80,
+                       "speed": 7,
+                       "num": 12,
+                       "multi_shot_num": 16,
+                       "texture": "CIRCLE_RED",
+                       "time": 0,
+                       "delay": 6,
+                       "phase": 0,
+                       "x": 0,
+                       "y": 0
+                   }
+               ]
+           },
+           {
+               "function": "delay_circle_move_linear1",
+               "schedule": [
+                   {
+                       "type": "dynamic-macro",
+                       "ID": "DELAY_CIRCLE_MOVE_LINEAR",
+                       "r": 120,
+                       "speed": 6,
+                       "num": 12,
+                       "multi_shot_num": 8,
+                       "texture": "CIRCLE_RED",
+                       "time": 0,
+                       "delay": 2,
+                       "rotate_times": 2,
+                       "phase": 0,
+                       "x": 0,
+                       "y": 0
+                   }
+               ]
+           },
+           {
+               "function": "delay_circle_move_linear1_hard",
+               "schedule": [
+                   {
+                       "type": "dynamic-macro",
+                       "ID": "DELAY_CIRCLE_MOVE_LINEAR",
+                       "r": 120,
+                       "speed": 8,
+                       "num": 28,
+                       "multi_shot_num": 16,
+                       "texture": "CIRCLE_RED",
+                       "time": 0,
+                       "delay": 2,
+                       "rotate_times": 2,
+                       "phase": 0,
+                       "x": 0,
+                       "y": 0
+                   }
+               ]
+           },
+           {
+               "function": "jiki_nerai_circle",
+               "schedule": [
+                   {
+                       "type": "dynamic-macro",
+                       "ID": "JIKI_NERAI_CIRCLE",
+                       "r": 100,
+                       "speed": 6,
+                       "num": 24,
+                       "offset_angle": 0.0,
+                       "texture": "CIRCLE_RED",
+                       "time": 0,
+                       "delay": 2,
+                       "phase": 0,
+                       "x": 0,
+                       "y": 0
+                   }
+               ]
+           },
+           {
+               "function": "jiki_nerai_circle_hard",
+               "schedule": [
+                   {
+                       "type": "dynamic-macro",
+                       "ID": "JIKI_NERAI_CIRCLE",
+                       "r": 100,
+                       "speed": 6.2,
+                       "num": 36,
+                       "offset_angle": 0.0,
+                       "texture": "CIRCLE_RED",
+                       "time": 0,
+                       "delay": 2,
+                       "phase": 0,
+                       "x": 0,
+                       "y": 0
+                   }
+               ]
+           },
+           {
+               "function": "jiki_hazushi_circle",
+               "schedule": [
+                   {
+                       "type": "dynamic-macro",
+                       "ID": "JIKI_HAZUSHI_CIRCLE",
+                       "r": 100,
+                       "speed": 6,
+                       "num": 24,
+                       "offset_angle": 0.3,
+                       "texture": "CIRCLE_BLUE",
+                       "time": 0,
+                       "delay": 2,
+                       "phase": 0,
+                       "x": 0,
+                       "y": 0
+                   }
+               ]
+           },
+           {
+               "function": "jiki_hazushi_circle_hard",
+               "schedule": [
+                   {
+                       "type": "dynamic-macro",
+                       "ID": "JIKI_HAZUSHI_CIRCLE",
+                       "r": 100,
+                       "speed": 6.2,
+                       "num": 36,
+                       "offset_angle": 0.3,
+                       "texture": "CIRCLE_BLUE",
+                       "time": 0,
+                       "delay": 2,
+                       "phase": 0,
+                       "x": 0,
+                       "y": 0
+                   }
+               ]
+           },
+           {
+               "function": "nerai_circle_loop",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "jiki_nerai_circle",
+                       "distance": 10,
+                       "time": 0,
+                       "times": 32,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           },
+           {
+               "function": "nerai_circle_loop_hard",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "jiki_nerai_circle_hard",
+                       "distance": 6,
+                       "time": 0,
+                       "times": 54,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           },
+           {
+               "function": "hazushi_circle_loop",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "jiki_hazushi_circle",
+                       "distance": 10,
+                       "time": 0,
+                       "times": 32,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           },
+           {
+               "function": "hazushi_circle_loop_hard",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "jiki_hazushi_circle_hard",
+                       "distance": 6,
+                       "time": 0,
+                       "times": 54,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           },
+           {
+               "function": "mini_nerai_circle_loop",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "jiki_nerai_circle_hard",
+                       "distance": 5,
+                       "time": 0,
+                       "times": 12,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           },
+           {
+               "function": "mini_hazushi_circle_loop",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "jiki_hazushi_circle_hard",
+                       "distance": 5,
+                       "time": 0,
+                       "times": 12,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           },
+           {
+               "function": "mini_nerai_hazushi_circle_loop",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "mini_hazushi_circle_loop",
+                       "distance": 200,
+                       "time": 0,
+                       "times": 3,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   },
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "mini_nerai_circle_loop",
+                       "distance": 200,
+                       "time": 105,
+                       "times": 3,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           },
+           {
+               "function": "jiki_nerai_circle_easy",
+               "schedule": [
+                   {
+                       "type": "dynamic-macro",
+                       "ID": "JIKI_NERAI_CIRCLE",
+                       "r": 100,
+                       "speed": 6,
+                       "num": 12,
+                       "offset_angle": 0.0,
+                       "texture": "CIRCLE_RED",
+                       "time": 0,
+                       "delay": 2,
+                       "phase": 0,
+                       "x": 0,
+                       "y": 0
+                   }
+               ]
+           },
+           {
+               "function": "jiki_hazushi_circle_easy",
+               "schedule": [
+                   {
+                       "type": "dynamic-macro",
+                       "ID": "JIKI_HAZUSHI_CIRCLE",
+                       "r": 100,
+                       "speed": 6,
+                       "num": 12,
+                       "offset_angle": 0.3,
+                       "texture": "CIRCLE_BLUE",
+                       "time": 0,
+                       "delay": 2,
+                       "phase": 0,
+                       "x": 0,
+                       "y": 0
+                   }
+               ]
+           },
+           {
+               "function": "mini_nerai_circle_loop_easy",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "jiki_nerai_circle_easy",
+                       "distance": 12,
+                       "time": 0,
+                       "times": 6,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           },
+           {
+               "function": "mini_hazushi_circle_loop_easy",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "jiki_hazushi_circle_easy",
+                       "distance": 12,
+                       "time": 0,
+                       "times": 6,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           },
+           {
+               "function": "mini_nerai_hazushi_circle_loop_easy",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "mini_hazushi_circle_loop_easy",
+                       "distance": 200,
+                       "time": 0,
+                       "times": 3,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   },
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "mini_nerai_circle_loop_easy",
+                       "distance": 200,
+                       "time": 105,
+                       "times": 3,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           }
+       ]
+}

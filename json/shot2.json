@@ -1,0 +1,24 @@
+{
+       "function_definition": [
+           {
+               "function": "shot2",
+               "schedule": [
+                   {
+                       "type": "macro",
+                       "ID": "N_WAY",
+                       "r": 20,
+                       "angle": 1.560796327,
+                       "width": 0.5,
+                       "quantity": 3,
+                       "texture": "BULLET_HART",
+                       "time": 0,
+                       "speed": 12,
+                       "x": 0,
+                       "y": 0,
+                       "conflictable": "true",
+                       "grazable": "false"
+                   }
+               ]
+           }
+       ]
+}

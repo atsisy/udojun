@@ -1,0 +1,162 @@
+[
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/main.cpp.o -c /home/takai/git-repo/sfml_test/src/main.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/main.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/character.cpp.o -c /home/takai/git-repo/sfml_test/src/character.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/character.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/gm.cpp.o -c /home/takai/git-repo/sfml_test/src/gm.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/gm.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/scene.cpp.o -c /home/takai/git-repo/sfml_test/src/scene.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/scene.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/component.cpp.o -c /home/takai/git-repo/sfml_test/src/component.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/component.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/move_func.cpp.o -c /home/takai/git-repo/sfml_test/src/move_func.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/move_func.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/macro.cpp.o -c /home/takai/git-repo/sfml_test/src/macro.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/macro.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/programable.cpp.o -c /home/takai/git-repo/sfml_test/src/programable.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/programable.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/textures.cpp.o -c /home/takai/git-repo/sfml_test/src/textures.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/textures.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/laser.cpp.o -c /home/takai/git-repo/sfml_test/src/laser.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/laser.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/sched.cpp.o -c /home/takai/git-repo/sfml_test/src/sched.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/sched.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/advanced_component.cpp.o -c /home/takai/git-repo/sfml_test/src/advanced_component.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/advanced_component.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/effect.cpp.o -c /home/takai/git-repo/sfml_test/src/effect.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/effect.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/title_scene.cpp.o -c /home/takai/git-repo/sfml_test/src/title_scene.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/title_scene.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/keyboard.cpp.o -c /home/takai/git-repo/sfml_test/src/keyboard.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/keyboard.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/fonts.cpp.o -c /home/takai/git-repo/sfml_test/src/fonts.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/fonts.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/scene_animation.cpp.o -c /home/takai/git-repo/sfml_test/src/scene_animation.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/scene_animation.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/episode_scene.cpp.o -c /home/takai/git-repo/sfml_test/src/episode_scene.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/episode_scene.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/game_system.cpp.o -c /home/takai/git-repo/sfml_test/src/game_system.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/game_system.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/bullet_management.cpp.o -c /home/takai/git-repo/sfml_test/src/bullet_management.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/bullet_management.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/sub_scene.cpp.o -c /home/takai/git-repo/sfml_test/src/sub_scene.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/sub_scene.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/dependent_util_function.cpp.o -c /home/takai/git-repo/sfml_test/src/dependent_util_function.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/dependent_util_function.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/rotate.cpp.o -c /home/takai/git-repo/sfml_test/src/rotate.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/rotate.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/geometry.cpp.o -c /home/takai/git-repo/sfml_test/src/geometry.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/geometry.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/3d.cpp.o -c /home/takai/git-repo/sfml_test/src/3d.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/3d.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/danmaku_data_structure.cpp.o -c /home/takai/git-repo/sfml_test/src/danmaku_data_structure.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/danmaku_data_structure.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/enemy_management.cpp.o -c /home/takai/git-repo/sfml_test/src/enemy_management.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/enemy_management.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/sound.cpp.o -c /home/takai/git-repo/sfml_test/src/sound.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/sound.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/save_scene.cpp.o -c /home/takai/git-repo/sfml_test/src/save_scene.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/save_scene.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/ranking_scene.cpp.o -c /home/takai/git-repo/sfml_test/src/ranking_scene.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/ranking_scene.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/builtin_enemy.cpp.o -c /home/takai/git-repo/sfml_test/src/builtin_enemy.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/builtin_enemy.cpp"
+},
+{
+  "directory": "/home/takai/git-repo/sfml_test/build",
+  "command": "/usr/bin/g++      -Wall -std=c++17 -Ofast -march=native -I/home/takai/git-repo/sfml_test/include -o CMakeFiles/udjn_race.dir/src/credit_scene.cpp.o -c /home/takai/git-repo/sfml_test/src/credit_scene.cpp",
+  "file": "/home/takai/git-repo/sfml_test/src/credit_scene.cpp"
+}
+]

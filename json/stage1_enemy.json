@@ -1,0 +1,2389 @@
+{
+    "magic": "enemy_description",
+    "enemy": [
+        {
+            "name": "Fairy",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "VECTOR_LINEAR",
+                "speed_x": 2,
+                "speed_y": -3
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 25,
+            "init_hp": 25,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "multi_shot",
+                    "time": 30,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "CurveFairy",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "BEZIER_CURVE",
+                "begin": {
+                    "x": 0,
+                    "y": 0
+                },
+                "middle": {
+                    "x": 0,
+                    "y": 150
+                },
+                "end": {
+                    "x": 900,
+                    "y": 500
+                },
+                "time": 320
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 20,
+            "init_hp": 20,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "multi_shot",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "CurveFairy_HARD",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "BEZIER_CURVE",
+                "begin": {
+                    "x": 0,
+                    "y": 0
+                },
+                "middle": {
+                    "x": 0,
+                    "y": 150
+                },
+                "end": {
+                    "x": 900,
+                    "y": 500
+                },
+                "time": 320
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 25,
+            "init_hp": 25,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "multi_shot_hard",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "CurveFairyEasy",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "BEZIER_CURVE",
+                "begin": {
+                    "x": 0,
+                    "y": 0
+                },
+                "middle": {
+                    "x": 0,
+                    "y": 150
+                },
+                "end": {
+                    "x": 900,
+                    "y": 500
+                },
+                "time": 320
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 20,
+            "init_hp": 20,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "multi_shot_easy",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "RevCurveFairy",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "BEZIER_CURVE",
+                "begin": {
+                    "x": 1000,
+                    "y": 0
+                },
+                "middle": {
+                    "x": 1000,
+                    "y": 150
+                },
+                "end": {
+                    "x": 100,
+                    "y": 500
+                },
+                "time": 320
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 20,
+            "init_hp": 20,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "multi_shot",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "RevCurveFairy_HARD",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "BEZIER_CURVE",
+                "begin": {
+                    "x": 1000,
+                    "y": 0
+                },
+                "middle": {
+                    "x": 1000,
+                    "y": 150
+                },
+                "end": {
+                    "x": 100,
+                    "y": 500
+                },
+                "time": 320
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 20,
+            "init_hp": 20,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "multi_shot_hard",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "RevCurveFairyEasy",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "BEZIER_CURVE",
+                "begin": {
+                    "x": 1000,
+                    "y": 0
+                },
+                "middle": {
+                    "x": 1000,
+                    "y": 150
+                },
+                "end": {
+                    "x": 100,
+                    "y": 500
+                },
+                "time": 320
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 20,
+            "init_hp": 20,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "multi_shot_easy",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "STOP_FAIRY",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STOP"
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 20,
+            "init_hp": 20,
+            "radius": 10,
+            "shot": [
+            ]
+        },
+        {
+            "name": "DOWN_FAIRY",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "VECTOR_LINEAR",
+                "speed_x": 0,
+                "speed_y": -3
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 20,
+            "init_hp": 20,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "multi_shot",
+                    "time": 60,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "multi_shot",
+                    "time": 120,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "multi_shot",
+                    "time": 180,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "DOWN_FAIRY_HARD",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "VECTOR_LINEAR",
+                "speed_x": 0,
+                "speed_y": -3
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 40,
+            "init_hp": 40,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "multi_shot_hard",
+                    "time": 30,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "multi_shot_hard",
+                    "time": 60,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "multi_shot_hard",
+                    "time": 90,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "multi_shot_hard",
+                    "time": 120,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "multi_shot",
+                    "time": 150,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "multi_shot",
+                    "time": 180,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "WayFAIRY",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 5,
+                    "y": 0
+                },
+                "first_speed": {
+                    "x": 1,
+                    "y": 1
+                },
+                "first_limit": 20,
+                "stop": 740,
+                "second_speed": {
+                    "x": -1,
+                    "y": 3
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 500,
+            "init_hp": 500,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "five_way_left",
+                    "time": 120,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "WayFAIRYRight",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 940,
+                    "y": 0
+                },
+                "first_speed": {
+                    "x": -1,
+                    "y": 1
+                },
+                "first_limit": 20,
+                "stop": 740,
+                "second_speed": {
+                    "x": 1,
+                    "y": 3
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 500,
+            "init_hp": 500,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "five_way_right",
+                    "time": 120,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "UDON_EYE_OBJECT_EASY",
+            "TextureID": "UDON_EYE1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.2,
+                "y": 0.2
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STOP"
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 120,
+            "init_hp": 120,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "spell_sub_jiki_easy",
+                    "time": 120,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "UDON_EYE_OBJECT",
+            "TextureID": "UDON_EYE1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.2,
+                "y": 0.2
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STOP"
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 260,
+            "init_hp": 260,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "spell_sub_jiki",
+                    "time": 120,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "NORMAL_ENEMY1",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 0
+                },
+                "first_speed": {
+                    "x": 0,
+                    "y": 1
+                },
+                "first_limit": 100,
+                "stop": 120,
+                "second_speed": {
+                    "x": 1,
+                    "y": 3.5
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 80,
+            "init_hp": 80,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "normal_enemy_shot1",
+                    "time": 120,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "normal_enemy_shot1",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "NORMAL_ENEMY1_HARD",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 0
+                },
+                "first_speed": {
+                    "x": 0,
+                    "y": 1
+                },
+                "first_limit": 100,
+                "stop": 120,
+                "second_speed": {
+                    "x": 1,
+                    "y": 3.5
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 160,
+            "init_hp": 160,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "normal_enemy_shot2",
+                    "time": 120,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "normal_enemy_shot2",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "normal_enemy_shot2",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "WINDER_ENEMY1",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 0
+                },
+                "first_speed": {
+                    "x": 0,
+                    "y": 1
+                },
+                "first_limit": 100,
+                "stop": 120,
+                "second_speed": {
+                    "x": 1,
+                    "y": 3.5
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 80,
+            "init_hp": 80,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "winder",
+                    "time": 120,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "NORMAL_ENEMY2",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 0
+                },
+                "first_speed": {
+                    "x": 0,
+                    "y": 1
+                },
+                "first_limit": 100,
+                "stop": 600,
+                "second_speed": {
+                    "x": 1,
+                    "y": 3.5
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 80,
+            "init_hp": 80,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "delay_circle_loop",
+                    "time": 120,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "SUB_WEAK_ENEMY1",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 600,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "BEZIER_CURVE",
+                "begin":{
+                    "x": 600,
+                    "y": 0
+                },
+                "middle": {
+                    "x": 600,
+                    "y": 300
+                },
+                "end": {
+                    "x": 800,
+                    "y": 1000
+                },
+                "time": 500
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 40,
+            "init_hp": 40,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "multi_shot_out",
+                    "time": 120,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "SUB_WEAK_ENEMY2",
+            "TextureID": "FLOWER1",
+            "point": {
+                "x": 600,
+                "y": 0
+            },
+            "scale": {
+                "x": 1,
+                "y": 1
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "BEZIER_CURVE",
+                "begin":{
+                    "x": 350,
+                    "y": 0
+                },
+                "middle": {
+                    "x": 350,
+                    "y": 300
+                },
+                "end": {
+                    "x": 150,
+                    "y": 1000
+                },
+                "time": 500
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+            ],
+            "max_hp": 40,
+            "init_hp": 40,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "multi_shot_out2",
+                    "time": 120,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GHOST_ENEMY",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "SIN_1",
+                "bias": 40,
+                "dx": 2,
+                "y_origin":  100
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 20,
+            "init_hp": 20,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "simple_multi_shot",
+                    "time": 150,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "REV_GHOST_ENEMY",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "SIN_1",
+                "bias": 40,
+                "dx": -2,
+                "y_origin":  100
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 20,
+            "init_hp": 20,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "simple_multi_shot",
+                    "time": 150,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GHOST_ENEMY2",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "NOKOGIRI",
+                "v_vec1": {
+                    "x": 1,
+                    "y": 0.5
+                },
+                "v_vec2": {
+                    "x": -1,
+                    "y": 0.5
+                },
+                "time_offset": 500
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 20,
+            "init_hp": 20,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "simple_multi_shot",
+                    "time": 150,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "LASER_GHOST_ENEMY",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "NOKOGIRI",
+                "v_vec1": {
+                    "x": 1,
+                    "y": 0.5
+                },
+                "v_vec2": {
+                    "x": -1,
+                    "y": 0.5
+                },
+                "time_offset": 500
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 20,
+            "init_hp": 20,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "laser_test",
+                    "time": 150,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "NOKOGIRI_GHOST_ENEMY",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "NOKOGIRI",
+                "v_vec1": {
+                    "x": 1,
+                    "y": 0.5
+                },
+                "v_vec2": {
+                    "x": -1,
+                    "y": 0.5
+                },
+                "time_offset": 500
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 25,
+            "init_hp": 25,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "simple_multi_shot",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "simple_multi_shot",
+                    "time": 200,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "NOKOGIRI_GHOST_ENEMY_HARD",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "NOKOGIRI",
+                "v_vec1": {
+                    "x": 1,
+                    "y": 0.5
+                },
+                "v_vec2": {
+                    "x": -1,
+                    "y": 0.5
+                },
+                "time_offset": 500
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 30,
+            "init_hp": 30,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "simple_multi_shot_hard",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "simple_multi_shot_hard",
+                    "time": 200,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "simple_multi_shot_hard",
+                    "time": 300,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GHOST_ENEMY3",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 5,
+                    "y": 0
+                },
+                "first_speed": {
+                    "x": 1,
+                    "y": 1
+                },
+                "first_limit": 180,
+                "stop": 500,
+                "second_speed": {
+                    "x": -1,
+                    "y": 3
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 25,
+            "init_hp": 25,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "straight_circle1",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GHOST_ENEMY3b",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 0
+                },
+                "first_speed": {
+                    "x": -1,
+                    "y": 1
+                },
+                "first_limit": 180,
+                "stop": 500,
+                "second_speed": {
+                    "x": 1,
+                    "y": 3
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 25,
+            "init_hp": 25,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "straight_circle1",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+                {
+            "name": "GHOST_ENEMY3_HARD",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 5,
+                    "y": 0
+                },
+                "first_speed": {
+                    "x": 1,
+                    "y": 1
+                },
+                "first_limit": 180,
+                "stop": 500,
+                "second_speed": {
+                    "x": -1,
+                    "y": 3
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 25,
+            "init_hp": 25,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "straight_circle1_hard",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GHOST_ENEMY3b_HARD",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 0
+                },
+                "first_speed": {
+                    "x": -1,
+                    "y": 1
+                },
+                "first_limit": 180,
+                "stop": 500,
+                "second_speed": {
+                    "x": 1,
+                    "y": 3
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 25,
+            "init_hp": 25,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "straight_circle1_hard",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GHOST_ENEMY4a",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 0
+                },
+                "first_speed": {
+                    "x": 6,
+                    "y": 0
+                },
+                "first_limit": 180,
+                "stop": 60,
+                "second_speed": {
+                    "x": 6,
+                    "y": 0
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 20,
+            "init_hp": 20,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "mini_multi_shot",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GHOST_ENEMY4a_HARD",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 0
+                },
+                "first_speed": {
+                    "x": 6,
+                    "y": 0
+                },
+                "first_limit": 180,
+                "stop": 60,
+                "second_speed": {
+                    "x": 6,
+                    "y": 0
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 30,
+            "init_hp": 30,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "slow_multi_shot",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "mini_multi_shot",
+                    "time": 150,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GHOST_ENEMY4b",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 0
+                },
+                "first_speed": {
+                    "x": -6,
+                    "y": 0
+                },
+                "first_limit": 180,
+                "stop": 60,
+                "second_speed": {
+                    "x": -6,
+                    "y": 0
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 20,
+            "init_hp": 20,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "mini_multi_shot",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GHOST_ENEMY4b_HARD",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 0
+                },
+                "first_speed": {
+                    "x": -6,
+                    "y": 0
+                },
+                "first_limit": 180,
+                "stop": 60,
+                "second_speed": {
+                    "x": -6,
+                    "y": 0
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 30,
+            "init_hp": 30,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "slow_multi_shot",
+                    "time": 100,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "mini_multi_shot",
+                    "time": 150,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GHOST_ENEMY5",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 3
+                },
+                "first_speed": {
+                    "x": 1,
+                    "y": 1
+                },
+                "first_limit": 20,
+                "stop": 740,
+                "second_speed": {
+                    "x": -2,
+                    "y": 3
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 60,
+            "init_hp": 60,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "delay_circle_move_linear1",
+                    "time": 60,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "delay_circle_move_linear1",
+                    "time": 120,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "delay_circle_move_linear1",
+                    "time": 180,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GHOST_ENEMY5_HARD",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 3
+                },
+                "first_speed": {
+                    "x": 1,
+                    "y": 1
+                },
+                "first_limit": 20,
+                "stop": 740,
+                "second_speed": {
+                    "x": -2,
+                    "y": 3
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 60,
+            "init_hp": 60,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "delay_circle_move_linear1_hard",
+                    "time": 60,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "delay_circle_move_linear1_hard",
+                    "time": 120,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "function_name": "delay_circle_move_linear1_hard",
+                    "time": 180,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GHOST_ENEMY6a",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 3
+                },
+                "first_speed": {
+                    "x": 1,
+                    "y": 1
+                },
+                "first_limit": 20,
+                "stop": 740,
+                "second_speed": {
+                    "x": -2,
+                    "y": 3
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 70,
+            "init_hp": 70,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "nerai_circle_loop",
+                    "time": 60,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GHOST_ENEMY6a_HARD",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 3
+                },
+                "first_speed": {
+                    "x": 1,
+                    "y": 1
+                },
+                "first_limit": 20,
+                "stop": 740,
+                "second_speed": {
+                    "x": -2,
+                    "y": 3
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 70,
+            "init_hp": 70,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "nerai_circle_loop_hard",
+                    "time": 60,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GHOST_ENEMY6b",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 3
+                },
+                "first_speed": {
+                    "x": 1,
+                    "y": 1
+                },
+                "first_limit": 20,
+                "stop": 740,
+                "second_speed": {
+                    "x": -2,
+                    "y": 3
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 70,
+            "init_hp": 70,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "hazushi_circle_loop",
+                    "time": 60,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GHOST_ENEMY6b_HARD",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 3
+                },
+                "first_speed": {
+                    "x": 1,
+                    "y": 1
+                },
+                "first_limit": 20,
+                "stop": 740,
+                "second_speed": {
+                    "x": -2,
+                    "y": 3
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 70,
+            "init_hp": 70,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "hazushi_circle_loop_hard",
+                    "time": 60,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GHOST_ENEMY7",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 3
+                },
+                "first_speed": {
+                    "x": 1,
+                    "y": 1
+                },
+                "first_limit": 20,
+                "stop": 740,
+                "second_speed": {
+                    "x": -2,
+                    "y": 3
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 200,
+            "init_hp": 200,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "mini_nerai_hazushi_circle_loop",
+                    "time": 60,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        },
+        {
+            "name": "GHOST_ENEMY7_EASY",
+            "TextureID": "GHOST_ENEMY_TX1",
+            "point": {
+                "x": 0,
+                "y": 0
+            },
+            "scale": {
+                "x": 0.05,
+                "y": 0.05
+            },
+            "move_func_description": {
+                "type": "unit",
+                "ID": "STEP",
+                "begin":{
+                    "x": 0,
+                    "y": 3
+                },
+                "first_speed": {
+                    "x": 1,
+                    "y": 1
+                },
+                "first_limit": 20,
+                "stop": 740,
+                "second_speed": {
+                    "x": -2,
+                    "y": 3
+                }
+            },
+            "rot_func_description": {
+                "type": "unit",
+                "ID": "ROTF_STOP"
+            },
+            "effect_description": [
+                {
+                    "ID": "EID_ANIMATION_EFFECT",
+                    "frames": [
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX3",
+                        "GHOST_ENEMY_TX2",
+                        "GHOST_ENEMY_TX1",
+                        "GHOST_ENEMY_TX4",
+                        "GHOST_ENEMY_TX5",
+                        "GHOST_ENEMY_TX4"
+                    ],
+                    "frame_time": 5
+                }
+            ],
+            "max_hp": 200,
+            "init_hp": 200,
+            "radius": 10,
+            "shot": [
+                {
+                    "function_name": "mini_nerai_hazushi_circle_loop_easy",
+                    "time": 60,
+                    "at": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        }
+    ]
+}

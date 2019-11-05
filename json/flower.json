@@ -1,0 +1,77 @@
+{
+    "function": "china-flower",
+    "schedule": [
+        {
+            "type": "unit",
+            "ID": "UZUMAKI",
+            "x": 0,
+            "y": 0,
+            "time": 0,
+            "speed": 180,
+            "r-bias": 350,
+            "origin.x": 0,
+            "origin.y": 0,
+            "angle": 0
+        },
+        {
+            "type": "unit",
+            "ID": "UZUMAKI",
+            "x": 0,
+            "y": 0,
+            "time": 0,
+            "speed": 180,
+            "r-bias": 350,
+            "origin.x": 0,
+            "origin.y": 0,
+            "angle": 60
+        },
+        {
+            "type": "unit",
+            "ID": "UZUMAKI",
+            "x": 0,
+            "y": 0,
+            "time": 0,
+            "speed": 180,
+            "r-bias": 350,
+            "origin.x": 0,
+            "origin.y": 0,
+            "angle": 120
+        },
+        {
+            "type": "unit",
+            "ID": "UZUMAKI",
+            "x": 0,
+            "y": 0,
+            "time": 0,
+            "speed": 180,
+            "r-bias": 350,
+            "origin.x": 0,
+            "origin.y": 0,
+            "angle": 180
+        },
+        {
+            "type": "unit",
+            "ID": "UZUMAKI",
+            "x": 0,
+            "y": 0,
+            "time": 0,
+            "speed": 180,
+            "r-bias": 350,
+            "origin.x": 0,
+            "origin.y": 0,
+            "angle": 240
+        },
+        {
+            "type": "unit",
+            "ID": "UZUMAKI",
+            "x": 0,
+            "y": 0,
+            "time": 0,
+            "speed": 180,
+            "r-bias": 350,
+            "origin.x": 0,
+            "origin.y": 0,
+            "angle": 300
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+       "function_definition": [
+           {
+               "function": "udon-spell3",
+               "schedule": [
+                   {
+                       "type": "macro",
+                       "ID": "UDON_CIRCLE1",
+                       "r": 100,
+                       "speed": 5,
+                       "num": 20,
+                       "time": 0,
+                       "x": 480,
+                       "y": 10,
+                       "phase": 0,
+                       "change_course_time": 200,
+                       "sub_angle": 0.1
+                   }
+               ]
+           }
+       ]
+}

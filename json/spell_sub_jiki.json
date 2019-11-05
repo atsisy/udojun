@@ -1,0 +1,38 @@
+{
+       "function_definition": [
+           {
+               "function": "spell_sub_jiki",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "multi_shot2_hard",
+                       "distance": 50,
+                       "time": 0,
+                       "times": 200,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           },
+           {
+               "function": "spell_sub_jiki_easy",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "multi_shot2_easy",
+                       "distance": 50,
+                       "time": 0,
+                       "times": 400,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           }
+       ]
+}

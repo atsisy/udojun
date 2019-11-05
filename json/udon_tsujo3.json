@@ -1,0 +1,34 @@
+{
+       "function_definition": [
+           {
+               "function": "udon-tsujo3",
+               "schedule": [
+                   {
+                       "type": "macro",
+                       "ID": "UDON_TSUJO3",
+                       "time": 10,
+                       "x": 500,
+                       "y": 80,
+                       "offset": 2,
+                       "r": 30,
+                       "speed": 8
+                   }
+               ]
+           },
+           {
+               "function": "udon-tsujo3-hard",
+               "schedule": [
+                   {
+                       "type": "macro",
+                       "ID": "UDON_TSUJO3_HARD",
+                       "time": 10,
+                       "x": 500,
+                       "y": 80,
+                       "offset": 2,
+                       "r": 30,
+                       "speed": 8
+                   }
+               ]
+           }
+       ]
+}

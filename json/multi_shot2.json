@@ -1,0 +1,38 @@
+{
+       "function_definition": [
+           {
+               "function": "multi_shot2",
+               "schedule": [
+                   {
+                       "type": "dynamic-macro",
+                       "ID": "MULTI_SHOT",
+                       "texture": "CIRCLE_PURPLE",
+                       "x": 0,
+                       "y": 100,
+                       "num": 5,
+                       "speed": 4,
+                       "distance": 5,
+                       "time": 0,
+                       "bias": 1
+                   }
+               ]
+           },
+           {
+               "function": "multi_shot2_easy",
+               "schedule": [
+                   {
+                       "type": "dynamic-macro",
+                       "ID": "MULTI_SHOT",
+                       "texture": "CIRCLE_PURPLE",
+                       "x": 0,
+                       "y": 100,
+                       "num": 4,
+                       "speed": 3.2,
+                       "distance": 5,
+                       "time": 0,
+                       "bias": 1
+                   }
+               ]
+           }
+       ]
+}

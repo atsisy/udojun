@@ -1,0 +1,29 @@
+{
+       "function_definition": [
+           {
+               "function": "junko_spell1",
+               "schedule": [
+                   {
+                       "type": "dynamic-macro",
+                       "ID": "JUNKO_SPELL1",
+                       "texture": "CIRCLE_BLUE",
+                       "curve_middle": {
+                           "x": 850,
+                           "y": 400
+                       },
+                       "curve_end": {
+                           "x": 450,
+                           "y": 0
+                       },
+                       "time_offset": 4,
+                       "r": 13,
+                       "speed": 0,
+                       "num": 64,
+                       "time": 0,
+                       "x": 0,
+                       "y": 0
+                   }
+               ]
+           }
+       ]
+}

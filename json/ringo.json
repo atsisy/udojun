@@ -1,0 +1,102 @@
+{
+    "function_definition": [
+        {
+            "function": "ringo",
+            "schedule": [
+                {
+                    "type": "macro",
+                    "ID": "CIRCLE",
+                    "r": 75,
+                    "quantity": 24,
+                    "time": 180,
+                    "x": 500,
+                    "y": 40,
+                    "phase": 0
+                },
+                {
+                    "type": "macro",
+                    "ID": "N_WAY",
+                    "r": 75,
+                    "angle": 0.785,
+                    "texture": "BULLET_HART",
+                    "width": 0.2,
+                    "quantity": 3,
+                    "time": 200,
+                    "x": 20,
+                    "y": 750,
+                    "speed": 6
+                },
+                {
+                    "type": "macro",
+                    "ID": "CIRCLE",
+                    "r": 75,
+                    "quantity": 24,
+                    "time": 190,
+                    "x": 500,
+                    "y": 40,
+                    "phase": 0.1
+                },
+                {
+                    "type": "macro",
+                    "ID": "CIRCLE",
+                    "r": 75,
+                    "quantity": 24,
+                    "time": 200,
+                    "x": 500,
+                    "y": 40,
+                    "phase": 0.2
+                },
+                {
+                    "type": "macro",
+                    "ID": "CIRCLE",
+                    "r": 75,
+                    "quantity": 24,
+                    "time": 210,
+                    "x": 500,
+                    "y": 40,
+                    "phase": 0.3
+                },
+                {
+                    "type": "macro",
+                    "ID": "CIRCLE",
+                    "r": 75,
+                    "quantity": 24,
+                    "time": 220,
+                    "x": 500,
+                    "y": 40,
+                    "phase": 0.4
+                },
+                {
+                    "type": "macro",
+                    "ID": "CIRCLE",
+                    "r": 75,
+                    "quantity": 24,
+                    "time": 230,
+                    "x": 500,
+                    "y": 40,
+                    "phase": 0.5
+                },
+                {
+                    "type": "macro",
+                    "ID": "CIRCLE",
+                    "r": 75,
+                    "quantity": 24,
+                    "time": 240,
+                    "x": 500,
+                    "y": 40,
+                    "phase": 0.6
+                },
+                {
+                    "type": "macro",
+                    "ID": "CIRCLE",
+                    "r": 75,
+                    "quantity": 24,
+                    "time": 250,
+                    "x": 500,
+                    "y": 40,
+                    "phase": 0.7
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+{
+       "function_definition": [
+           {
+               "function": "udon-tsujo1-elem",
+               "schedule": [
+                   {
+                       "type": "macro",
+                       "ID": "CIRCLE",
+                       "r": 80,
+                       "quantity": 24,
+                       "time": 0,
+                       "x": 0,
+                       "y": 0,
+                       "phase": 0
+                   }
+               ]
+           }
+       ]
+}

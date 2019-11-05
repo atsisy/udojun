@@ -1,0 +1,22 @@
+{
+    "function": "junko1",
+    "schedule": [
+        {
+            "type": "function-call",
+            "function": "china-flower",
+            "time": 0,
+            "position": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        {
+            "type": "dynamic-unit",
+            "ID": "AIMING_SELF_LINEAR",
+            "texture": "BULLET_BIG_RED",
+            "time": 0,
+            "x": 0,
+            "y": 0
+        }
+    ]
+}

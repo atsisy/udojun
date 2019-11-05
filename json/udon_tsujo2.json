@@ -1,0 +1,54 @@
+{
+       "function_definition": [
+           {
+               "function": "udon-tsujo2",
+               "schedule": [
+                   {
+                       "type": "macro",
+                       "ID": "UDON_TSUJO2",
+                       "time": 10,
+                       "x": 500,
+                       "y": 40,
+                       "phase": 0.0
+                   },
+                   {
+                       "type": "macro",
+                       "ID": "UDON_TSUJO2",
+                       "time": 10,
+                       "x": 800,
+                       "y": 40,
+                       "phase": 1.5
+                   }
+               ]
+           },
+           {
+               "function": "udon-tsujo2-hard",
+               "schedule": [
+                   {
+                       "type": "macro",
+                       "ID": "UDON_TSUJO2_HARD",
+                       "time": 10,
+                       "x": 100,
+                       "y": 40,
+                       "phase": 0.0
+                   },
+                   {
+                       "type": "macro",
+                       "ID": "UDON_TSUJO2_HARD",
+                       "time": 10,
+                       "x": 800,
+                       "y": 40,
+                       "phase": 1.5
+                   },
+                   {
+                       "type": "macro",
+                       "ID": "UDON_TSUJO2_HARD",
+                       "time": 10,
+                       "x": 450,
+                       "y": 40,
+                       "phase": 1.5
+                   }
+               ]
+           }
+       ]
+}

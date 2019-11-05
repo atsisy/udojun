@@ -1,0 +1,146 @@
+{
+       "function_definition": [
+           {
+               "function": "normal_enemy_shot1",
+               "schedule": [
+                   {
+                       "type": "macro",
+                       "ID": "NORMAL_ENEMY_SHOT1",
+                       "r": 70,
+                       "texture": "ELLIPSE_BLUE",
+                       "speed": 2,
+                       "num": 24,
+                       "phase": 0,
+                       "time": 0,
+                       "x": 0,
+                       "y": 0
+                   },
+                   {
+                       "type": "macro",
+                       "ID": "NORMAL_ENEMY_SHOT1",
+                       "r": 70,
+                       "texture": "ELLIPSE_BLUE",
+                       "speed": 2,
+                       "num": 24,
+                       "phase": 0.05,
+                       "time": 10,
+                       "x": 0,
+                       "y": 0
+                   },
+                   {
+                       "type": "macro",
+                       "ID": "NORMAL_ENEMY_SHOT1",
+                       "r": 70,
+                       "texture": "ELLIPSE_BLUE",
+                       "speed": 2,
+                       "num": 24,
+                       "phase": 0.1,
+                       "time": 20,
+                       "x": 0,
+                       "y": 0
+                   },
+                   {
+                       "type": "macro",
+                       "ID": "NORMAL_ENEMY_SHOT1",
+                       "r": 70,
+                       "texture": "ELLIPSE_BLUE",
+                       "speed": 2,
+                       "num": 24,
+                       "phase": 0.15,
+                       "time": 30,
+                       "x": 0,
+                       "y": 0
+                   }
+               ]
+           },
+           {
+               "function": "normal_enemy_shot2",
+               "schedule": [
+                   {
+                       "type": "macro",
+                       "ID": "NORMAL_ENEMY_SHOT1",
+                       "r": 70,
+                       "texture": "ELLIPSE_BLUE",
+                       "speed": 1.8,
+                       "num": 40,
+                       "phase": 0,
+                       "time": 0,
+                       "x": 0,
+                       "y": 0
+                   },
+                   {
+                       "type": "macro",
+                       "ID": "NORMAL_ENEMY_SHOT1",
+                       "r": 70,
+                       "texture": "ELLIPSE_BLUE",
+                       "speed": 1.8,
+                       "num": 40,
+                       "phase": 0.05,
+                       "time": 10,
+                       "x": 0,
+                       "y": 0
+                   },
+                   {
+                       "type": "macro",
+                       "ID": "NORMAL_ENEMY_SHOT1",
+                       "r": 31.8,
+                       "texture": "ELLIPSE_BLUE",
+                       "speed": 1.8,
+                       "num": 40,
+                       "phase": 0.1,
+                       "time": 20,
+                       "x": 0,
+                       "y": 0
+                   },
+                   {
+                       "type": "macro",
+                       "ID": "NORMAL_ENEMY_SHOT1",
+                       "r": 70,
+                       "texture": "ELLIPSE_BLUE",
+                       "speed": 1.8,
+                       "num": 40,
+                       "phase": 0.15,
+                       "time": 30,
+                       "x": 0,
+                       "y": 0
+                   },
+                   {
+                       "type": "macro",
+                       "ID": "NORMAL_ENEMY_SHOT1",
+                       "r": 70,
+                       "texture": "ELLIPSE_BLUE",
+                       "speed": 1.8,
+                       "num": 40,
+                       "phase": 0.2,
+                       "time": 40,
+                       "x": 0,
+                       "y": 0
+                   },
+                   {
+                       "type": "macro",
+                       "ID": "NORMAL_ENEMY_SHOT1",
+                       "r": 70,
+                       "texture": "ELLIPSE_BLUE",
+                       "speed": 1.8,
+                       "num": 40,
+                       "phase": 0.25,
+                       "time": 50,
+                       "x": 0,
+                       "y": 0
+                   },
+                   {
+                       "type": "macro",
+                       "ID": "NORMAL_ENEMY_SHOT1",
+                       "r": 70,
+                       "texture": "ELLIPSE_BLUE",
+                       "speed": 1.8,
+                       "num": 40,
+                       "phase": 0.3,
+                       "time": 60,
+                       "x": 0,
+                       "y": 0
+                   }
+               ]
+           }
+       ]
+}

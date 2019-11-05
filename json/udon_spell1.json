@@ -1,0 +1,108 @@
+{
+    "function_definition": [
+        {
+            "function": "udon-spell1-easy",
+            "schedule": [
+                {
+                    "type": "dynamic-macro",
+                    "ID": "UDON_SPELL1",
+                    "r": 200,
+                    "speed_x": 4.5,
+                    "speed_y": 4.5,
+                    "switch_time": 5,
+                    "quantity": 24,
+                    "time": 0,
+                    "x": 480,
+                    "y": 10,
+                    "phase": 0
+                },
+                {
+                    "type": "dynamic-macro",
+                    "ID": "UDON_SPELL1",
+                    "r": 200,
+                    "speed_x": 4.5,
+                    "speed_y": 4.5,
+                    "switch_time": 5,
+                    "quantity": 24,
+                    "time": 30,
+                    "x": 480,
+                    "y": 10,
+                    "phase": 0
+                }
+            ]
+        },
+        {
+               "function": "udon-spell1-loop-easy",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "udon-spell1-easy",
+                       "distance": 125,
+                       "time": 0,
+                       "times": 256,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+        },
+        {
+            "function": "udon-spell1",
+            "schedule": [
+                {
+                    "type": "dynamic-macro",
+                    "ID": "UDON_SPELL1",
+                    "r": 200,
+                    "speed_x": 5,
+                    "speed_y": 5,
+                    "switch_time": 5,
+                    "quantity": 24,
+                    "time": 0,
+                    "x": 480,
+                    "y": 10,
+                    "phase": 0
+                },
+                {
+                    "type": "dynamic-macro",
+                    "ID": "UDON_SPELL1",
+                    "r": 200,
+                    "speed_x": 5.5,
+                    "speed_y": 5.5,
+                    "switch_time": 5,
+                    "quantity": 24,
+                    "time": 30,
+                    "x": 480,
+                    "y": 10,
+                    "phase": 0
+                }
+            ]
+                },
+        {
+            "function": "udon-spell1-loop",
+            "schedule": [
+                {
+                    "type": "function-call",
+                    "function": "builtin-for",
+                    "call": "udon-spell1",
+                    "distance": 110,
+                    "time": 0,
+                    "times": 256,
+                    "position": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "move": {
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ]
+        }
+    ]
+}

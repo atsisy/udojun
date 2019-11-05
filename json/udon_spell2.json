@@ -1,0 +1,80 @@
+{
+       "function_definition": [
+           {
+               "function": "udon-spell2-easy",
+               "schedule": [
+                   {
+                       "type": "dynamic-macro",
+                       "ID": "UDON_SPELL2",
+                       "x": 0,
+                       "y": 0,
+                       "r": 90,
+                       "speed": 1.5,
+                       "enable_time": 120,
+                       "disable_time": 60,
+                       "num": 34,
+                       "time": 0
+                   }
+               ]
+           },
+           {
+               "function": "udon-spell2-loop-easy",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "udon-spell2-easy",
+                       "distance": 450,
+                       "time": 0,
+                       "times": 100,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           },
+           {
+               "function": "udon-spell2",
+               "schedule": [
+                   {
+                       "type": "dynamic-macro",
+                       "ID": "UDON_SPELL2",
+                       "x": 0,
+                       "y": 0,
+                       "r": 90,
+                       "speed": 1.8,
+                       "enable_time": 120,
+                       "disable_time": 60,
+                       "num": 51,
+                       "time": 0
+                   }
+               ]
+           },
+           {
+               "function": "udon-spell2-loop",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "udon-spell2",
+                       "distance": 300,
+                       "time": 0,
+                       "times": 256,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           }
+       ]
+}

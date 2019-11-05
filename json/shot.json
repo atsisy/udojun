@@ -1,0 +1,21 @@
+{
+       "function_definition": [
+           {
+               "function": "junko_shot_fast_lv1",
+               "schedule": [
+                   {
+                       "type": "macro",
+                       "ID": "JUNKO_SHOT_FAST_LV2",
+                       "x": 0,
+                       "y": 0,
+                       "time": 0,
+                       "texture1": "BULLET_HART",
+                       "texture2": "JUNKO_HART_BULLET",
+                       "speed": 24,
+                       "conflictable": "true",
+                       "grazable": "false"
+                   }
+               ]
+           }
+       ]
+}

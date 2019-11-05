@@ -1,0 +1,18 @@
+{
+    "function_definition": [
+        {
+            "function": "hart",
+            
+            "schedule": [
+                {
+                    "type": "dynamic-macro",
+                    "extra": "begin-at-self",
+                    "ID": "HART",
+                    "r": 13,
+                    "quantity": 48,
+                    "time": 170
+                }
+            ]
+        }
+    ]
+}

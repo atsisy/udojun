@@ -1,0 +1,22 @@
+{
+       "function_definition": [
+           {
+               "function": "ellipse",
+               "schedule": [
+                   {
+                       "type": "dynamic-macro",
+                       "ID": "UDON_ELLIPSE",
+                       "r": 200,
+                       "speed_x": 5,
+                       "speed_y": 5,
+                       "switch_time": 5,
+                       "quantity": 24,
+                       "time": 200,
+                       "x": 480,
+                       "y": 400,
+                       "phase": 0
+                   }
+               ]
+           }
+       ]
+}

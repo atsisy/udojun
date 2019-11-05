@@ -1,0 +1,25 @@
+{
+       "function_definition": [
+           {
+               "function": "udon-spell3-loop",
+               "schedule": [
+                   {
+                       "type": "function-call",
+                       "function": "builtin-for",
+                       "call": "udon-spell3",
+                       "distance": 100,
+                       "time": 0,
+                       "times": 128,
+                       "position": {
+                           "x": 0,
+                           "y": 0
+                       },
+                       "move": {
+                           "x": 0,
+                           "y": 0
+                       }
+                   }
+               ]
+           }
+       ]
+}
